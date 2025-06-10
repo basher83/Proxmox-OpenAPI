@@ -1,6 +1,8 @@
 # Proxmox VE API OpenAPI Specification
 
-This repository contains a complete OpenAPI 3.0.3 specification for the Proxmox Virtual Environment API, automatically generated from the official Proxmox API documentation.
+> 📖 **Main Documentation**: See the [main README](../README.md) for complete project overview and both PVE/PBS specifications.
+
+This directory contains a complete OpenAPI 3.0.3 specification for the Proxmox Virtual Environment API, automatically generated from the official Proxmox API documentation.
 
 ## 📊 Specification Overview
 
@@ -14,8 +16,8 @@ This repository contains a complete OpenAPI 3.0.3 specification for the Proxmox 
 
 ### **Primary Specifications**
 
-- `proxmox-ve-api-complete.json` - **1.8MB** comprehensive JSON specification
-- `proxmox-ve-api-complete.yaml` - **1.2MB** comprehensive YAML specification
+- `pve-api.json` - **1.8MB** comprehensive JSON specification
+- `pve-api.yaml` - **1.2MB** comprehensive YAML specification
 
 ### **Generation Scripts**
 
@@ -24,11 +26,11 @@ This repository contains a complete OpenAPI 3.0.3 specification for the Proxmox 
 - Various analysis and parsing scripts
 
 ## Roadmap
-[ ] Improve `create_complete_openapi.py` buy pulling from [PVE API Viewer](https://pve.proxmox.com/pve-docs/api-viewer/index.html) instead of working from already cloned version
 
-[ ] CI/CD Pipeline to automate the whole process and keep the specs up to date
-
-[ ] Add Proxmox Backup Server specs
+- [ ] **Direct API Fetching** - Pull from [PVE API Viewer](https://pve.proxmox.com/pve-docs/api-viewer/index.html) instead of working from downloaded files
+- [ ] **Unified Parser Framework** - Combine with PBS parsing logic to reduce code duplication
+- [ ] **Enhanced Validation** - More comprehensive OpenAPI spec validation
+- [ ] **Client Libraries** - Pre-generated clients in multiple languages
 
 ## 🎯 Coverage
 
@@ -77,7 +79,7 @@ The API supports multiple authentication methods:
 ```bash
 # Use the JSON specification
 curl -H "Content-Type: application/json" \
-     -d @proxmox-ve-api-complete.json \
+     -d @pve-api.json \
      https://editor.swagger.io
 ```
 
@@ -85,7 +87,7 @@ curl -H "Content-Type: application/json" \
 
 ```bash
 # Use the YAML specification (more readable)
-cat proxmox-ve-api-complete.yaml
+cat pve-api.yaml
 ```
 
 ### Code Generation
@@ -93,7 +95,7 @@ cat proxmox-ve-api-complete.yaml
 ```bash
 # Generate client code using OpenAPI Generator
 openapi-generator-cli generate \
-  -i proxmox-ve-api-complete.yaml \
+  -i pve-api.yaml \
   -g python \
   -o ./proxmox-client
 ```
@@ -109,14 +111,16 @@ openapi-generator-cli generate \
 
 ### Requirements
 
-- Python 3.7+
-- PyYAML (for YAML conversion)
+- Python 3.8+
+- [UV](https://github.com/astral-sh/uv) (recommended) or PyYAML for YAML conversion
 
 ### Generate New Specification
 
 ```bash
+cd scripts/pve
 python3 create_complete_openapi.py
 python3 convert_to_yaml.py
+# Files will be generated as pve-api.json and pve-api.yaml
 ```
 
 ## 📝 License

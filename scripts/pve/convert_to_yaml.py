@@ -52,8 +52,8 @@ def convert_json_to_yaml(input_file, output_file):
         return False
 
 def main():
-    input_file = "proxmox-ve-api-complete.json"
-    output_file = "proxmox-ve-api-complete.yaml"
+    input_file = "pve-api.json"
+    output_file = "pve-api.yaml"
     
     print("🚀 Proxmox VE OpenAPI JSON to YAML Converter")
     print("=" * 50)

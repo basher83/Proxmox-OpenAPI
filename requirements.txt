@@ -1,0 +1,32 @@
+# Note: This project now uses UV for Python package management.
+# Dependencies are managed in pyproject.toml instead of this file.
+# 
+# To install dependencies, use:
+#   uv sync
+#
+# To install optional dependencies:
+#   uv sync --extra dev
+#   uv sync --extra validation
+#   uv sync --extra enhanced
+#   uv sync --extra all
+#
+# For legacy pip compatibility, the core dependencies are listed below:
+
+# Core dependency for YAML processing
+PyYAML>=6.0
+
+# Optional dependencies (install manually with pip if not using UV):
+# Development tools:
+# pytest>=7.0.0
+# black>=23.0.0
+# ruff>=0.1.0
+# mypy>=1.0.0
+
+# Validation tools:
+# openapi-spec-validator>=0.5.0
+# jsonschema>=4.0.0
+
+# Enhanced features:
+# orjson>=3.8.0
+# requests>=2.28.0
+# rich>=13.0.0 

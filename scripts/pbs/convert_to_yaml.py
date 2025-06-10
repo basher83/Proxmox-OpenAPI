@@ -35,8 +35,8 @@ def main():
     workspace_root = os.path.dirname(os.path.dirname(script_dir))
     
     # Define input and output paths
-    json_file = os.path.join(workspace_root, 'PBS', 'OpenAPI-spec', 'pbs-api.json')
-    yaml_file = os.path.join(workspace_root, 'PBS', 'OpenAPI-spec', 'pbs-api.yaml')
+    json_file = os.path.join(workspace_root, 'proxmox-backup-server', 'pbs-api.json')
+    yaml_file = os.path.join(workspace_root, 'proxmox-backup-server', 'pbs-api.yaml')
     
     if not os.path.exists(json_file):
         print(f"Error: JSON file not found at {json_file}")

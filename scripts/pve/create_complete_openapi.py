@@ -5,6 +5,7 @@ Final comprehensive parser
 """
 
 import json
+import os
 import re
 import sys
 from typing import Dict, List, Any, Set
@@ -506,9 +507,29 @@ def convert_returns_to_openapi_schema(returns_info: Dict) -> Dict:
         return {'type': return_type}
 
 def main():
-    js_file = "Proxmox VE API Documentation_files/apidoc.js"
+    # Look for apidoc.js in the current directory (when run from scripts/pve)
+    # or in the proxmox-virtual-environment directory
+    possible_paths = [
+        "apidoc.js",
+        "../../proxmox-virtual-environment/apidoc.js",
+        "../proxmox-virtual-environment/apidoc.js"
+    ]
+    
+    js_file = None
+    for path in possible_paths:
+        if os.path.exists(path):
+            js_file = path
+            break
+    
+    if not js_file:
+        print("❌ Error: Could not find apidoc.js file")
+        print("   Expected locations:")
+        for path in possible_paths:
+            print(f"     - {path}")
+        return
     
     print("🚀 Creating complete Proxmox VE OpenAPI specification...")
+    print(f"📂 Using input file: {js_file}")
     
     try:
         with open(js_file, 'r', encoding='utf-8') as f:
@@ -532,7 +553,7 @@ def main():
         openapi_spec = create_openapi_specification(path_info)
         
         # Write to file
-        output_file = 'proxmox-ve-api-complete.json'
+        output_file = 'pve-api.json'
         with open(output_file, 'w', encoding='utf-8') as f:
             json.dump(openapi_spec, f, indent=2, ensure_ascii=False)
         

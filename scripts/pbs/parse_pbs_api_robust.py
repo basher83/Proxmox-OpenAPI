@@ -542,7 +542,7 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     workspace_root = os.path.dirname(os.path.dirname(script_dir))
     
-    js_file_path = os.path.join(workspace_root, 'PBS', 'Proxmox Backup Server API Documentation_files', 'apidoc.js')
+    js_file_path = os.path.join(workspace_root, 'proxmox-backup-server', 'apidoc.js')
     
     if not os.path.exists(js_file_path):
         print(f"Error: Could not find apidoc.js at {js_file_path}")
@@ -560,7 +560,7 @@ def main():
         openapi_spec = create_openapi_spec(endpoints)
         
         # Create output directory
-        pbs_dir = os.path.join(workspace_root, 'PBS', 'OpenAPI-spec')
+        pbs_dir = os.path.join(workspace_root, 'proxmox-backup-server')
         os.makedirs(pbs_dir, exist_ok=True)
         
         # Write JSON file

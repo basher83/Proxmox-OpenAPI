@@ -1,0 +1,241 @@
+name: Update Proxmox API Specifications
+
+on:
+  schedule:
+    # Run weekly on Sundays at 2 AM UTC
+    - cron: "0 2 * * 0"
+  workflow_dispatch:
+    # Allow manual triggering
+    inputs:
+      api_type:
+        description: "API type to update"
+        required: true
+        default: "both"
+        type: choice
+        options:
+          - both
+          - pve
+          - pbs
+
+jobs:
+  update-pve-specs:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.api_type == 'both' || github.event.inputs.api_type == 'pve' || github.event_name == 'schedule' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Python dependencies
+        run: uv sync
+
+      - name: Download latest PVE API documentation
+        run: |
+          # Download the latest PVE API viewer page
+          curl -L "https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js" \
+               -o proxmox-virtual-environment/apidoc.js
+
+      - name: Generate PVE OpenAPI specification
+        run: |
+          cd scripts/pve
+          uv run python create_complete_openapi.py
+          uv run python convert_to_yaml.py
+
+          # Move generated files to correct location
+          mv pve-api.json ../../proxmox-virtual-environment/
+          mv pve-api.yaml ../../proxmox-virtual-environment/
+
+      - name: Validate PVE OpenAPI specification
+        run: |
+          # Install OpenAPI validator
+          npm install -g @apidevtools/swagger-parser
+
+          # Validate the generated specs
+          swagger-parser validate proxmox-virtual-environment/pve-api.json
+          swagger-parser validate proxmox-virtual-environment/pve-api.yaml
+
+      - name: Update PVE README with stats
+        run: |
+          cd proxmox-virtual-environment
+          uv run python << 'EOF'
+          import json
+          import re
+
+          # Load the API spec
+          with open('pve-api.json', 'r') as f:
+              spec = json.load(f)
+
+          # Calculate statistics
+          total_paths = len(spec.get('paths', {}))
+          total_operations = sum(len([k for k in path.keys() if k in ['get', 'post', 'put', 'delete', 'patch']]) 
+                                for path in spec['paths'].values())
+
+          # Update README
+          with open('README.md', 'r') as f:
+              content = f.read()
+
+          # Update statistics in README
+          content = re.sub(r'- \*\*Total Endpoints\*\*: \d+ unique API paths', 
+                          f'- **Total Endpoints**: {total_paths} unique API paths', content)
+          content = re.sub(r'- \*\*Total Operations\*\*: \d+ HTTP operations', 
+                          f'- **Total Operations**: {total_operations} HTTP operations', content)
+
+          with open('README.md', 'w') as f:
+              f.write(content)
+          EOF
+
+  update-pbs-specs:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.api_type == 'both' || github.event.inputs.api_type == 'pbs' || github.event_name == 'schedule' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install Python dependencies
+        run: uv sync
+
+      - name: Download latest PBS API documentation
+        run: |
+          # Download the latest PBS API viewer page  
+          curl -L "https://pbs.proxmox.com/docs/api-viewer/apidoc.js" \
+               -o proxmox-backup-server/apidoc.js
+
+      - name: Generate PBS OpenAPI specification
+        run: |
+          cd scripts/pbs
+          uv run python parse_pbs_api_robust.py
+          uv run python convert_to_yaml.py
+
+      - name: Validate PBS OpenAPI specification
+        run: |
+          # Install OpenAPI validator
+          npm install -g @apidevtools/swagger-parser
+
+          # Validate the generated specs
+          swagger-parser validate proxmox-backup-server/pbs-api.json
+          swagger-parser validate proxmox-backup-server/pbs-api.yaml
+
+      - name: Update PBS README with stats
+        run: |
+          cd proxmox-backup-server
+          uv run python << 'EOF'
+          import json
+          import re
+          import os
+
+          # Load the API spec
+          with open('pbs-api.json', 'r') as f:
+              spec = json.load(f)
+
+          # Calculate statistics
+          total_paths = len(spec.get('paths', {}))
+          total_operations = sum(len([k for k in path.keys() if k in ['get', 'post', 'put', 'delete', 'patch']]) 
+                                for path in spec['paths'].values())
+
+          # Get file sizes
+          json_size = os.path.getsize('pbs-api.json')
+          yaml_size = os.path.getsize('pbs-api.yaml')
+
+          # Update README
+          with open('README.md', 'r') as f:
+              content = f.read()
+
+          # Update statistics in README
+          content = re.sub(r'- \*\*Total Endpoints\*\*: \d+ unique API paths', 
+                          f'- **Total Endpoints**: {total_paths} unique API paths', content)
+          content = re.sub(r'- \*\*Total Operations\*\*: \d+ HTTP operations', 
+                          f'- **Total Operations**: {total_operations} HTTP operations', content)
+          content = re.sub(r'- `pbs-api\.json` - \*\*[\d.]+\w+\*\* comprehensive JSON', 
+                          f'- `pbs-api.json` - **{json_size/1024/1024:.1f}MB** comprehensive JSON', content)
+          content = re.sub(r'- `pbs-api\.yaml` - \*\*[\d.]+\w+\*\* comprehensive YAML', 
+                          f'- `pbs-api.yaml` - **{yaml_size/1024:.0f}KB** comprehensive YAML', content)
+
+          with open('README.md', 'w') as f:
+              f.write(content)
+          EOF
+
+  commit-changes:
+    runs-on: ubuntu-latest
+    needs: [update-pve-specs, update-pbs-specs]
+    if: always() && (needs.update-pve-specs.result == 'success' || needs.update-pbs-specs.result == 'success')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Commit and push changes
+        run: |
+          git add .
+
+          # Check if there are any changes
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          # Create commit message
+          commit_msg="chore: Update Proxmox API specifications\n\n"
+
+          if [[ "${{ needs.update-pve-specs.result }}" == "success" ]]; then
+            commit_msg+="- Updated PVE API specifications\n"
+          fi
+
+          if [[ "${{ needs.update-pbs-specs.result }}" == "success" ]]; then
+            commit_msg+="- Updated PBS API specifications\n"
+          fi
+
+          commit_msg+="\nAuto-generated by GitHub Actions on $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+
+          git commit -m "$commit_msg"
+          git push
+
+  notify-completion:
+    runs-on: ubuntu-latest
+    needs: [commit-changes]
+    if: always()
+
+    steps:
+      - name: Notify completion
+        run: |
+          if [[ "${{ needs.commit-changes.result }}" == "success" ]]; then
+            echo "✅ API specifications updated successfully"
+          else
+            echo "❌ Failed to update API specifications"
+            exit 1
+          fi

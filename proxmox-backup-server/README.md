@@ -1,6 +1,8 @@
 # Proxmox Backup Server API OpenAPI Specification
 
-This repository contains a complete OpenAPI 3.0.3 specification for the Proxmox Backup Server API, automatically generated from the official Proxmox PBS API documentation.
+> 📖 **Main Documentation**: See the [main README](../README.md) for complete project overview and both PVE/PBS specifications.
+
+This directory contains a complete OpenAPI 3.0.3 specification for the Proxmox Backup Server API, automatically generated from the official Proxmox PBS API documentation.
 
 ## 📊 Specification Overview
 
@@ -126,18 +128,19 @@ curl -k -H "Authorization: PBSAPIToken=USER@REALM!TOKENID=UUID" \
 
 ### Requirements
 
-- Python 3.7+
-- PyYAML (for YAML conversion)
+- Python 3.8+
+- [UV](https://github.com/astral-sh/uv) (recommended) or PyYAML for YAML conversion
 - Node.js (optional, for enhanced JavaScript parsing)
 
 ### Generate New Specification
 
 ```bash
 # Run the robust parser
-python3 ../scripts/pbs/parse_pbs_api_robust.py
+cd scripts/pbs
+python3 parse_pbs_api_robust.py
 
 # Convert to YAML (if needed)
-python3 ../scripts/pbs/convert_to_yaml.py
+python3 convert_to_yaml.py
 ```
 
 ## 🔍 API Tags
