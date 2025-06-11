@@ -40,7 +40,7 @@ def main():
     
     if not os.path.exists(json_file):
         print(f"Error: JSON file not found at {json_file}")
-        print("Please run the PBS API parser first.")
+        print("Please run generate_openapi.py first.")
         return 1
     
     # Convert JSON to YAML

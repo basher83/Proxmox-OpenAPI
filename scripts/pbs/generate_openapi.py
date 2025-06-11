@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Robust parser for Proxmox Backup Server API documentation.
-Handles complex JavaScript patterns and regex strings.
+Generate OpenAPI specification for Proxmox Backup Server.
+Parses PBS API documentation and creates comprehensive OpenAPI 3.0.3 specification.
 """
 
 import json

@@ -23,14 +23,14 @@ Both specifications are available in JSON and YAML formats with proper naming co
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Proxmox-OpenAPI.git
+git clone https://github.com/basher83/Proxmox-OpenAPI.git
 cd Proxmox-OpenAPI
 
 # Use PVE specification
-curl -o pve-spec.json https://raw.githubusercontent.com/your-username/Proxmox-OpenAPI/main/proxmox-virtual-environment/pve-api.json
+curl -o pve-spec.json https://raw.githubusercontent.com/basher83/Proxmox-OpenAPI/main/proxmox-virtual-environment/pve-api.json
 
 # Use PBS specification
-curl -o pbs-spec.json https://raw.githubusercontent.com/your-username/Proxmox-OpenAPI/main/proxmox-backup-server/pbs-api.json
+curl -o pbs-spec.json https://raw.githubusercontent.com/basher83/Proxmox-OpenAPI/main/proxmox-backup-server/pbs-api.json
 ```
 
 ### Generate Client Code
@@ -71,8 +71,12 @@ Proxmox-OpenAPI/
 │   ├── apidoc.js                  # Source API documentation
 │   └── README.md                  # PBS-specific documentation
 ├── scripts/                       # Generation scripts
-│   ├── pve/                       # PVE parsing scripts
-│   └── pbs/                       # PBS parsing scripts
+│   ├── pve/                       # PVE OpenAPI generation scripts
+│   │   ├── generate_openapi.py    # Main PVE OpenAPI generator
+│   │   └── convert_to_yaml.py     # JSON to YAML converter
+│   └── pbs/                       # PBS OpenAPI generation scripts
+│       ├── generate_openapi.py    # Main PBS OpenAPI generator
+│       └── convert_to_yaml.py     # JSON to YAML converter
 ├── .github/workflows/             # CI/CD automation (planned)
 ├── LICENSE                        # AGPL-3.0 license
 └── README.md                      # This file
@@ -93,7 +97,7 @@ Proxmox-OpenAPI/
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Clone and setup the project
-git clone https://github.com/your-username/Proxmox-OpenAPI.git
+git clone https://github.com/basher83/Proxmox-OpenAPI.git
 cd Proxmox-OpenAPI
 
 # Install dependencies
@@ -123,12 +127,12 @@ pip install -e .
 ```bash
 # PVE API
 cd scripts/pve
-uv run python create_complete_openapi.py
+uv run python generate_openapi.py
 uv run python convert_to_yaml.py
 
 # PBS API
 cd scripts/pbs
-uv run python parse_pbs_api_robust.py
+uv run python generate_openapi.py
 uv run python convert_to_yaml.py
 
 # Or use the unified parser (future)
@@ -141,12 +145,12 @@ uv run proxmox-openapi pbs proxmox-backup-server/apidoc.js proxmox-backup-server
 ```bash
 # PVE API
 cd scripts/pve
-python3 create_complete_openapi.py
+python3 generate_openapi.py
 python3 convert_to_yaml.py
 
 # PBS API
 cd scripts/pbs
-python3 parse_pbs_api_robust.py
+python3 generate_openapi.py
 python3 convert_to_yaml.py
 ```
 
@@ -245,4 +249,4 @@ For issues related to:
 
 **Generated**: 2025-01-28  
 **Status**: ✅ Production Ready  
-**Maintainer**: [Your Name]
+**Maintainer**: [basher83](https://github.com/basher83)

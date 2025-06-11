@@ -53,7 +53,7 @@ jobs:
       - name: Generate PVE OpenAPI specification
         run: |
           cd scripts/pve
-          uv run python create_complete_openapi.py
+          uv run python generate_openapi.py
           uv run python convert_to_yaml.py
 
           # Move generated files to correct location
@@ -134,7 +134,7 @@ jobs:
       - name: Generate PBS OpenAPI specification
         run: |
           cd scripts/pbs
-          uv run python parse_pbs_api_robust.py
+          uv run python generate_openapi.py
           uv run python convert_to_yaml.py
 
       - name: Validate PBS OpenAPI specification

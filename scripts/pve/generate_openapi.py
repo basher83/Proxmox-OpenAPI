@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Create complete OpenAPI specification from Proxmox VE API documentation
-Final comprehensive parser
+Generate OpenAPI specification for Proxmox Virtual Environment.
+Parses PVE API documentation and creates comprehensive OpenAPI 3.0.3 specification.
 """
 
 import json

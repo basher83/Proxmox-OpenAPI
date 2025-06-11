@@ -21,14 +21,14 @@ This directory contains a complete OpenAPI 3.0.3 specification for the Proxmox V
 
 ### **Generation Scripts**
 
-- `create_complete_openapi.py` - Main generator script
+- `generate_openapi.py` - Main OpenAPI specification generator
 - `convert_to_yaml.py` - JSON to YAML converter
 - Various analysis and parsing scripts
 
 ## Roadmap
 
 - [ ] **Direct API Fetching** - Pull from [PVE API Viewer](https://pve.proxmox.com/pve-docs/api-viewer/index.html) instead of working from downloaded files
-- [ ] **Unified Parser Framework** - Combine with PBS parsing logic to reduce code duplication
+- [ ] **Unified Parser Framework** - Use standardized `generate_openapi.py` across both APIs to reduce code duplication
 - [ ] **Enhanced Validation** - More comprehensive OpenAPI spec validation
 - [ ] **Client Libraries** - Pre-generated clients in multiple languages
 
@@ -118,7 +118,7 @@ openapi-generator-cli generate \
 
 ```bash
 cd scripts/pve
-python3 create_complete_openapi.py
+python3 generate_openapi.py
 python3 convert_to_yaml.py
 # Files will be generated as pve-api.json and pve-api.yaml
 ```

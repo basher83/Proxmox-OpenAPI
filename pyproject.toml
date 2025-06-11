@@ -50,10 +50,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/Proxmox-OpenAPI"
-Repository = "https://github.com/your-username/Proxmox-OpenAPI"
-Issues = "https://github.com/your-username/Proxmox-OpenAPI/issues"
-Documentation = "https://github.com/your-username/Proxmox-OpenAPI#readme"
+Homepage = "https://github.com/basher83/Proxmox-OpenAPI"
+Repository = "https://github.com/basher83/Proxmox-OpenAPI"
+Issues = "https://github.com/basher83/Proxmox-OpenAPI/issues"
+Documentation = "https://github.com/basher83/Proxmox-OpenAPI#readme"
 
 [project.scripts]
 proxmox-openapi = "scripts.unified_parser:main"

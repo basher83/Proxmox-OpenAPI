@@ -22,8 +22,7 @@ This directory contains a complete OpenAPI 3.0.3 specification for the Proxmox B
 
 ### **Generation Scripts**
 
-- `parse_pbs_api_robust.py` - Main robust parser script
-- `parse_pbs_api.py` - Alternative parser script
+- `generate_openapi.py` - Main OpenAPI specification generator
 - `convert_to_yaml.py` - JSON to YAML converter
 
 ### **Documentation**
@@ -135,9 +134,9 @@ curl -k -H "Authorization: PBSAPIToken=USER@REALM!TOKENID=UUID" \
 ### Generate New Specification
 
 ```bash
-# Run the robust parser
+# Generate OpenAPI specification
 cd scripts/pbs
-python3 parse_pbs_api_robust.py
+python3 generate_openapi.py
 
 # Convert to YAML (if needed)
 python3 convert_to_yaml.py
