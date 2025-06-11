@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Unified parser for Proxmox API documentation.
-Supports both PVE and PBS API parsing with configurable parameters.
+Supports both PVE and PBS API parsing with comprehensive standardization.
+Incorporates unified security schemes, server configuration, info sections, and error responses.
 """
 
 import json
@@ -10,7 +11,7 @@ import os
 import sys
 import subprocess
 import tempfile
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 
@@ -23,7 +24,7 @@ class ProxmoxAPI(Enum):
 
 @dataclass
 class APIConfig:
-    """Configuration for API parsing."""
+    """Enhanced configuration for API parsing with standardized templates."""
     api_type: ProxmoxAPI
     title: str
     description: str
@@ -32,10 +33,14 @@ class APIConfig:
     server_path: str
     auth_schemes: Dict[str, Dict]
     tag_mapping: Dict[str, str]
+    # Enhanced standardization fields
+    contact_email: str = "support@proxmox.com"
+    security_patterns: List[Dict] = None
+    enable_session_auth: bool = False
 
 
 class UnifiedProxmoxParser:
-    """Unified parser for Proxmox APIs."""
+    """Unified parser for Proxmox APIs with comprehensive standardization."""
     
     def __init__(self, config: APIConfig):
         self.config = config
@@ -45,8 +50,8 @@ class UnifiedProxmoxParser:
         with open(js_file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Find the start and end of apiSchema
-        start_match = re.search(r'var apiSchema = \[', content)
+        # Find the start and end of apiSchema (handle both var and const)
+        start_match = re.search(r'(var|const|let)\s+apiSchema\s*=\s*\[', content)
         if not start_match:
             raise ValueError("Could not find apiSchema start")
         
@@ -225,7 +230,7 @@ class UnifiedProxmoxParser:
         return endpoints
     
     def create_openapi_spec(self, endpoints: List[Dict]) -> Dict:
-        """Create the complete OpenAPI specification."""
+        """Create the complete OpenAPI specification with standardized components."""
         paths = {}
         
         for endpoint in endpoints:
@@ -245,48 +250,257 @@ class UnifiedProxmoxParser:
                 tag = self._determine_tag(endpoint['path'])
                 tags.add(tag)
         
+        # Build standardized OpenAPI specification
         spec = {
             'openapi': '3.0.3',
-            'info': {
-                'title': self.config.title,
-                'description': self.config.description,
-                'version': self.config.version,
-                'contact': {
-                    'name': 'Proxmox Support',
-                    'url': 'https://www.proxmox.com'
-                },
-                'license': {
-                    'name': 'AGPL-3.0',
-                    'url': 'https://www.gnu.org/licenses/agpl-3.0.html'
-                }
-            },
-            'servers': [
-                {
-                    'url': f'https://{{server}}:{self.config.default_port}{self.config.server_path}',
-                    'description': f'Proxmox {self.config.api_type.value.upper()} Server',
-                    'variables': {
-                        'server': {
-                            'default': 'localhost',
-                            'description': f'Proxmox {self.config.api_type.value.upper()} hostname or IP'
-                        }
-                    }
-                }
-            ],
+            'info': self._build_standardized_info(),
+            'servers': self._build_standardized_servers(),
             'tags': [{'name': tag, 'description': f'{tag.title()} related operations'} 
                     for tag in sorted(tags)],
             'paths': paths,
-            'components': {
-                'securitySchemes': self.config.auth_schemes
-            },
-            'security': [
-                {scheme_name: [] for scheme_name in self.config.auth_schemes.keys()}
-            ]
+            'components': self._build_standardized_components(),
         }
+        
+        # Add standardized security
+        if self.config.security_patterns:
+            spec['security'] = self.config.security_patterns
         
         return spec
     
+    def _build_standardized_info(self) -> Dict:
+        """Build standardized info section based on completed template."""
+        return {
+            'title': self.config.title,
+            'description': self.config.description,
+            'version': self.config.version,
+            'contact': {
+                'name': 'Proxmox Support',
+                'url': 'https://www.proxmox.com',
+                'email': self.config.contact_email
+            },
+            'license': {
+                'name': 'AGPL-3.0',
+                'url': 'https://www.gnu.org/licenses/agpl-3.0.html'
+            }
+        }
+    
+    def _build_standardized_servers(self) -> List[Dict]:
+        """Build standardized server configuration using {host} variable."""
+        api_name = "Proxmox VE Server" if self.config.api_type == ProxmoxAPI.PVE else "Proxmox Backup Server"
+        
+        return [
+            {
+                'url': f'https://{{host}}:{self.config.default_port}{self.config.server_path}',
+                'description': api_name,
+                'variables': {
+                    'host': {
+                        'default': 'localhost',
+                        'description': f'{api_name.split()[0]} {api_name.split()[1]} server hostname or IP address'
+                    }
+                }
+            }
+        ]
+    
+    def _build_standardized_components(self) -> Dict:
+        """Build standardized components with unified security schemes and error schemas."""
+        components = {
+            'securitySchemes': self.config.auth_schemes,
+            'schemas': self._get_standardized_schemas()
+        }
+        
+        return components
+    
+    def _get_standardized_schemas(self) -> Dict:
+        """Get standardized schemas including error components and common data patterns."""
+        schemas = {
+            # Standard response schemas
+            'ProxmoxError': {
+                'type': 'object',
+                'description': 'Standard Proxmox API error response',
+                'properties': {
+                    'data': {
+                        'type': 'object',
+                        'nullable': True,
+                        'description': 'Additional error context data'
+                    },
+                    'errors': {
+                        'type': 'object',
+                        'additionalProperties': {
+                            'type': 'string'
+                        },
+                        'description': 'Detailed error messages keyed by field or error type'
+                    },
+                    'message': {
+                        'type': 'string',
+                        'description': 'Human-readable error message'
+                    }
+                }
+            },
+            'ProxmoxTask': {
+                'type': 'object',
+                'description': 'Proxmox async task response',
+                'properties': {
+                    'data': {
+                        'type': 'string',
+                        'description': 'Task ID for tracking async operations',
+                        'pattern': '^UPID:[^:]+:[0-9A-F]+:[^:]*:[^:]+:[^:]*:[^:]*:$'
+                    }
+                },
+                'required': ['data']
+            },
+            'ProxmoxSuccess': {
+                'type': 'object',
+                'description': 'Standard success response',
+                'properties': {
+                    'data': {
+                        'description': 'Response data (varies by endpoint)'
+                    },
+                    'success': {
+                        'type': 'boolean',
+                        'description': 'Operation success indicator'
+                    }
+                }
+            },
+            
+            # Common identifier schemas
+            'ProxmoxNodeId': {
+                'type': 'string',
+                'description': 'Proxmox node identifier following DNS hostname standards',
+                'pattern': '^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$',
+                'minLength': 1,
+                'maxLength': 63,
+                'example': 'pve-node-01'
+            },
+            'ProxmoxVmId': {
+                'type': 'integer',
+                'description': 'Virtual machine or container ID',
+                'minimum': 1,
+                'maximum': 999999999,
+                'example': 100
+            },
+            'ProxmoxStorageId': {
+                'type': 'string',
+                'description': 'Storage identifier',
+                'pattern': '^[A-Za-z][A-Za-z0-9\\-\\_]+$',
+                'minLength': 1,
+                'maxLength': 64,
+                'example': 'local-lvm'
+            },
+            'ProxmoxEmail': {
+                'type': 'string',
+                'description': 'Email address format',
+                'pattern': '^[^@]+@[^@]+$',
+                'format': 'email',
+                'example': 'admin@example.com'
+            },
+            'ProxmoxUserId': {
+                'type': 'string',
+                'description': 'User ID in format user@realm',
+                'pattern': '^[^@]+@[^@]+$',
+                'example': 'admin@pve'
+            },
+            'ProxmoxResourceName': {
+                'type': 'string',
+                'description': 'General resource name following Proxmox naming conventions',
+                'pattern': '^[A-Za-z0-9_][A-Za-z0-9._\\-]*$',
+                'minLength': 1,
+                'maxLength': 64,
+                'example': 'my-resource'
+            }
+        }
+        
+        # Add PBS-specific schemas if this is a PBS API
+        if self.config.api_type == ProxmoxAPI.PBS:
+            schemas.update({
+                'ProxmoxSha256': {
+                    'type': 'string',
+                    'description': 'SHA256 hash for backup integrity verification',
+                    'pattern': '^[a-f0-9]{64}$',
+                    'minLength': 64,
+                    'maxLength': 64,
+                    'example': 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+                },
+                'ProxmoxBackupId': {
+                    'type': 'string',
+                    'description': 'Backup ID following PBS naming conventions',
+                    'pattern': '^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$',
+                    'example': 'vm-100-disk-0'
+                },
+                'ProxmoxDatastoreName': {
+                    'type': 'string',
+                    'description': 'Datastore name in PBS',
+                    'pattern': '^[A-Za-z0-9_][A-Za-z0-9._\\-]*$',
+                    'minLength': 1,
+                    'maxLength': 32,
+                    'example': 'backup-storage'
+                }
+            })
+        
+        return schemas
+    
+    def _get_standardized_error_responses(self) -> Dict:
+        """Get standardized HTTP error responses."""
+        return {
+            '400': {
+                'description': 'Bad Request - Invalid input parameters or malformed request',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '401': {
+                'description': 'Unauthorized - Authentication required or invalid credentials',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '403': {
+                'description': 'Forbidden - Insufficient permissions for the requested operation',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '404': {
+                'description': 'Not Found - Requested resource does not exist',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '422': {
+                'description': 'Unprocessable Entity - Request is well-formed but contains semantic errors',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '500': {
+                'description': 'Internal Server Error - Unexpected server error',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            },
+            '503': {
+                'description': 'Service Unavailable - Service temporarily unavailable',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxError'}
+                    }
+                }
+            }
+        }
+    
     def _convert_endpoint_to_openapi(self, endpoint: Dict) -> Dict:
-        """Convert a Proxmox endpoint to OpenAPI path item."""
+        """Convert a Proxmox endpoint to OpenAPI path item with standardized responses."""
         path_item = {}
         
         for method, method_info in endpoint['methods'].items():
@@ -310,7 +524,7 @@ class UnifiedProxmoxParser:
                     'name': param,
                     'in': 'path',
                     'required': True,
-                    'schema': {'type': 'string'},
+                    'schema': self._get_path_param_schema(param),
                     'description': f'The {param} parameter'
                 })
             
@@ -360,35 +574,75 @@ class UnifiedProxmoxParser:
             if parameters:
                 operation['parameters'] = parameters
             
-            # Add responses
-            responses = {'200': {'description': 'Success'}}
+            # Add standardized responses
+            operation['responses'] = self._build_operation_responses(method_info)
             
-            if 'returns' in method_info and method_info['returns']:
-                returns_info = method_info['returns']
-                if isinstance(returns_info, dict):
-                    response_schema = self._convert_returns_to_openapi_schema(returns_info)
-                    responses['200'] = {
-                        'description': returns_info.get('description', 'Success'),
-                        'content': {
-                            'application/json': {
-                                'schema': response_schema
-                            }
-                        }
-                    }
+            # Add standardized security
+            if self.config.security_patterns:
+                operation['security'] = self.config.security_patterns
             
-            # Add common error responses
-            responses.update({
-                '400': {'description': 'Bad Request'},
-                '401': {'description': 'Unauthorized'},
-                '403': {'description': 'Forbidden'},
-                '404': {'description': 'Not Found'},
-                '500': {'description': 'Internal Server Error'}
-            })
-            
-            operation['responses'] = responses
             path_item[method.lower()] = operation
         
         return path_item
+    
+    def _build_operation_responses(self, method_info: Dict) -> Dict:
+        """Build standardized responses for an operation."""
+        responses = {}
+        
+        # Success response
+        if 'returns' in method_info and method_info['returns']:
+            returns_info = method_info['returns']
+            if isinstance(returns_info, dict):
+                response_schema = self._convert_returns_to_openapi_schema(returns_info)
+                responses['200'] = {
+                    'description': returns_info.get('description', 'Successful operation'),
+                    'content': {
+                        'application/json': {
+                            'schema': response_schema
+                        }
+                    }
+                }
+        else:
+            responses['200'] = {
+                'description': 'Successful operation',
+                'content': {
+                    'application/json': {
+                        'schema': {'$ref': '#/components/schemas/ProxmoxSuccess'}
+                    }
+                }
+            }
+        
+        # Add standardized error responses
+        responses.update(self._get_standardized_error_responses())
+        
+        return responses
+    
+    def _get_path_param_schema(self, param_name: str) -> Dict:
+        """Get appropriate schema for path parameters using standardized schemas."""
+        # Map common path parameters to standardized schema references
+        if param_name in ['vmid', 'ctid']:
+            return {'$ref': '#/components/schemas/ProxmoxVmId'}
+        elif param_name == 'node':
+            return {'$ref': '#/components/schemas/ProxmoxNodeId'}
+        elif param_name == 'storage':
+            return {'$ref': '#/components/schemas/ProxmoxStorageId'}
+        elif param_name == 'userid':
+            return {'$ref': '#/components/schemas/ProxmoxUserId'}
+        elif param_name in ['datastore', 'store'] and self.config.api_type == ProxmoxAPI.PBS:
+            return {'$ref': '#/components/schemas/ProxmoxDatastoreName'}
+        elif param_name in ['backup-id', 'backup_id'] and self.config.api_type == ProxmoxAPI.PBS:
+            return {'$ref': '#/components/schemas/ProxmoxBackupId'}
+        elif param_name in ['digest', 'checksum'] and self.config.api_type == ProxmoxAPI.PBS:
+            return {'$ref': '#/components/schemas/ProxmoxSha256'}
+        # Common resource names
+        elif param_name in ['poolid', 'realm', 'group', 'role']:
+            return {'$ref': '#/components/schemas/ProxmoxResourceName'}
+        else:
+            # Fallback to basic string type with description
+            return {
+                'type': 'string',
+                'description': f'The {param_name} parameter'
+            }
     
     def _convert_parameters_to_openapi(self, pbs_params: Dict) -> Dict:
         """Convert parameter definitions to OpenAPI parameters."""
@@ -404,7 +658,8 @@ class UnifiedProxmoxParser:
                 
             param_schema = self._convert_type_to_openapi(
                 param_info.get('type', 'string'),
-                param_info.get('format')
+                param_info.get('format'),
+                param_info
             )
             
             # Add description
@@ -446,7 +701,9 @@ class UnifiedProxmoxParser:
                 items_info = param_info['items']
                 if isinstance(items_info, dict):
                     param_schema['items'] = self._convert_type_to_openapi(
-                        items_info.get('type', 'string')
+                        items_info.get('type', 'string'),
+                        items_info.get('format'),
+                        items_info
                     )
             
             properties[param_name] = param_schema
@@ -465,8 +722,14 @@ class UnifiedProxmoxParser:
         
         return result
     
-    def _convert_type_to_openapi(self, pbs_type: str, format_hint: str = None) -> Dict:
-        """Convert type definitions to OpenAPI schema types."""
+    def _convert_type_to_openapi(self, pbs_type: str, format_hint: str = None, param_info: Dict = None) -> Dict:
+        """Convert type definitions to OpenAPI schema types, using standardized schemas where possible."""
+        # Check if we can use a standardized schema reference
+        if param_info:
+            standardized_ref = self._get_standardized_schema_ref(param_info)
+            if standardized_ref:
+                return standardized_ref
+        
         type_mapping = {
             'string': {'type': 'string'},
             'integer': {'type': 'integer'},
@@ -485,13 +748,51 @@ class UnifiedProxmoxParser:
         
         return {'type': 'string', 'description': f'Type: {pbs_type}'}
     
+    def _get_standardized_schema_ref(self, param_info: Dict) -> Dict:
+        """Get standardized schema reference if parameter matches common patterns."""
+        param_type = param_info.get('type', 'string')
+        pattern = param_info.get('pattern', '')
+        description = param_info.get('description', '').lower()
+        
+        # Node identifier pattern
+        if pattern == '^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$':
+            return {'$ref': '#/components/schemas/ProxmoxNodeId'}
+        
+        # Email pattern
+        if pattern == '^[^@]+@[^@]+$':
+            if 'user' in description or 'email' in description:
+                return {'$ref': '#/components/schemas/ProxmoxUserId'} if 'user' in description else {'$ref': '#/components/schemas/ProxmoxEmail'}
+        
+        # VM ID pattern
+        if param_type == 'integer' and param_info.get('minimum') == 1 and param_info.get('maximum', 0) > 100000:
+            return {'$ref': '#/components/schemas/ProxmoxVmId'}
+        
+        # SHA256 pattern (PBS specific)
+        if pattern == '^[a-f0-9]{64}$' and self.config.api_type == ProxmoxAPI.PBS:
+            return {'$ref': '#/components/schemas/ProxmoxSha256'}
+        
+        # Resource name patterns
+        if pattern in ['^[A-Za-z0-9_][A-Za-z0-9._\\-]*$', '^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$']:
+            if self.config.api_type == ProxmoxAPI.PBS and ('datastore' in description or 'store' in description):
+                return {'$ref': '#/components/schemas/ProxmoxDatastoreName'}
+            elif self.config.api_type == ProxmoxAPI.PBS and 'backup' in description:
+                return {'$ref': '#/components/schemas/ProxmoxBackupId'}
+            elif 'storage' in description:
+                return {'$ref': '#/components/schemas/ProxmoxStorageId'}
+            else:
+                return {'$ref': '#/components/schemas/ProxmoxResourceName'}
+        
+        return None
+    
     def _convert_returns_to_openapi_schema(self, returns_info: Dict) -> Dict:
         """Convert returns definition to OpenAPI schema."""
         if not isinstance(returns_info, dict):
             return {'type': 'string'}
         
         schema = self._convert_type_to_openapi(
-            returns_info.get('type', 'object')
+            returns_info.get('type', 'object'),
+            returns_info.get('format'),
+            returns_info
         )
         
         # Handle array returns
@@ -524,52 +825,111 @@ class UnifiedProxmoxParser:
 
 
 def get_pve_config() -> APIConfig:
-    """Get configuration for PVE API."""
+    """Get standardized configuration for PVE API."""
     return APIConfig(
         api_type=ProxmoxAPI.PVE,
         title='Proxmox VE API',
-        description='Complete Proxmox Virtual Environment API specification',
+        description='''Complete Proxmox Virtual Environment API specification for managing virtualized infrastructure.
+
+This specification covers all aspects of Proxmox VE management including:
+- **Virtual Machine Management**: Create, configure, and manage VMs
+- **Container Management**: LXC container lifecycle management  
+- **Storage Management**: Configure and manage storage backends
+- **Network Configuration**: Virtual networks and firewall rules
+- **Cluster Operations**: Multi-node cluster management
+- **User Management**: Authentication, authorization, and access control
+- **Backup & Restore**: Data protection and recovery
+- **Monitoring**: System status and performance metrics
+
+The API supports both token-based authentication and session-based authentication with CSRF protection.''',
         version='8.0.0',
         default_port=8006,
         server_path='/api2/json',
         auth_schemes={
-            'ApiTokenAuth': {
+            'ProxmoxApiToken': {
                 'type': 'apiKey',
                 'in': 'header',
                 'name': 'Authorization',
-                'description': 'API token authentication'
+                'description': 'API token authentication. Format: PVEAPIToken=USER@REALM!TOKENID=UUID'
+            },
+            'ProxmoxSessionCookie': {
+                'type': 'apiKey',
+                'in': 'cookie',
+                'name': 'PVEAuthCookie',
+                'description': 'Session cookie authentication obtained from /access/ticket'
+            },
+            'ProxmoxCSRFToken': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'CSRFPreventionToken',
+                'description': 'CSRF prevention token required for state-changing operations when using cookie auth'
             }
         },
         tag_mapping={
             'nodes': 'Nodes',
             'cluster': 'Cluster',
-            'access': 'Access Control'
-        }
+            'access': 'Access Control',
+            'storage': 'Storage',
+            'pools': 'Resource Pools',
+            'version': 'System Info'
+        },
+        contact_email='support@proxmox.com',
+        security_patterns=[
+            {'ProxmoxApiToken': []},
+            {'ProxmoxSessionCookie': [], 'ProxmoxCSRFToken': []}
+        ],
+        enable_session_auth=True
     )
 
 
 def get_pbs_config() -> APIConfig:
-    """Get configuration for PBS API."""
+    """Get standardized configuration for PBS API."""
     return APIConfig(
         api_type=ProxmoxAPI.PBS,
         title='Proxmox Backup Server API',
-        description='Proxmox Backup Server API specification',
+        description='''Complete Proxmox Backup Server API specification for comprehensive data protection and backup management.
+
+This specification covers all aspects of Proxmox Backup Server operations including:
+- **Backup Operations**: Create, manage, and monitor backup jobs
+- **Data Store Management**: Configure and manage backup storage
+- **Access Control**: User authentication and authorization
+- **Sync & Replication**: Cross-site backup synchronization
+- **Prune & GC**: Automated cleanup and garbage collection
+- **Encryption**: Client-side encryption and key management
+- **Monitoring**: Backup status and performance tracking
+- **Configuration**: Server and client configuration management
+
+The API supports token-based authentication with CSRF protection for secure backup operations.''',
         version='3.0.0',
         default_port=8007,
-        server_path='/api2/json',
+        server_path='',
         auth_schemes={
-            'ticketAuth': {
+            'ProxmoxApiToken': {
                 'type': 'apiKey',
                 'in': 'header',
                 'name': 'Authorization',
-                'description': 'Proxmox authentication ticket'
+                'description': 'API token authentication. Format: PBSAPIToken=USER@REALM!TOKENID=UUID'
+            },
+            'ProxmoxCSRFToken': {
+                'type': 'apiKey',
+                'in': 'header',
+                'name': 'CSRFPreventionToken',
+                'description': 'CSRF prevention token required for state-changing operations'
             }
         },
         tag_mapping={
             'access': 'Access Control',
             'admin': 'Administration',
-            'backup': 'Backup Operations'
-        }
+            'backup': 'Backup Operations',
+            'config': 'Configuration',
+            'datastore': 'Data Store Management',
+            'status': 'Status & Monitoring'
+        },
+        contact_email='support@proxmox.com',
+        security_patterns=[
+            {'ProxmoxApiToken': [], 'ProxmoxCSRFToken': []}
+        ],
+        enable_session_auth=False
     )
 
 

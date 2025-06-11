@@ -1,0 +1,68 @@
+---
+description: pattern searches in codebase files
+globs: 
+alwaysApply: false
+---
+# Search Tool Preferences
+
+When users request to 'search', 'look for', 'find', or 'grep' a pattern in files or logs, **prefer using `rg` (ripgrep)** over other search tools.
+
+## **Ripgrep Usage Guidelines**
+
+- **Primary Tool**: Use `rg` for pattern searches in codebase files
+- **Common Flags**: 
+  - `-i` for case-insensitive searches
+  - `-C <number>` for context lines around matches
+  - `--glob <pattern>` for file type filtering
+  - `-n` for line numbers
+  - `-A <number>` for lines after match
+  - `-B <number>` for lines before match
+
+## **When to Use Ripgrep**
+
+**✅ DO use `rg` for:**
+- Searching for function names, variables, or code patterns
+- Finding configuration values in files
+- Locating log entries or error patterns
+- Searching within specific file types
+- Case-insensitive pattern matching
+- Getting context around matches
+
+**❌ DON'T use `rg` for:**
+- Semantic code searches (use `codebase_search` tool instead)
+- Very large binary files
+- When exact tool specification is required by user
+
+## **Example Usage Patterns**
+
+```bash
+# Basic pattern search
+rg "pattern" 
+
+# Case-insensitive with context
+rg -i -C 3 "error"
+
+# Search specific file types
+rg --glob "*.js" "function"
+
+# Search with line numbers
+rg -n "import.*react"
+
+# Exclude directories
+rg "pattern" --glob "!node_modules/*"
+```
+
+## **Ripgrep vs Other Tools**
+
+| **Use Case** | **Preferred Tool** | **Reason** |
+|--------------|-------------------|------------|
+| Text pattern search | `rg` | Faster, better output formatting |
+| Semantic code search | `codebase_search` | AI-powered understanding |
+| File finding | `find` or `file_search` | Purpose-built for file discovery |
+| Complex regex | `rg` | Excellent regex support |
+
+## **Integration with Other Tools**
+
+- **Combine with `read_file`**: Use `rg` to locate, then `read_file` to examine
+- **Follow up searches**: Use `rg` results to guide `codebase_search` queries
+- **File discovery**: Use `rg -l` to list files, then examine with other tools
