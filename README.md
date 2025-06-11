@@ -2,6 +2,9 @@
 
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL%20v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![OpenAPI](https://img.shields.io/badge/OpenAPI-3.0.3-green.svg)](https://swagger.io/specification/)
+![GitHub commit activity](https://img.shields.io/github/commit-activity/w/basher83/Proxmox-OpenAPI)
+![GitHub last commit](https://img.shields.io/github/last-commit/basher83/Proxmox-OpenAPI)
+![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fbasher83%2FProxmox-OpenAPI%2Fmain%2Fpyproject.toml)
 
 Complete OpenAPI 3.0.3 specifications for Proxmox APIs, automatically generated from official documentation.
 

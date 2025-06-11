@@ -211,3 +211,20 @@ generated-clients/
 # proxmox-virtual-environment/pve-api.yaml
 # proxmox-backup-server/pbs-api.json
 # proxmox-backup-server/pbs-api.yaml
+
+# Added by Task Master AI
+logs
+dev-debug.log
+# Dependency directories
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+# Task files
+tasks.json
+tasks/
