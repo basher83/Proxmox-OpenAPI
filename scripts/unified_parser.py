@@ -14,6 +14,7 @@ import tempfile
 from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
+from pathlib import Path
 
 
 class ProxmoxAPI(Enum):
@@ -35,20 +36,35 @@ class APIConfig:
     tag_mapping: Dict[str, str]
     # Enhanced standardization fields
     contact_email: str = "support@proxmox.com"
-    security_patterns: List[Dict] = None
+    security_patterns: Optional[List[Dict]] = None
     enable_session_auth: bool = False
 
 
 class UnifiedProxmoxParser:
     """Unified parser for Proxmox APIs with comprehensive standardization."""
     
+    _file_cache: Dict[str, tuple] = {}  # {file_path: (content, mtime)}
+    
     def __init__(self, config: APIConfig):
         self.config = config
         
     def extract_api_schema(self, js_file_path: str) -> List[Dict]:
-        """Extract the API schema using multiple fallback methods."""
-        with open(js_file_path, 'r', encoding='utf-8') as f:
-            content = f.read()
+        """Extract the API schema using multiple fallback methods with file caching."""
+        file_path = Path(js_file_path).resolve()
+        current_mtime = file_path.stat().st_mtime
+        
+        if str(file_path) in self._file_cache:
+            cached_content, cached_mtime = self._file_cache[str(file_path)]
+            if cached_mtime == current_mtime:
+                content = cached_content
+            else:
+                with open(js_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                self._file_cache[str(file_path)] = (content, current_mtime)
+        else:
+            with open(js_file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            self._file_cache[str(file_path)] = (content, current_mtime)
         
         # Find the start and end of apiSchema (handle both var and const)
         start_match = re.search(r'(var|const|let)\s+apiSchema\s*=\s*\[', content)
@@ -658,7 +674,7 @@ class UnifiedProxmoxParser:
                 
             param_schema = self._convert_type_to_openapi(
                 param_info.get('type', 'string'),
-                param_info.get('format'),
+                param_info.get('format') if param_info.get('format') else None,
                 param_info
             )
             
@@ -702,7 +718,7 @@ class UnifiedProxmoxParser:
                 if isinstance(items_info, dict):
                     param_schema['items'] = self._convert_type_to_openapi(
                         items_info.get('type', 'string'),
-                        items_info.get('format'),
+                        items_info.get('format') if items_info.get('format') else None,
                         items_info
                     )
             
@@ -722,7 +738,7 @@ class UnifiedProxmoxParser:
         
         return result
     
-    def _convert_type_to_openapi(self, pbs_type: str, format_hint: str = None, param_info: Dict = None) -> Dict:
+    def _convert_type_to_openapi(self, pbs_type: str, format_hint: Optional[str] = None, param_info: Optional[Dict] = None) -> Dict:
         """Convert type definitions to OpenAPI schema types, using standardized schemas where possible."""
         # Check if we can use a standardized schema reference
         if param_info:
@@ -782,7 +798,7 @@ class UnifiedProxmoxParser:
             else:
                 return {'$ref': '#/components/schemas/ProxmoxResourceName'}
         
-        return None
+        return {}
     
     def _convert_returns_to_openapi_schema(self, returns_info: Dict) -> Dict:
         """Convert returns definition to OpenAPI schema."""
@@ -791,7 +807,7 @@ class UnifiedProxmoxParser:
         
         schema = self._convert_type_to_openapi(
             returns_info.get('type', 'object'),
-            returns_info.get('format'),
+            returns_info.get('format') if returns_info.get('format') else None,
             returns_info
         )
         
@@ -1011,4 +1027,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main()) 
+    sys.exit(main())  
