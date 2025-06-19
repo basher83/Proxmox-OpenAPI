@@ -98,7 +98,7 @@ class UnifiedProxmoxParser:
                 return self._parse_with_python_fallback(schema_str)
             except Exception:
                 return self._extract_basic_structure(content)
-    
+
     def _parse_with_nodejs(self, schema_str: str) -> List[Dict]:
         """Try to parse using Node.js."""
         js_code = f"""
@@ -118,13 +118,13 @@ class UnifiedProxmoxParser:
                 raise Exception(f"Node.js error: {result.stderr}")
         finally:
             os.unlink(temp_file)
-    
+
     def _parse_with_python_fallback(self, schema_str: str) -> List[Dict]:
         """Fallback parser using Python regex and string manipulation."""
         # Handle regex patterns - replace them with string placeholders
         regex_patterns = []
         pattern_counter = 0
-        
+
         def replace_regex(match):
             nonlocal pattern_counter
             pattern = match.group(0)
@@ -132,10 +132,10 @@ class UnifiedProxmoxParser:
             regex_patterns.append((placeholder, pattern))
             pattern_counter += 1
             return placeholder
-        
+
         # Find and replace regex patterns
         schema_str = re.sub(r'"/[^"]*/"', replace_regex, schema_str)
-        
+
         # Basic JavaScript to JSON conversion
         schema_str = re.sub(r"'([^']*)':", r'"\1":', schema_str)
         schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
@@ -144,7 +144,7 @@ class UnifiedProxmoxParser:
         schema_str = re.sub(r'\bnull\b', 'null', schema_str)
         schema_str = re.sub(r',(\s*[}\]])', r'\1', schema_str)
         schema_str = re.sub(r'\bundefined\b', 'null', schema_str)
-        
+
         try:
             schema = json.loads(schema_str)
 
@@ -166,28 +166,28 @@ class UnifiedProxmoxParser:
                 return restored_schema
             else:
                 return [restored_schema] if isinstance(restored_schema, dict) else []
-            
+
         except json.JSONDecodeError:
             return self._extract_basic_structure(schema_str)
-    
+
     def _extract_basic_structure(self, content: str) -> List[Dict]:
         """Extract basic structure when JSON parsing fails."""
         endpoints = []
-        
+
         path_pattern = r'"path":\s*"([^"]+)"'
         method_pattern = r'"(GET|POST|PUT|DELETE|PATCH)":\s*\{'
-        
+
         paths = re.findall(path_pattern, content)
-        
+
         for path in paths:
             path_start = content.find(f'"path": "{path}"')
             if path_start == -1:
                 continue
-            
+
             obj_start = content.rfind('{', 0, path_start)
             bracket_count = 1
             obj_end = obj_start + 1
-            
+
             for i in range(obj_start + 1, len(content)):
                 if content[i] == '{':
                     bracket_count += 1
@@ -196,29 +196,29 @@ class UnifiedProxmoxParser:
                     if bracket_count == 0:
                         obj_end = i + 1
                         break
-            
+
             obj_content = content[obj_start:obj_end]
             methods = re.findall(method_pattern, obj_content)
-            
+
             if methods:
                 endpoint = {
                     'path': path,
                     'methods': {method: {'description': f'{method} {path}', 'method': method} for method in methods}
                 }
                 endpoints.append(endpoint)
-        
+
         return [{'children': endpoints, 'path': '/', 'text': 'root'}] if endpoints else []
-    
+
     def flatten_api_endpoints(self, schema: List[Dict], parent_path: str = "") -> List[Dict]:
         """Flatten the nested API schema structure."""
         endpoints = []
-        
+
         for item in schema:
             if not isinstance(item, dict):
                 continue
-                
+
             current_path = parent_path + item.get('path', '')
-            
+
             # Add current endpoint if it has info (HTTP methods)
             if 'info' in item and item['info']:
                 endpoint = {
@@ -228,7 +228,7 @@ class UnifiedProxmoxParser:
                     'leaf': item.get('leaf', 0)
                 }
                 endpoints.append(endpoint)
-            
+
             # Check for methods directly in the item
             method_keys = {'GET', 'POST', 'PUT', 'DELETE', 'PATCH'}
             direct_methods = {k: v for k, v in item.items() if k in method_keys}
@@ -240,52 +240,52 @@ class UnifiedProxmoxParser:
                     'leaf': item.get('leaf', 0)
                 }
                 endpoints.append(endpoint)
-            
+
             # Recursively process children
             if 'children' in item and item['children']:
                 child_endpoints = self.flatten_api_endpoints(item['children'], current_path)
                 endpoints.extend(child_endpoints)
-        
+
         return endpoints
-    
+
     def create_openapi_spec(self, endpoints: List[Dict]) -> Dict:
         """Create the complete OpenAPI specification with standardized components."""
         paths = {}
-        
+
         for endpoint in endpoints:
             if not endpoint.get('methods'):
                 continue
-                
+
             path = endpoint['path']
             path_item = self._convert_endpoint_to_openapi(endpoint)
-            
+
             if path_item:
                 paths[path] = path_item
-        
+
         # Get unique tags
         tags = set()
         for endpoint in endpoints:
             if endpoint.get('methods'):
                 tag = self._determine_tag(endpoint['path'])
                 tags.add(tag)
-        
+
         # Build standardized OpenAPI specification
         spec = {
             'openapi': '3.0.3',
             'info': self._build_standardized_info(),
             'servers': self._build_standardized_servers(),
-            'tags': [{'name': tag, 'description': f'{tag.title()} related operations'} 
+            'tags': [{'name': tag, 'description': f'{tag.title()} related operations'}
                     for tag in sorted(tags)],
             'paths': paths,
             'components': self._build_standardized_components(),
         }
-        
+
         # Add standardized security
         if self.config.security_patterns:
             spec['security'] = self.config.security_patterns
-        
+
         return spec
-    
+
     def _build_standardized_info(self) -> Dict:
         """Build standardized info section based on completed template."""
         return {
@@ -302,11 +302,11 @@ class UnifiedProxmoxParser:
                 'url': 'https://www.gnu.org/licenses/agpl-3.0.html'
             }
         }
-    
+
     def _build_standardized_servers(self) -> List[Dict]:
         """Build standardized server configuration using {host} variable."""
         api_name = "Proxmox VE Server" if self.config.api_type == ProxmoxAPI.PVE else "Proxmox Backup Server"
-        
+
         return [
             {
                 'url': f'https://{{host}}:{self.config.default_port}{self.config.server_path}',
@@ -319,16 +319,16 @@ class UnifiedProxmoxParser:
                 }
             }
         ]
-    
+
     def _build_standardized_components(self) -> Dict:
         """Build standardized components with unified security schemes and error schemas."""
         components = {
             'securitySchemes': self.config.auth_schemes,
             'schemas': self._get_standardized_schemas()
         }
-        
+
         return components
-    
+
     def _get_standardized_schemas(self) -> Dict:
         """Get standardized schemas including error components and common data patterns."""
         schemas = {
@@ -380,7 +380,7 @@ class UnifiedProxmoxParser:
                     }
                 }
             },
-            
+
             # Common identifier schemas
             'ProxmoxNodeId': {
                 'type': 'string',
@@ -427,7 +427,7 @@ class UnifiedProxmoxParser:
                 'example': 'my-resource'
             }
         }
-        
+
         # Add PBS-specific schemas if this is a PBS API
         if self.config.api_type == ProxmoxAPI.PBS:
             schemas.update({
@@ -454,9 +454,9 @@ class UnifiedProxmoxParser:
                     'example': 'backup-storage'
                 }
             })
-        
+
         return schemas
-    
+
     def _get_standardized_error_responses(self) -> Dict:
         """Get standardized HTTP error responses."""
         return {
@@ -517,25 +517,25 @@ class UnifiedProxmoxParser:
                 }
             }
         }
-    
+
     def _convert_endpoint_to_openapi(self, endpoint: Dict) -> Dict:
         """Convert a Proxmox endpoint to OpenAPI path item with standardized responses."""
         path_item = {}
-        
+
         for method, method_info in endpoint['methods'].items():
             if not isinstance(method_info, dict):
                 continue
-                
+
             operation = {
                 'summary': method_info.get('description', f'{method} {endpoint["path"]}'),
                 'description': method_info.get('description', ''),
                 'operationId': f"{method.lower()}_{endpoint['path'].replace('/', '_').replace('{', '').replace('}', '').strip('_')}",
                 'tags': [self._determine_tag(endpoint['path'])]
             }
-            
+
             # Add parameters
             parameters = []
-            
+
             # Path parameters
             path_params = re.findall(r'\{([^}]+)\}', endpoint['path'])
             for param in path_params:
@@ -546,11 +546,11 @@ class UnifiedProxmoxParser:
                     'schema': self._get_path_param_schema(param),
                     'description': f'The {param} parameter'
                 })
-            
+
             # Query/body parameters
             if 'parameters' in method_info and method_info['parameters']:
                 param_schema = self._convert_parameters_to_openapi(method_info['parameters'])
-                
+
                 if method.upper() in ['GET', 'DELETE']:
                     # Add query parameters
                     if param_schema.get('properties'):
@@ -568,11 +568,11 @@ class UnifiedProxmoxParser:
                 else:
                     # Add request body for POST/PUT methods
                     if param_schema.get('properties'):
-                        body_properties = {k: v for k, v in param_schema['properties'].items() 
+                        body_properties = {k: v for k, v in param_schema['properties'].items()
                                          if k not in path_params}
-                        body_required = [r for r in param_schema.get('required', []) 
+                        body_required = [r for r in param_schema.get('required', [])
                                        if r not in path_params]
-                        
+
                         if body_properties:
                             body_schema = {
                                 'type': 'object',
@@ -580,7 +580,7 @@ class UnifiedProxmoxParser:
                             }
                             if body_required:
                                 body_schema['required'] = body_required
-                                
+
                             operation['requestBody'] = {
                                 'required': bool(body_required),
                                 'content': {
@@ -589,25 +589,25 @@ class UnifiedProxmoxParser:
                                     }
                                 }
                             }
-            
+
             if parameters:
                 operation['parameters'] = parameters
-            
+
             # Add standardized responses
             operation['responses'] = self._build_operation_responses(method_info)
-            
+
             # Add standardized security
             if self.config.security_patterns:
                 operation['security'] = self.config.security_patterns
-            
+
             path_item[method.lower()] = operation
-        
+
         return path_item
-    
+
     def _build_operation_responses(self, method_info: Dict) -> Dict:
         """Build standardized responses for an operation."""
         responses = {}
-        
+
         # Success response
         if 'returns' in method_info and method_info['returns']:
             returns_info = method_info['returns']
@@ -630,12 +630,12 @@ class UnifiedProxmoxParser:
                     }
                 }
             }
-        
+
         # Add standardized error responses
         responses.update(self._get_standardized_error_responses())
-        
+
         return responses
-    
+
     def _get_path_param_schema(self, param_name: str) -> Dict:
         """Get appropriate schema for path parameters using standardized schemas."""
         # Map common path parameters to standardized schema references
@@ -662,7 +662,7 @@ class UnifiedProxmoxParser:
                 'type': 'string',
                 'description': f'The {param_name} parameter'
             }
-    
+
     def _convert_parameters_to_openapi(self, pbs_params: Dict) -> Dict:
         """Convert parameter definitions to OpenAPI parameters."""
         if not pbs_params or not isinstance(pbs_params, dict) or 'properties' not in pbs_params:
@@ -757,7 +757,7 @@ class UnifiedProxmoxParser:
                     items_info.get('format') if items_info.get('format') else None,
                     items_info
                 )
-    
+
     def _convert_type_to_openapi(self, pbs_type: str, format_hint: Optional[str] = None, param_info: Optional[Dict] = None) -> Dict:
         """Convert type definitions to OpenAPI schema types, using standardized schemas where possible."""
         # Check if we can use a standardized schema reference
@@ -765,7 +765,7 @@ class UnifiedProxmoxParser:
             standardized_ref = self._get_standardized_schema_ref(param_info)
             if standardized_ref:
                 return standardized_ref
-        
+
         type_mapping = {
             'string': {'type': 'string'},
             'integer': {'type': 'integer'},
@@ -775,38 +775,38 @@ class UnifiedProxmoxParser:
             'object': {'type': 'object'},
             'null': {'type': 'null'}
         }
-        
+
         if pbs_type in type_mapping:
             schema = type_mapping[pbs_type].copy()
             if format_hint:
                 schema['format'] = format_hint
             return schema
-        
+
         return {'type': 'string', 'description': f'Type: {pbs_type}'}
-    
+
     def _get_standardized_schema_ref(self, param_info: Dict) -> Dict:
         """Get standardized schema reference if parameter matches common patterns."""
         param_type = param_info.get('type', 'string')
         pattern = param_info.get('pattern', '')
         description = param_info.get('description', '').lower()
-        
+
         # Node identifier pattern
         if pattern == '^[a-zA-Z0-9]([a-zA-Z0-9\\-]{0,61}[a-zA-Z0-9])?$':
             return {'$ref': '#/components/schemas/ProxmoxNodeId'}
-        
+
         # Email pattern
         if pattern == '^[^@]+@[^@]+$':
             if 'user' in description or 'email' in description:
                 return {'$ref': '#/components/schemas/ProxmoxUserId'} if 'user' in description else {'$ref': '#/components/schemas/ProxmoxEmail'}
-        
+
         # VM ID pattern
         if param_type == 'integer' and param_info.get('minimum') == 1 and param_info.get('maximum', 0) > 100000:
             return {'$ref': '#/components/schemas/ProxmoxVmId'}
-        
+
         # SHA256 pattern (PBS specific)
         if pattern == '^[a-f0-9]{64}$' and self.config.api_type == ProxmoxAPI.PBS:
             return {'$ref': '#/components/schemas/ProxmoxSha256'}
-        
+
         # Resource name patterns
         if pattern in ['^[A-Za-z0-9_][A-Za-z0-9._\\-]*$', '^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$']:
             if self.config.api_type == ProxmoxAPI.PBS and ('datastore' in description or 'store' in description):
@@ -817,26 +817,26 @@ class UnifiedProxmoxParser:
                 return {'$ref': '#/components/schemas/ProxmoxStorageId'}
             else:
                 return {'$ref': '#/components/schemas/ProxmoxResourceName'}
-        
+
         return {}
-    
+
     def _convert_returns_to_openapi_schema(self, returns_info: Dict) -> Dict:
         """Convert returns definition to OpenAPI schema."""
         if not isinstance(returns_info, dict):
             return {'type': 'string'}
-        
+
         schema = self._convert_type_to_openapi(
             returns_info.get('type', 'object'),
             returns_info.get('format') if returns_info.get('format') else None,
             returns_info
         )
-        
+
         # Handle array returns
         if returns_info.get('type') == 'array' and 'items' in returns_info:
             items_info = returns_info['items']
             if isinstance(items_info, dict):
                 schema['items'] = self._convert_returns_to_openapi_schema(items_info)
-        
+
         # Handle object properties
         if returns_info.get('type') == 'object' and 'properties' in returns_info:
             properties = {}
@@ -845,13 +845,13 @@ class UnifiedProxmoxParser:
                     properties[prop_name] = self._convert_returns_to_openapi_schema(prop_info)
             if properties:
                 schema['properties'] = properties
-        
+
         # Add description
         if 'description' in returns_info:
             schema['description'] = returns_info['description']
-        
+
         return schema
-    
+
     def _determine_tag(self, path: str) -> str:
         """Determine the OpenAPI tag from the path."""
         parts = path.strip('/').split('/')
@@ -869,7 +869,7 @@ def get_pve_config() -> APIConfig:
 
 This specification covers all aspects of Proxmox VE management including:
 - **Virtual Machine Management**: Create, configure, and manage VMs
-- **Container Management**: LXC container lifecycle management  
+- **Container Management**: LXC container lifecycle management
 - **Storage Management**: Configure and manage storage backends
 - **Network Configuration**: Virtual networks and firewall rules
 - **Cluster Operations**: Multi-node cluster management
@@ -977,44 +977,44 @@ def main():
         print("  input_js_file: path to apidoc.js file")
         print("  output_dir: directory to write output files")
         return 1
-    
+
     api_type_str = sys.argv[1].lower()
     js_file_path = sys.argv[2]
     output_dir = sys.argv[3]
-    
+
     if api_type_str not in ['pve', 'pbs']:
         print("Error: api_type must be 'pve' or 'pbs'")
         return 1
-    
+
     if not os.path.exists(js_file_path):
         print(f"Error: Could not find input file {js_file_path}")
         return 1
-    
+
     # Get configuration
     config = get_pve_config() if api_type_str == 'pve' else get_pbs_config()
     parser = UnifiedProxmoxParser(config)
-    
+
     try:
         print(f"Extracting API schema from {js_file_path}...")
         schema = parser.extract_api_schema(js_file_path)
-        
+
         print("Flattening API endpoints...")
         endpoints = parser.flatten_api_endpoints(schema)
         print(f"Found {len(endpoints)} endpoints")
-        
+
         print("Creating OpenAPI specification...")
         openapi_spec = parser.create_openapi_spec(endpoints)
-        
+
         # Create output directory
         os.makedirs(output_dir, exist_ok=True)
-        
+
         # Write JSON file
         json_file = os.path.join(output_dir, f'{api_type_str}-api.json')
         with open(json_file, 'w', encoding='utf-8') as f:
             json.dump(openapi_spec, f, indent=2, ensure_ascii=False)
-        
+
         print(f"OpenAPI JSON specification written to: {json_file}")
-        
+
         # Also write YAML file if PyYAML is available
         try:
             import yaml
@@ -1024,21 +1024,21 @@ def main():
             print(f"OpenAPI YAML specification written to: {yaml_file}")
         except ImportError:
             print("PyYAML not installed, skipping YAML output. Install with: pip install PyYAML")
-        
+
         print(f"\nSummary:")
         print(f"- Total endpoints: {len(endpoints)}")
         print(f"- Total paths: {len(openapi_spec['paths'])}")
-        
+
         # Count operations
         total_operations = 0
         for path_item in openapi_spec['paths'].values():
             total_operations += len([k for k in path_item.keys() if k in ['get', 'post', 'put', 'delete', 'patch']])
-        
+
         print(f"- Total operations: {total_operations}")
         print(f"- Tags: {len(openapi_spec['tags'])}")
-        
+
         return 0
-        
+
     except Exception as e:
         print(f"Error: {e}")
         import traceback
@@ -1047,4 +1047,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())        
+    sys.exit(main())
