@@ -11,7 +11,7 @@ import os
 import sys
 import subprocess
 import tempfile
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
@@ -42,17 +42,16 @@ class APIConfig:
 
 class UnifiedProxmoxParser:
     """Unified parser for Proxmox APIs with comprehensive standardization."""
-    
+
     _file_cache: Dict[str, tuple] = {}  # {file_path: (content, mtime)}
-    
+
     def __init__(self, config: APIConfig):
         self.config = config
-        
     def extract_api_schema(self, js_file_path: str) -> List[Dict]:
         """Extract the API schema using multiple fallback methods with file caching."""
         file_path = Path(js_file_path).resolve()
         current_mtime = file_path.stat().st_mtime
-        
+
         if str(file_path) in self._file_cache:
             cached_content, cached_mtime = self._file_cache[str(file_path)]
             if cached_mtime == current_mtime:
@@ -65,18 +64,18 @@ class UnifiedProxmoxParser:
             with open(js_file_path, 'r', encoding='utf-8') as f:
                 content = f.read()
             self._file_cache[str(file_path)] = (content, current_mtime)
-        
+
         # Find the start and end of apiSchema (handle both var and const)
         start_match = re.search(r'(var|const|let)\s+apiSchema\s*=\s*\[', content)
         if not start_match:
             raise ValueError("Could not find apiSchema start")
-        
+
         start_pos = start_match.end() - 1  # Include the opening bracket
-        
+
         # Find the matching closing bracket
         bracket_count = 0
         end_pos = start_pos
-        
+
         for i, char in enumerate(content[start_pos:], start_pos):
             if char == '[':
                 bracket_count += 1
@@ -85,19 +84,19 @@ class UnifiedProxmoxParser:
                 if bracket_count == 0:
                     end_pos = i + 1
                     break
-        
+
         if bracket_count != 0:
             raise ValueError("Could not find apiSchema end")
-        
+
         schema_str = content[start_pos:end_pos]
-        
+
         # Try multiple parsing methods
         try:
             return self._parse_with_nodejs(schema_str)
-        except:
+        except Exception:
             try:
                 return self._parse_with_python_fallback(schema_str)
-            except:
+            except Exception:
                 return self._extract_basic_structure(content)
     
     def _parse_with_nodejs(self, schema_str: str) -> List[Dict]:
@@ -106,11 +105,11 @@ class UnifiedProxmoxParser:
         const apiSchema = {schema_str};
         console.log(JSON.stringify(apiSchema, null, 2));
         """
-        
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.js', delete=False) as f:
             f.write(js_code)
             temp_file = f.name
-        
+
         try:
             result = subprocess.run(['node', temp_file], capture_output=True, text=True)
             if result.returncode == 0:
@@ -148,7 +147,7 @@ class UnifiedProxmoxParser:
         
         try:
             schema = json.loads(schema_str)
-            
+
             # Restore regex patterns
             def restore_patterns(obj):
                 if isinstance(obj, dict):
@@ -161,8 +160,12 @@ class UnifiedProxmoxParser:
                             return original
                     return obj
                 return obj
-            
-            return restore_patterns(schema)
+
+            restored_schema = restore_patterns(schema)
+            if isinstance(restored_schema, list):
+                return restored_schema
+            else:
+                return [restored_schema] if isinstance(restored_schema, dict) else []
             
         except json.JSONDecodeError:
             return self._extract_basic_structure(schema_str)
@@ -664,79 +667,96 @@ class UnifiedProxmoxParser:
         """Convert parameter definitions to OpenAPI parameters."""
         if not pbs_params or not isinstance(pbs_params, dict) or 'properties' not in pbs_params:
             return {'type': 'object', 'properties': {}}
-        
+
         properties = {}
         required = []
-        
+
         for param_name, param_info in pbs_params['properties'].items():
             if not isinstance(param_info, dict):
                 continue
-                
-            param_schema = self._convert_type_to_openapi(
-                param_info.get('type', 'string'),
-                param_info.get('format') if param_info.get('format') else None,
-                param_info
-            )
-            
-            # Add description
-            if 'description' in param_info:
-                param_schema['description'] = param_info['description']
-            
-            # Add constraints
-            for constraint in ['minLength', 'maxLength', 'minimum', 'maximum']:
-                if constraint in param_info:
-                    try:
-                        param_schema[constraint] = param_info[constraint]
-                    except:
-                        pass
-            
-            # Handle pattern safely
-            if 'pattern' in param_info:
-                pattern = param_info['pattern']
-                if isinstance(pattern, str):
-                    if pattern.startswith('/') and pattern.endswith('/'):
-                        pattern = pattern[1:-1]
-                    elif pattern.startswith('"/') and pattern.endswith('/"'):
-                        pattern = pattern[2:-2]
-                    try:
-                        re.compile(pattern)
-                        param_schema['pattern'] = pattern
-                    except:
-                        pass
-            
-            # Handle enums
-            if 'enum' in param_info and isinstance(param_info['enum'], list):
-                param_schema['enum'] = param_info['enum']
-            
-            # Handle default values
-            if 'default' in param_info:
-                param_schema['default'] = param_info['default']
-            
-            # Handle array items
-            if param_info.get('type') == 'array' and 'items' in param_info:
-                items_info = param_info['items']
-                if isinstance(items_info, dict):
-                    param_schema['items'] = self._convert_type_to_openapi(
-                        items_info.get('type', 'string'),
-                        items_info.get('format') if items_info.get('format') else None,
-                        items_info
-                    )
-            
+
+            param_schema = self._build_param_schema(param_name, param_info)
             properties[param_name] = param_schema
-            
+
             # Add to required if not optional
             if not param_info.get('optional', False):
                 required.append(param_name)
-        
+
         result = {
             'type': 'object',
             'properties': properties
         }
-        
+
         if required:
             result['required'] = required
-        
+
         return result
+
+    def _build_param_schema(self, param_name: str, param_info: Dict) -> Dict:
+        """Build schema for a single parameter."""
+        param_schema = self._convert_type_to_openapi(
+            param_info.get('type', 'string'),
+            param_info.get('format') if param_info.get('format') else None,
+            param_info
+        )
+
+        # Add description
+        if 'description' in param_info:
+            param_schema['description'] = param_info['description']
+
+        # Add constraints
+        self._add_param_constraints(param_schema, param_info)
+
+        # Handle pattern safely
+        self._add_param_pattern(param_schema, param_info)
+
+        # Handle enums
+        if 'enum' in param_info and isinstance(param_info['enum'], list):
+            param_schema['enum'] = param_info['enum']
+
+        # Handle default values
+        if 'default' in param_info:
+            param_schema['default'] = param_info['default']
+
+        # Handle array items
+        self._add_array_items(param_schema, param_info)
+
+        return param_schema
+
+    def _add_param_constraints(self, param_schema: Dict, param_info: Dict) -> None:
+        """Add parameter constraints to schema."""
+        for constraint in ['minLength', 'maxLength', 'minimum', 'maximum']:
+            if constraint in param_info:
+                try:
+                    param_schema[constraint] = param_info[constraint]
+                except (ValueError, TypeError):
+                    pass
+
+    def _add_param_pattern(self, param_schema: Dict, param_info: Dict) -> None:
+        """Add pattern constraint to schema."""
+        if 'pattern' in param_info:
+            pattern = param_info['pattern']
+            if isinstance(pattern, str):
+                if pattern.startswith('/') and pattern.endswith('/'):
+                    pattern = pattern[1:-1]
+                elif pattern.startswith('"/') and pattern.endswith('/"'):
+                    pattern = pattern[2:-2]
+                try:
+                    re.compile(pattern)
+                    param_schema['pattern'] = pattern
+                except re.error:
+                    pass
+
+    def _add_array_items(self, param_schema: Dict, param_info: Dict) -> None:
+        """Add array items schema."""
+        if param_info.get('type') == 'array' and 'items' in param_info:
+            items_info = param_info['items']
+            if isinstance(items_info, dict):
+                param_schema['items'] = self._convert_type_to_openapi(
+                    items_info.get('type', 'string'),
+                    items_info.get('format') if items_info.get('format') else None,
+                    items_info
+                )
     
     def _convert_type_to_openapi(self, pbs_type: str, format_hint: Optional[str] = None, param_info: Optional[Dict] = None) -> Dict:
         """Convert type definitions to OpenAPI schema types, using standardized schemas where possible."""
@@ -1027,4 +1047,4 @@ def main():
 
 
 if __name__ == '__main__':
-    sys.exit(main())  
+    sys.exit(main())        
