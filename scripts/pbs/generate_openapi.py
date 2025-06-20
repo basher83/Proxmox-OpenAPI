@@ -33,7 +33,13 @@ def find_apidoc_file() -> Optional[str]:
 
 
 def main() -> int:
-    """Generate comprehensive PBS OpenAPI specification using enhanced unified parser with performance optimizations."""
+    """
+    Generate comprehensive PBS OpenAPI specification using enhanced unified parser with performance optimizations.
+
+    Orchestrates the complete PBS API generation workflow including file discovery,
+    schema extraction, endpoint processing, and output file creation in both JSON
+    and YAML formats. High line count due to comprehensive generation pipeline.
+    """
     print(
         "🚀 Creating Proxmox Backup Server OpenAPI specification using enhanced unified parser..."
     )

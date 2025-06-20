@@ -64,7 +64,13 @@ class UnifiedProxmoxParser:
         self.config = config
 
     def extract_api_schema(self, js_file_path: str) -> List[Dict[str, Any]]:
-        """Extract the API schema using multiple fallback methods with file caching."""
+        """
+        Extract API schema from JavaScript file using Node.js parsing with fallback.
+
+        Attempts Node.js parsing first for accurate JavaScript evaluation, then falls back
+        to Python regex-based parsing if Node.js is unavailable. Handles complex JavaScript
+        structures including nested objects, arrays, and dynamic expressions.
+        """
         file_path = Path(js_file_path).resolve()
         current_mtime = file_path.stat().st_mtime
 
@@ -192,7 +198,13 @@ class UnifiedProxmoxParser:
             return self._extract_basic_structure(schema_str)
 
     def _extract_basic_structure(self, content: str) -> List[Dict[str, Any]]:
-        """Extract basic structure when JSON parsing fails."""
+        """
+        Extract basic API structure using regex patterns as Node.js fallback.
+
+        Performs comprehensive regex-based parsing of JavaScript API schema definitions
+        when Node.js is unavailable. Handles multiple JavaScript syntax patterns,
+        object property extraction, and nested structure parsing with error recovery.
+        """
         endpoints = []
 
         paths = self._PATH_PATTERN.findall(content)
@@ -235,7 +247,13 @@ class UnifiedProxmoxParser:
     def flatten_api_endpoints(
         self, schema: List[Dict[str, Any]], parent_path: str = ""
     ) -> List[Dict[str, Any]]:
-        """Flatten the nested API schema structure."""
+        """
+        Flatten nested API endpoints into a list of individual endpoints with path resolution.
+
+        Recursively processes nested API schema structures, resolves path hierarchies,
+        normalizes endpoint definitions, and creates flat endpoint list suitable for
+        OpenAPI specification generation. Handles complex nesting and path inheritance.
+        """
         endpoints = []
 
         for item in schema:
@@ -363,7 +381,13 @@ class UnifiedProxmoxParser:
         return components
 
     def _get_standardized_schemas(self) -> Dict[str, Any]:
-        """Generate comprehensive standardized OpenAPI schemas for common Proxmox API data types and structures."""
+        """
+        Generate comprehensive standardized schema definitions for OpenAPI specification.
+
+        Creates reusable schemas for common Proxmox patterns including error responses,
+        task objects, resource identifiers, and validation patterns. High line count
+        due to detailed schema definitions required for comprehensive API coverage.
+        """
         schemas = {
             # Standard response schemas
             "ProxmoxError": {
@@ -549,7 +573,13 @@ class UnifiedProxmoxParser:
         }
 
     def _convert_endpoint_to_openapi(self, endpoint: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert a Proxmox API endpoint to OpenAPI format with comprehensive parameter and response handling."""
+        """
+        Convert a Proxmox API endpoint to OpenAPI format with comprehensive parameter and response handling.
+
+        Processes endpoint methods, parameters, and responses to create complete OpenAPI
+        path item objects. Handles parameter validation, response schema generation,
+        security requirements, and standardized error responses for each HTTP method.
+        """
         path_item = {}
 
         for method, method_info in endpoint["methods"].items():
@@ -848,7 +878,13 @@ class UnifiedProxmoxParser:
     def _get_standardized_schema_ref(
         self, param_info: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Determine appropriate schema reference for parameter based on name patterns and type information."""
+        """
+        Determine appropriate schema reference for parameter based on name patterns and type information.
+
+        Analyzes parameter characteristics including name patterns, type information,
+        and descriptions to select appropriate standardized schema references.
+        Provides consistent validation and documentation across similar parameters.
+        """
         param_type = param_info.get("type", "string")
         pattern = param_info.get("pattern", "")
         description = param_info.get("description", "").lower()
@@ -1048,7 +1084,13 @@ The API supports token-based authentication with CSRF protection for secure back
 
 
 def main() -> int:
-    """Main function demonstrating unified parser usage for both PVE and PBS API generation."""
+    """
+    Main function demonstrating unified parser usage for both PVE and PBS API generation.
+
+    Handles command-line argument parsing, API type configuration, schema extraction,
+    endpoint flattening, OpenAPI specification generation, and output file creation.
+    High complexity due to comprehensive workflow orchestration and error handling.
+    """
     if len(sys.argv) < 4:
         print("Usage: python unified_parser.py <api_type> <input_js_file> <output_dir>")
         print("  api_type: 'pve' or 'pbs'")
