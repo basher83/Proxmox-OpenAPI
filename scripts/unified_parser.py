@@ -44,6 +44,19 @@ class UnifiedProxmoxParser:
     """Unified parser for Proxmox APIs with comprehensive standardization."""
 
     _file_cache: Dict[str, tuple] = {}  # {file_path: (content, mtime)}
+    
+    _API_SCHEMA_PATTERN = re.compile(r'(var|const|let)\s+apiSchema\s*=\s*\[')
+    _REGEX_PATTERN = re.compile(r'"/[^"]*/"')
+    _JS_SINGLE_QUOTE_KEY = re.compile(r"'([^']*)':")
+    _JS_SINGLE_QUOTE_VALUE = re.compile(r": '([^']*)'")
+    _JS_TRUE = re.compile(r'\btrue\b')
+    _JS_FALSE = re.compile(r'\bfalse\b')
+    _JS_NULL = re.compile(r'\bnull\b')
+    _JS_TRAILING_COMMA = re.compile(r',(\s*[}\]])')
+    _JS_UNDEFINED = re.compile(r'\bundefined\b')
+    _PATH_PATTERN = re.compile(r'"path":\s*"([^"]+)"')
+    _METHOD_PATTERN = re.compile(r'"(GET|POST|PUT|DELETE|PATCH)":\s*\{')
+    _PATH_PARAMS_PATTERN = re.compile(r'\{([^}]+)\}')
 
     def __init__(self, config: APIConfig):
         self.config = config
@@ -66,7 +79,7 @@ class UnifiedProxmoxParser:
             self._file_cache[str(file_path)] = (content, current_mtime)
 
         # Find the start and end of apiSchema (handle both var and const)
-        start_match = re.search(r'(var|const|let)\s+apiSchema\s*=\s*\[', content)
+        start_match = self._API_SCHEMA_PATTERN.search(content)
         if not start_match:
             raise ValueError("Could not find apiSchema start")
 
@@ -134,16 +147,16 @@ class UnifiedProxmoxParser:
             return placeholder
 
         # Find and replace regex patterns
-        schema_str = re.sub(r'"/[^"]*/"', replace_regex, schema_str)
+        schema_str = self._REGEX_PATTERN.sub(replace_regex, schema_str)
 
-        # Basic JavaScript to JSON conversion
-        schema_str = re.sub(r"'([^']*)':", r'"\1":', schema_str)
-        schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
-        schema_str = re.sub(r'\btrue\b', 'true', schema_str)
-        schema_str = re.sub(r'\bfalse\b', 'false', schema_str)
-        schema_str = re.sub(r'\bnull\b', 'null', schema_str)
-        schema_str = re.sub(r',(\s*[}\]])', r'\1', schema_str)
-        schema_str = re.sub(r'\bundefined\b', 'null', schema_str)
+        # Basic JavaScript to JSON conversion using pre-compiled patterns
+        schema_str = self._JS_SINGLE_QUOTE_KEY.sub(r'"\1":', schema_str)
+        schema_str = self._JS_SINGLE_QUOTE_VALUE.sub(r': "\1"', schema_str)
+        schema_str = self._JS_TRUE.sub('true', schema_str)
+        schema_str = self._JS_FALSE.sub('false', schema_str)
+        schema_str = self._JS_NULL.sub('null', schema_str)
+        schema_str = self._JS_TRAILING_COMMA.sub(r'\1', schema_str)
+        schema_str = self._JS_UNDEFINED.sub('null', schema_str)
 
         try:
             schema = json.loads(schema_str)
@@ -174,10 +187,7 @@ class UnifiedProxmoxParser:
         """Extract basic structure when JSON parsing fails."""
         endpoints = []
 
-        path_pattern = r'"path":\s*"([^"]+)"'
-        method_pattern = r'"(GET|POST|PUT|DELETE|PATCH)":\s*\{'
-
-        paths = re.findall(path_pattern, content)
+        paths = self._PATH_PATTERN.findall(content)
 
         for path in paths:
             path_start = content.find(f'"path": "{path}"')
@@ -198,7 +208,7 @@ class UnifiedProxmoxParser:
                         break
 
             obj_content = content[obj_start:obj_end]
-            methods = re.findall(method_pattern, obj_content)
+            methods = self._METHOD_PATTERN.findall(obj_content)
 
             if methods:
                 endpoint = {
@@ -537,7 +547,7 @@ class UnifiedProxmoxParser:
             parameters = []
 
             # Path parameters
-            path_params = re.findall(r'\{([^}]+)\}', endpoint['path'])
+            path_params = self._PATH_PARAMS_PATTERN.findall(endpoint['path'])
             for param in path_params:
                 parameters.append({
                     'name': param,
