@@ -33,7 +33,13 @@ def find_apidoc_file() -> Optional[str]:
 
 
 def main() -> int:
-    """Generate comprehensive PVE OpenAPI specification using enhanced unified parser with performance optimizations."""
+    """
+    Generate comprehensive PVE OpenAPI specification using enhanced unified parser with performance optimizations.
+
+    Orchestrates the complete PVE API generation workflow including file discovery,
+    schema extraction, endpoint processing, and output file creation in both JSON
+    and YAML formats. High line count due to comprehensive generation pipeline.
+    """
     print(
         "🚀 Creating Proxmox VE OpenAPI specification using enhanced unified parser..."
     )
