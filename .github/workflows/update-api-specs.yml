@@ -1,5 +1,8 @@
 name: Update Proxmox API Specifications
 
+permissions:
+  contents: read
+
 on:
   schedule:
     # Run weekly on Sundays at 2 AM UTC
@@ -189,6 +192,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: [update-pve-specs, update-pbs-specs]
     if: always() && (needs.update-pve-specs.result == 'success' || needs.update-pbs-specs.result == 'success')
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
