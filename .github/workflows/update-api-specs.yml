@@ -1,5 +1,8 @@
 name: Update Proxmox API Specifications
 
+permissions:
+  contents: write
+
 on:
   schedule:
     # Run weekly on Sundays at 2 AM UTC
