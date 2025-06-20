@@ -33,7 +33,7 @@ def find_apidoc_file() -> Optional[str]:
 
 
 def main() -> int:
-    """Generate PBS OpenAPI specification using the enhanced unified parser."""
+    """Generate comprehensive PBS OpenAPI specification using enhanced unified parser with performance optimizations."""
     print(
         "🚀 Creating Proxmox Backup Server OpenAPI specification using enhanced unified parser..."
     )

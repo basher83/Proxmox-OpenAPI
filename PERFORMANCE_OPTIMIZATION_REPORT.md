@@ -35,6 +35,7 @@ schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
 **Issue**: 95% identical code between PVE and PBS generators (125 lines each, ~119 lines duplicated)
 
 **Duplicated logic**:
+
 - File path resolution (lines 18-31)
 - Main generation workflow (lines 34-120)
 - Statistics calculation (lines 87-90)
@@ -94,6 +95,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 - **File I/O**: Optimized with caching
 
 ### Projected Performance After Optimizations
+
 - **Regex Compilation Fix**: 10-20% faster (1-2 seconds saved)
 - **Code Deduplication**: No runtime impact, 40% less maintenance overhead
 - **String Processing**: 5-10% faster (0.5-1 second saved)
@@ -118,6 +120,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 2. **Validation** - Run performance tests to measure improvement
 
 ### Phase 2: Structural Improvements (2-3 hours)
+
 1. **Code Deduplication** - Create unified generator framework
 2. **String Processing** - Optimize multi-pass regex operations
 3. **Testing** - Ensure functionality remains intact
@@ -137,6 +140,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 - **Consistent Error Handling**: Unified approach across generators
 
 ### Testing Considerations
+
 - All optimizations should maintain existing functionality
 - Performance regression tests should be added
 - Memory usage should be monitored

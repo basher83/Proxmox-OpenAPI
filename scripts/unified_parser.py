@@ -363,7 +363,7 @@ class UnifiedProxmoxParser:
         return components
 
     def _get_standardized_schemas(self) -> Dict[str, Any]:
-        """Get standardized schemas including error components and common data patterns."""
+        """Generate comprehensive standardized OpenAPI schemas for common Proxmox API data types and structures."""
         schemas = {
             # Standard response schemas
             "ProxmoxError": {
@@ -549,7 +549,7 @@ class UnifiedProxmoxParser:
         }
 
     def _convert_endpoint_to_openapi(self, endpoint: Dict[str, Any]) -> Dict[str, Any]:
-        """Convert a Proxmox endpoint to OpenAPI path item with standardized responses."""
+        """Convert a Proxmox API endpoint to OpenAPI format with comprehensive parameter and response handling."""
         path_item = {}
 
         for method, method_info in endpoint["methods"].items():
@@ -848,7 +848,7 @@ class UnifiedProxmoxParser:
     def _get_standardized_schema_ref(
         self, param_info: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """Get standardized schema reference if parameter matches common patterns."""
+        """Determine appropriate schema reference for parameter based on name patterns and type information."""
         param_type = param_info.get("type", "string")
         pattern = param_info.get("pattern", "")
         description = param_info.get("description", "").lower()
@@ -1048,7 +1048,7 @@ The API supports token-based authentication with CSRF protection for secure back
 
 
 def main() -> int:
-    """Main function to parse API and generate OpenAPI spec."""
+    """Main function demonstrating unified parser usage for both PVE and PBS API generation."""
     if len(sys.argv) < 4:
         print("Usage: python unified_parser.py <api_type> <input_js_file> <output_dir>")
         print("  api_type: 'pve' or 'pbs'")
