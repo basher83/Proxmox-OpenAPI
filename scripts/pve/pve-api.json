@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Proxmox VE API",
-    "description": "Complete Proxmox Virtual Environment API specification for managing virtualized infrastructure.\n\nThis specification covers all aspects of Proxmox VE management including:\n- **Virtual Machine Management**: Create, configure, and manage VMs\n- **Container Management**: LXC container lifecycle management  \n- **Storage Management**: Configure and manage storage backends\n- **Network Configuration**: Virtual networks and firewall rules\n- **Cluster Operations**: Multi-node cluster management\n- **User Management**: Authentication, authorization, and access control\n- **Backup & Restore**: Data protection and recovery\n- **Monitoring**: System status and performance metrics\n\nThe API supports both token-based authentication and session-based authentication with CSRF protection.",
+    "description": "Complete Proxmox Virtual Environment API specification for managing virtualized infrastructure.\n\nThis specification covers all aspects of Proxmox VE management including:\n- **Virtual Machine Management**: Create, configure, and manage VMs\n- **Container Management**: LXC container lifecycle management\n- **Storage Management**: Configure and manage storage backends\n- **Network Configuration**: Virtual networks and firewall rules\n- **Cluster Operations**: Multi-node cluster management\n- **User Management**: Authentication, authorization, and access control\n- **Backup & Restore**: Data protection and recovery\n- **Monitoring**: System status and performance metrics\n\nThe API supports both token-based authentication and session-based authentication with CSRF protection.",
     "version": "8.0.0",
     "contact": {
       "name": "Proxmox Support",
