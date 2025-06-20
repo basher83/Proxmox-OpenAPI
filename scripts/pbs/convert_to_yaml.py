@@ -10,7 +10,7 @@ import sys
 import yaml
 
 
-def convert_json_to_yaml(input_file, output_file):
+def convert_json_to_yaml(input_file: str, output_file: str) -> bool:
     """Convert JSON file to YAML format."""
     try:
         # Read JSON file
@@ -32,7 +32,7 @@ def convert_json_to_yaml(input_file, output_file):
     return True
 
 
-def main():
+def main() -> int:
     """Main function."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
     workspace_root = os.path.dirname(os.path.dirname(script_dir))

@@ -130,7 +130,11 @@ class UnifiedProxmoxParser:
             result = subprocess.run(["node", temp_file], capture_output=True, text=True)
             if result.returncode == 0:
                 parsed_result = json.loads(result.stdout)
-                return parsed_result if isinstance(parsed_result, list) else [parsed_result]
+                return (
+                    parsed_result
+                    if isinstance(parsed_result, list)
+                    else [parsed_result]
+                )
             else:
                 raise Exception(f"Node.js error: {result.stderr}")
         finally:
@@ -704,7 +708,9 @@ class UnifiedProxmoxParser:
             # Fallback to basic string type with description
             return {"type": "string", "description": f"The {param_name} parameter"}
 
-    def _convert_parameters_to_openapi(self, pbs_params: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_parameters_to_openapi(
+        self, pbs_params: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Convert parameter definitions to OpenAPI parameters."""
         if (
             not pbs_params
@@ -734,7 +740,9 @@ class UnifiedProxmoxParser:
 
         return result
 
-    def _build_param_schema(self, param_name: str, param_info: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_param_schema(
+        self, param_name: str, param_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Build schema for a single parameter."""
         param_schema = self._convert_type_to_openapi(
             param_info.get("type", "string"),
@@ -765,7 +773,9 @@ class UnifiedProxmoxParser:
 
         return param_schema
 
-    def _add_param_constraints(self, param_schema: Dict[str, Any], param_info: Dict[str, Any]) -> None:
+    def _add_param_constraints(
+        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+    ) -> None:
         """Add parameter constraints to schema."""
         for constraint in ["minLength", "maxLength", "minimum", "maximum"]:
             if constraint in param_info:
@@ -774,7 +784,9 @@ class UnifiedProxmoxParser:
                 except (ValueError, TypeError):
                     pass
 
-    def _add_param_pattern(self, param_schema: Dict[str, Any], param_info: Dict[str, Any]) -> None:
+    def _add_param_pattern(
+        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+    ) -> None:
         """Add pattern constraint to schema."""
         if "pattern" in param_info:
             pattern = param_info["pattern"]
@@ -789,7 +801,9 @@ class UnifiedProxmoxParser:
                 except re.error:
                     pass
 
-    def _add_array_items(self, param_schema: Dict[str, Any], param_info: Dict[str, Any]) -> None:
+    def _add_array_items(
+        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+    ) -> None:
         """Add array items schema."""
         if param_info.get("type") == "array" and "items" in param_info:
             items_info = param_info["items"]
@@ -831,7 +845,9 @@ class UnifiedProxmoxParser:
 
         return {"type": "string", "description": f"Type: {pbs_type}"}
 
-    def _get_standardized_schema_ref(self, param_info: Dict[str, Any]) -> Dict[str, Any]:
+    def _get_standardized_schema_ref(
+        self, param_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Get standardized schema reference if parameter matches common patterns."""
         param_type = param_info.get("type", "string")
         pattern = param_info.get("pattern", "")
@@ -880,7 +896,9 @@ class UnifiedProxmoxParser:
 
         return {}
 
-    def _convert_returns_to_openapi_schema(self, returns_info: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_returns_to_openapi_schema(
+        self, returns_info: Dict[str, Any]
+    ) -> Dict[str, Any]:
         """Convert returns definition to OpenAPI schema."""
         if not isinstance(returns_info, dict):
             return {"type": "string"}

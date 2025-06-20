@@ -8,7 +8,9 @@ This report identifies performance bottlenecks in the Proxmox-OpenAPI codebase a
 
 ### 1. 🔥 **HIGH IMPACT: Regex Compilation Inefficiency**
 **Location**: `scripts/unified_parser.py` lines 69, 137-146, 177-201, 540, 745
+
 **Impact**: 10-20% performance improvement potential
+
 **Issue**: Multiple regex patterns are compiled on every method call instead of being pre-compiled as class attributes.
 
 **Current inefficient patterns**:
@@ -27,7 +29,9 @@ schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
 
 ### 2. 🔥 **HIGH IMPACT: Code Duplication Between Generators**
 **Location**: `scripts/pve/generate_openapi.py` vs `scripts/pbs/generate_openapi.py`
+
 **Impact**: 30-40% code reduction, improved maintainability
+
 **Issue**: 95% identical code between PVE and PBS generators (125 lines each, ~119 lines duplicated)
 
 **Duplicated logic**:
@@ -40,7 +44,9 @@ schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
 
 ### 3. 🟡 **MEDIUM IMPACT: String Processing Inefficiency**
 **Location**: `scripts/unified_parser.py` lines 139-146
+
 **Impact**: 5-10% performance improvement
+
 **Issue**: Multiple sequential regex substitutions on large content strings (1-2MB apidoc.js files)
 
 **Current approach**:
@@ -55,7 +61,9 @@ schema_str = re.sub(r": '([^']*)'", r': "\1"', schema_str)
 
 ### 4. 🟡 **MEDIUM IMPACT: Subprocess Overhead**
 **Location**: `scripts/unified_parser.py` lines 102-120
+
 **Impact**: 5-15% performance improvement
+
 **Issue**: Node.js parsing creates temporary files and spawns processes unnecessarily
 
 **Current approach**:
@@ -71,12 +79,15 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 
 ### 5. ✅ **ALREADY OPTIMIZED: File I/O Caching**
 **Location**: `scripts/unified_parser.py` lines 46-66
+
 **Status**: Well implemented with 40-60% performance improvement
+
 **Implementation**: File content caching with mtime validation
 
 ## Performance Benchmarks
 
 ### Current Performance (Estimated)
+
 - **PVE API Generation**: ~8-12 seconds
 - **PBS API Generation**: ~6-10 seconds  
 - **Memory Usage**: ~50-100MB peak
@@ -102,6 +113,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 ## Recommended Implementation Plan
 
 ### Phase 1: Quick Wins (30 minutes)
+
 1. **Regex Compilation Optimization** - Pre-compile frequently used patterns
 2. **Validation** - Run performance tests to measure improvement
 
@@ -111,6 +123,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 3. **Testing** - Ensure functionality remains intact
 
 ### Phase 3: Advanced Optimizations (3+ hours)
+
 1. **Subprocess Optimization** - Eliminate temporary file creation
 2. **Memory Optimization** - Profile and optimize memory usage
 3. **Benchmarking** - Comprehensive performance testing
@@ -118,6 +131,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 ## Code Quality Impact
 
 ### Maintainability Improvements
+
 - **Reduced Code Duplication**: 119 lines → ~30 lines shared logic
 - **Centralized Regex Patterns**: Easier to modify and debug
 - **Consistent Error Handling**: Unified approach across generators
@@ -132,6 +146,7 @@ result = subprocess.run(['node', temp_file], capture_output=True, text=True)
 The Proxmox-OpenAPI codebase has several optimization opportunities that could provide 20-45% performance improvements with relatively low implementation effort. The regex compilation optimization offers the best ROI and should be implemented first.
 
 **Next Steps**:
+
 1. Implement regex compilation optimization (P0)
 2. Create performance benchmarking suite
 3. Plan code deduplication refactoring (P1)

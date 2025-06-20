@@ -9,7 +9,7 @@ import sys
 import yaml
 
 
-def convert_json_to_yaml(input_file, output_file):
+def convert_json_to_yaml(input_file: str, output_file: str) -> bool:
     """Convert JSON OpenAPI spec to YAML format"""
 
     print(f"🔄 Converting {input_file} to YAML format...")
@@ -55,7 +55,7 @@ def convert_json_to_yaml(input_file, output_file):
         return False
 
 
-def main():
+def main() -> None:
     input_file = "pve-api.json"
     output_file = "pve-api.yaml"
 

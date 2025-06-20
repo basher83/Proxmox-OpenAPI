@@ -8,6 +8,7 @@ import json
 import os
 import sys
 from pathlib import Path
+from typing import Optional
 
 # Add the parent scripts directory to the path so we can import the unified parser
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -15,7 +16,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from unified_parser import UnifiedProxmoxParser, get_pbs_config
 
 
-def find_apidoc_file():
+def find_apidoc_file() -> Optional[str]:
     """Find the PBS apidoc.js file using multiple search paths."""
     possible_paths = [
         "apidoc.js",  # When run from within the PBS directory
@@ -31,7 +32,7 @@ def find_apidoc_file():
     return None
 
 
-def main():
+def main() -> int:
     """Generate PBS OpenAPI specification using the enhanced unified parser."""
     print(
         "🚀 Creating Proxmox Backup Server OpenAPI specification using enhanced unified parser..."
