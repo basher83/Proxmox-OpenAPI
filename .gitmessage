@@ -1,0 +1,69 @@
+# <type>(<scope>): <subject>
+#
+# <body>
+#
+# <footer>
+
+# Type should be one of the following:
+# * feat: A new feature
+# * fix: A bug fix
+# * docs: Documentation only changes
+# * style: Changes that do not affect the meaning of the code
+# * refactor: A code change that neither fixes a bug nor adds a feature
+# * perf: A code change that improves performance
+# * test: Adding missing tests or correcting existing tests
+# * chore: Changes to the build process or auxiliary tools
+# * ci: Changes to CI configuration files and scripts
+# * build: Changes that affect the build system or external dependencies
+# * revert: Reverts a previous commit
+
+# Scope should be noun describing a section of the codebase surrounded by parentheses, e.g.:
+# * api: API related changes
+# * pve: Proxmox VE specific changes
+# * pbs: Proxmox Backup Server specific changes
+# * spec: OpenAPI specification changes
+# * parser: Parser/generator script changes
+# * schema: Schema definition changes
+# * validation: Validation related changes
+# * deps: Dependency changes
+
+# Subject line rules:
+# * Use the imperative mood ("Add feature" not "Added feature")
+# * Don't capitalize the first letter
+# * No dot (.) at the end
+# * Limit to 50 characters
+
+# Body rules:
+# * Wrap at 72 characters
+# * Use the imperative mood
+# * Explain what and why vs. how
+# * Can include multiple paragraphs with a blank line between them
+
+# Footer rules:
+# * Optional
+# * Used for breaking changes, issues, and other metadata
+# * Breaking changes should start with "BREAKING CHANGE:"
+# * Reference issues and pull requests when applicable
+# * Format: "Fixes #123" or "Closes #123" or "Refs #123"
+
+# Examples:
+# feat(api): add support for Proxmox VE 8.0 API endpoints
+#
+# Add new API endpoints for container and VM management
+# introduced in Proxmox VE 8.0. This includes support for
+# advanced networking configurations and improved backup
+# scheduling options.
+#
+# Fixes #42
+
+# fix(pbs): correct datastore backup validation schema
+#
+# The backup validation was incorrectly rejecting valid
+# backup configurations due to a missing optional field
+# in the schema definition.
+#
+# Closes #38
+
+# docs: update installation instructions for Python 3.9+
+#
+# BREAKING CHANGE: minimum Python version is now 3.9
