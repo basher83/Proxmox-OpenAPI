@@ -14,7 +14,7 @@ import tempfile
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 
 class ProxmoxAPI(Enum):
@@ -34,18 +34,18 @@ class APIConfig:
     version: str
     default_port: int
     server_path: str
-    auth_schemes: Dict[str, Dict[str, Any]]
-    tag_mapping: Dict[str, str]
+    auth_schemes: dict[str, dict[str, Any]]
+    tag_mapping: dict[str, str]
     # Enhanced standardization fields
     contact_email: str = "support@proxmox.com"
-    security_patterns: Optional[List[Dict[str, Any]]] = None
+    security_patterns: Optional[list[dict[str, Any]]] = None
     enable_session_auth: bool = False
 
 
 class UnifiedProxmoxParser:
     """Unified parser for Proxmox APIs with comprehensive standardization."""
 
-    _file_cache: Dict[str, Tuple[str, float]] = {}  # {file_path: (content, mtime)}
+    _file_cache: dict[str, tuple[str, float]] = {}  # {file_path: (content, mtime)}
 
     _API_SCHEMA_PATTERN = re.compile(r"(var|const|let)\s+apiSchema\s*=\s*\[")
     _REGEX_PATTERN = re.compile(r'"/[^"]*/"')
@@ -63,7 +63,7 @@ class UnifiedProxmoxParser:
     def __init__(self, config: APIConfig):
         self.config = config
 
-    def extract_api_schema(self, js_file_path: str) -> List[Dict[str, Any]]:
+    def extract_api_schema(self, js_file_path: str) -> list[dict[str, Any]]:
         """
         Extract API schema from JavaScript file using Node.js parsing with fallback.
 
@@ -121,7 +121,7 @@ class UnifiedProxmoxParser:
             except Exception:
                 return self._extract_basic_structure(content)
 
-    def _parse_with_nodejs(self, schema_str: str) -> List[Dict[str, Any]]:
+    def _parse_with_nodejs(self, schema_str: str) -> list[dict[str, Any]]:
         """Try to parse using Node.js."""
         js_code = f"""
         const apiSchema = {schema_str};
@@ -146,7 +146,7 @@ class UnifiedProxmoxParser:
         finally:
             os.unlink(temp_file)
 
-    def _parse_with_python_fallback(self, schema_str: str) -> List[Dict[str, Any]]:
+    def _parse_with_python_fallback(self, schema_str: str) -> list[dict[str, Any]]:
         """Fallback parser using Python regex and string manipulation."""
         # Handle regex patterns - replace them with string placeholders
         regex_patterns = []
@@ -197,7 +197,7 @@ class UnifiedProxmoxParser:
         except json.JSONDecodeError:
             return self._extract_basic_structure(schema_str)
 
-    def _extract_basic_structure(self, content: str) -> List[Dict[str, Any]]:
+    def _extract_basic_structure(self, content: str) -> list[dict[str, Any]]:
         """
         Extract basic API structure using regex patterns as Node.js fallback.
 
@@ -245,8 +245,8 @@ class UnifiedProxmoxParser:
         )
 
     def flatten_api_endpoints(
-        self, schema: List[Dict[str, Any]], parent_path: str = ""
-    ) -> List[Dict[str, Any]]:
+        self, schema: list[dict[str, Any]], parent_path: str = ""
+    ) -> list[dict[str, Any]]:
         """
         Flatten nested API endpoints into a list of individual endpoints with path resolution.
 
@@ -293,7 +293,7 @@ class UnifiedProxmoxParser:
 
         return endpoints
 
-    def create_openapi_spec(self, endpoints: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def create_openapi_spec(self, endpoints: list[dict[str, Any]]) -> dict[str, Any]:
         """Create the complete OpenAPI specification with standardized components."""
         paths = {}
 
@@ -333,7 +333,7 @@ class UnifiedProxmoxParser:
 
         return spec
 
-    def _build_standardized_info(self) -> Dict[str, Any]:
+    def _build_standardized_info(self) -> dict[str, Any]:
         """Build standardized info section based on completed template."""
         return {
             "title": self.config.title,
@@ -350,7 +350,7 @@ class UnifiedProxmoxParser:
             },
         }
 
-    def _build_standardized_servers(self) -> List[Dict[str, Any]]:
+    def _build_standardized_servers(self) -> list[dict[str, Any]]:
         """Build standardized server configuration using {host} variable."""
         api_name = (
             "Proxmox VE Server"
@@ -371,7 +371,7 @@ class UnifiedProxmoxParser:
             }
         ]
 
-    def _build_standardized_components(self) -> Dict[str, Any]:
+    def _build_standardized_components(self) -> dict[str, Any]:
         """Build standardized components with unified security schemes and error schemas."""
         components = {
             "securitySchemes": self.config.auth_schemes,
@@ -380,7 +380,7 @@ class UnifiedProxmoxParser:
 
         return components
 
-    def _get_standardized_schemas(self) -> Dict[str, Any]:
+    def _get_standardized_schemas(self) -> dict[str, Any]:
         """
         Generate comprehensive standardized schema definitions for OpenAPI specification.
 
@@ -511,7 +511,7 @@ class UnifiedProxmoxParser:
 
         return schemas
 
-    def _get_standardized_error_responses(self) -> Dict[str, Any]:
+    def _get_standardized_error_responses(self) -> dict[str, Any]:
         """Get standardized HTTP error responses."""
         return {
             "400": {
@@ -572,7 +572,7 @@ class UnifiedProxmoxParser:
             },
         }
 
-    def _convert_endpoint_to_openapi(self, endpoint: Dict[str, Any]) -> Dict[str, Any]:
+    def _convert_endpoint_to_openapi(self, endpoint: dict[str, Any]) -> dict[str, Any]:
         """
         Convert a Proxmox API endpoint to OpenAPI format with comprehensive parameter and response handling.
 
@@ -675,7 +675,7 @@ class UnifiedProxmoxParser:
 
         return path_item
 
-    def _build_operation_responses(self, method_info: Dict[str, Any]) -> Dict[str, Any]:
+    def _build_operation_responses(self, method_info: dict[str, Any]) -> dict[str, Any]:
         """Build standardized responses for an operation."""
         responses = {}
 
@@ -705,7 +705,7 @@ class UnifiedProxmoxParser:
 
         return responses
 
-    def _get_path_param_schema(self, param_name: str) -> Dict[str, Any]:
+    def _get_path_param_schema(self, param_name: str) -> dict[str, Any]:
         """Get appropriate schema for path parameters using standardized schemas."""
         # Map common path parameters to standardized schema references
         if param_name in ["vmid", "ctid"]:
@@ -739,8 +739,8 @@ class UnifiedProxmoxParser:
             return {"type": "string", "description": f"The {param_name} parameter"}
 
     def _convert_parameters_to_openapi(
-        self, pbs_params: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, pbs_params: dict[str, Any]
+    ) -> dict[str, Any]:
         """Convert parameter definitions to OpenAPI parameters."""
         if (
             not pbs_params
@@ -771,8 +771,8 @@ class UnifiedProxmoxParser:
         return result
 
     def _build_param_schema(
-        self, param_name: str, param_info: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, param_name: str, param_info: dict[str, Any]
+    ) -> dict[str, Any]:
         """Build schema for a single parameter."""
         param_schema = self._convert_type_to_openapi(
             param_info.get("type", "string"),
@@ -804,7 +804,7 @@ class UnifiedProxmoxParser:
         return param_schema
 
     def _add_param_constraints(
-        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+        self, param_schema: dict[str, Any], param_info: dict[str, Any]
     ) -> None:
         """Add parameter constraints to schema."""
         for constraint in ["minLength", "maxLength", "minimum", "maximum"]:
@@ -815,7 +815,7 @@ class UnifiedProxmoxParser:
                     pass
 
     def _add_param_pattern(
-        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+        self, param_schema: dict[str, Any], param_info: dict[str, Any]
     ) -> None:
         """Add pattern constraint to schema."""
         if "pattern" in param_info:
@@ -832,7 +832,7 @@ class UnifiedProxmoxParser:
                     pass
 
     def _add_array_items(
-        self, param_schema: Dict[str, Any], param_info: Dict[str, Any]
+        self, param_schema: dict[str, Any], param_info: dict[str, Any]
     ) -> None:
         """Add array items schema."""
         if param_info.get("type") == "array" and "items" in param_info:
@@ -848,8 +848,8 @@ class UnifiedProxmoxParser:
         self,
         pbs_type: str,
         format_hint: Optional[str] = None,
-        param_info: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any]:
+        param_info: Optional[dict[str, Any]] = None,
+    ) -> dict[str, Any]:
         """Convert type definitions to OpenAPI schema types, using standardized schemas where possible."""
         # Check if we can use a standardized schema reference
         if param_info:
@@ -876,8 +876,8 @@ class UnifiedProxmoxParser:
         return {"type": "string", "description": f"Type: {pbs_type}"}
 
     def _get_standardized_schema_ref(
-        self, param_info: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, param_info: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Determine appropriate schema reference for parameter based on name patterns and type information.
 
@@ -933,8 +933,8 @@ class UnifiedProxmoxParser:
         return {}
 
     def _convert_returns_to_openapi_schema(
-        self, returns_info: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, returns_info: dict[str, Any]
+    ) -> dict[str, Any]:
         """Convert returns definition to OpenAPI schema."""
         if not isinstance(returns_info, dict):
             return {"type": "string"}
