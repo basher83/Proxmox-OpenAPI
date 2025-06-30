@@ -220,11 +220,24 @@ curl -k -H "Authorization: PBSAPIToken=USER@REALM!TOKENID=UUID" \
 
 ### Contribution Guidelines
 
+- **Follow the [Git Commit Workflow](./docs/GIT_COMMIT_WORKFLOW.md)** - Comprehensive commit standards and quality gates
 - Maintain compatibility with official Proxmox API documentation
 - Follow OpenAPI 3.0.3 specification standards
 - Update both JSON and YAML formats
 - Include appropriate tests and validation
 - Update relevant README files
+
+#### Quick Validation
+
+Use the automated validation script before committing:
+
+```bash
+# Run all quality checks
+./scripts/validate-commit.sh
+
+# Run checks and commit with template
+./scripts/validate-commit.sh --commit
+```
 
 ## 📜 License
 
