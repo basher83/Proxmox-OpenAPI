@@ -76,7 +76,9 @@ def main() -> int:
         openapi_spec = parser.create_openapi_spec(endpoints)
 
         # Write JSON output
-        output_file = "pbs-api.json"
+        output_dir = Path(__file__).parent.parent.parent / "proxmox-backup-server"
+        output_dir.mkdir(exist_ok=True)
+        output_file = output_dir / "pbs-api.json"
         with open(output_file, "w", encoding="utf-8") as f:
             json.dump(openapi_spec, f, indent=2, ensure_ascii=False)
 
@@ -86,7 +88,7 @@ def main() -> int:
         try:
             import yaml
 
-            yaml_file = "pbs-api.yaml"
+            yaml_file = output_dir / "pbs-api.yaml"
             with open(yaml_file, "w", encoding="utf-8") as f:
                 yaml.dump(openapi_spec, f, default_flow_style=False, allow_unicode=True)
             print(f"🎉 OpenAPI YAML specification created: {yaml_file}")
