@@ -898,8 +898,10 @@ class UnifiedProxmoxParser:
         }
 
         # Handle null type specially for OpenAPI 3.0.3 compatibility
+        # In OpenAPI 3.0.3, there's no "null" type, so we need a workaround
+        # For response schemas that return nothing, we use an empty object
         if pbs_type == "null":
-            return {"type": "object", "nullable": True}
+            return {"type": "object", "properties": {}, "additionalProperties": False}
 
         if pbs_type in type_mapping:
             schema = type_mapping[pbs_type].copy()
