@@ -12,5 +12,34 @@
     "ghcr.io/devcontainers-extra/features/ripgrep:1": {
       "version": "latest"
     }
-  }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.mypy-type-checker",
+        "charliermarsh.ruff",
+        "redhat.vscode-yaml",
+        "ms-vscode.vscode-json",
+        "github.copilot",
+        "github.copilot-chat"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/local/bin/python",
+        "python.terminal.activateEnvironment": false,
+        "ruff.organizeImports": true,
+        "ruff.fixAll": true,
+        "[python]": {
+          "editor.defaultFormatter": "charliermarsh.ruff",
+          "editor.formatOnSave": true,
+          "editor.codeActionsOnSave": {
+            "source.organizeImports": "explicit",
+            "source.fixAll.ruff": "explicit"
+          }
+        }
+      }
+    }
+  },
+  "postCreateCommand": "uv sync --extra all",
+  "remoteUser": "codespace"
 }
