@@ -47,6 +47,10 @@ jobs:
       - name: Install Python dependencies
         run: uv sync
 
+      - name: Install OpenAPI validator
+        run: |
+          npm install -g @apidevtools/swagger-parser
+
       - name: Download latest PVE API documentation
         run: |
           # Download the latest PVE API viewer page
@@ -65,9 +69,6 @@ jobs:
 
       - name: Validate PVE OpenAPI specification
         run: |
-          # Install OpenAPI validator
-          npm install -g @apidevtools/swagger-parser
-
           # Validate the generated specs
           swagger-parser validate proxmox-virtual-environment/pve-api.json
           swagger-parser validate proxmox-virtual-environment/pve-api.yaml
