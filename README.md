@@ -5,6 +5,7 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/w/basher83/Proxmox-OpenAPI)
 ![GitHub last commit](https://img.shields.io/github/last-commit/basher83/Proxmox-OpenAPI)
 ![Python Version from PEP 621 TOML](https://img.shields.io/python/required-version-toml?tomlFilePath=https%3A%2F%2Fraw.githubusercontent.com%2Fbasher83%2FProxmox-OpenAPI%2Fmain%2Fpyproject.toml)
+[![Update Proxmox API Specifications](https://github.com/basher83/Proxmox-OpenAPI/actions/workflows/update-api-specs.yml/badge.svg)](https://github.com/basher83/Proxmox-OpenAPI/actions/workflows/update-api-specs.yml)
 
 Complete OpenAPI 3.0.3 specifications for Proxmox APIs, automatically generated from official documentation.
 
