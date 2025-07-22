@@ -29,7 +29,7 @@ This document outlines a strategic plan for integrating Dagger into the Proxmox 
 
 3. **Manual Quality Checks**
 
-   - Separate commands for Black, Ruff, MyPy
+   - Separate commands for Ruff format, Ruff lint, MyPy
    - Often forgotten in local development
    - Inconsistent application across team
 
@@ -54,7 +54,7 @@ This document outlines a strategic plan for integrating Dagger into the Proxmox 
 
 ```bash
 # Current manual process
-uv run black scripts/
+uv run ruff format scripts/
 uv run ruff check scripts/
 uv run mypy scripts/
 
@@ -142,7 +142,7 @@ dagger/
 #### 1. Lint Pipeline
 
 ```go
-// Lint runs code quality checks (Black, Ruff, MyPy)
+// Lint runs code quality checks (Ruff format, Ruff lint, MyPy)
 func (m *ProxmoxOpenapi) Lint(ctx context.Context, source *Directory) *Container
 
 // LintAndFix runs linting with auto-fix where possible
@@ -205,19 +205,19 @@ For teams preferring familiar interfaces:
 .PHONY: lint generate-pve generate-pbs pipeline
 
 lint:
-	dagger call lint
+ dagger call lint
 
 generate-pve:
-	dagger call generate --api=pve
+ dagger call generate --api=pve
 
 generate-pbs:
-	dagger call generate --api=pbs
+ dagger call generate --api=pbs
 
 pipeline:
-	dagger call pipeline --api=both
+ dagger call pipeline --api=both
 
 pipeline-ci:
-	dagger call pipeline --api=both --publish
+ dagger call pipeline --api=both --publish
 ```
 
 ## Migration Strategy

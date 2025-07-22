@@ -11,12 +11,13 @@ Every commit must follow this workflow to maintain code quality, security standa
 ### 1. Pre-Commit Validation
 
 #### 🧹 Code Quality Checks
+
 ```bash
 # Run linting
 ruff check .
 
 # Run formatting  
-black .
+ruff format .
 
 # Run type checking
 mypy .
@@ -26,6 +27,7 @@ pytest
 ```
 
 #### 🔒 Security Validation (for dependency changes)
+
 ```bash
 # For Python dependencies
 safety check
@@ -35,16 +37,19 @@ safety check
 ```
 
 #### 📊 Performance Validation (for perf changes)
+
 - Document before/after metrics
 - Include benchmark results in commit message
 
 ### 2. Atomic Commit Strategy
 
 #### ✅ One Logical Change Per Commit
+
 - **Good**: `fix(deps): update requests to secure version 2.32.4`
 - **Bad**: `fix(deps): update requests and add new API feature`
 
 #### 📂 Separate Commits By Type
+
 1. **Dependencies**: `fix(deps)` or `chore(deps)`
 2. **Features**: `feat(scope)`
 3. **Bug fixes**: `fix(scope)`
@@ -55,6 +60,7 @@ safety check
 ### 3. Commit Message Format
 
 #### 🎯 Use Project Template
+
 The project includes a `.gitmessage` template. Git is configured to use it automatically:
 
 ```bash
@@ -66,6 +72,7 @@ git commit
 ```
 
 #### 📝 Conventional Commits Structure
+
 ```
 <type>(<scope>): <subject>
 
@@ -75,12 +82,13 @@ git commit
 ```
 
 #### 🏷️ Commit Types
+
 | Type | Description | Example |
 |------|-------------|---------|
 | `feat` | New feature | `feat(api): add PVE 8.0 endpoint support` |
 | `fix` | Bug fix | `fix(parser): handle missing schema fields` |
 | `docs` | Documentation | `docs: update installation guide` |
-| `style` | Code formatting | `style: apply black formatting` |
+| `style` | Code formatting | `style: apply ruff formatting` |
 | `refactor` | Code restructuring | `refactor(utils): extract common functions` |
 | `perf` | Performance improvement | `perf(parser): optimize regex compilation` |
 | `test` | Test additions/fixes | `test(api): add validation test cases` |
@@ -90,6 +98,7 @@ git commit
 | `revert` | Revert previous commit | `revert: undo API breaking change` |
 
 #### 🎯 Project-Specific Scopes
+
 | Scope | Description | Example |
 |-------|-------------|---------|
 | `api` | API related changes | `feat(api): add new endpoint` |
@@ -104,6 +113,7 @@ git commit
 ### 4. Message Quality Standards
 
 #### 📏 Subject Line Rules
+
 - **Imperative mood**: "Add feature" not "Added feature"
 - **No capitalization**: "add feature" not "Add feature"
 - **No period**: "add feature" not "add feature."
@@ -111,6 +121,7 @@ git commit
 - **Clear and specific**: Describe the change precisely
 
 #### 📄 Body Guidelines
+
 - **Wrap at 72 characters**
 - **Explain WHAT and WHY**, not how
 - **Use imperative mood**
@@ -118,6 +129,7 @@ git commit
 - **Include context for complex changes**
 
 #### 🏁 Footer Requirements
+
 - **Breaking changes**: Start with `BREAKING CHANGE:`
 - **Issue references**: `Fixes #123`, `Closes #456`, `Refs #789`
 - **Security notes**: `Addresses CVE-2023-XXXX`
@@ -126,6 +138,7 @@ git commit
 ### 5. Security-Specific Requirements
 
 #### 🛡️ Dependency Security Validation
+
 For all `fix(deps)` or `chore(deps)` commits:
 
 ```bash
@@ -136,6 +149,7 @@ safety check
 ```
 
 **Required in commit message:**
+
 ```
 fix(deps): update requests to secure version 2.32.4
 
@@ -152,6 +166,7 @@ Fixes #123
 ```
 
 #### 🚨 Security Fix Format
+
 ```
 fix(security): patch XSS vulnerability in API response
 
@@ -166,13 +181,15 @@ Closes #456
 ### 6. Quality Gates
 
 #### ❌ Commit Blockers
+
 - **Failing tests**: All tests must pass
-- **Linting errors**: Code must pass ruff/black checks
+- **Linting errors**: Code must pass ruff checks
 - **Security vulnerabilities**: Dependencies must be secure
 - **Non-conventional messages**: Must follow template format
 - **Mixed changes**: No unrelated changes in single commit
 
 #### ✅ Commit Requirements
+
 - **All validations pass**: Code quality, tests, security
 - **Atomic changes**: Single logical modification
 - **Conventional format**: Proper type, scope, and structure
@@ -245,6 +262,7 @@ fix(deps): update packages
 ### 8. Automation Tools
 
 #### 🔧 Recommended Setup
+
 ```bash
 # Configure git to use the message template
 git config commit.template .gitmessage
@@ -255,6 +273,7 @@ pre-commit install
 ```
 
 #### 📝 Quick Validation Script
+
 ```bash
 #!/bin/bash
 # validate-commit.sh
@@ -264,7 +283,7 @@ echo "🔍 Running pre-commit validation..."
 # Code quality
 echo "📊 Checking code quality..."
 ruff check . || exit 1
-black . --check || exit 1
+ruff format . --check || exit 1
 
 # Tests
 echo "🧪 Running tests..."
@@ -282,11 +301,13 @@ echo "✅ All validations passed!"
 ### 9. Enforcement
 
 #### 🤖 Automated Checks
+
 - **CI/CD Pipeline**: Validates commit message format
 - **GitHub Actions**: Runs security scans on dependency changes
 - **Pre-commit Hooks**: Enforces code quality standards
 
 #### 👥 Human Review
+
 - **Pull Request Reviews**: Check adherence to workflow
 - **Security Reviews**: Required for security-related commits
 - **Architecture Reviews**: Required for significant changes
@@ -294,6 +315,7 @@ echo "✅ All validations passed!"
 ### 10. Migration Guide
 
 #### 🔄 Adopting These Rules
+
 1. **Review existing commits**: Understand current patterns
 2. **Install tools**: Set up linting, formatting, security scanning
 3. **Configure git**: Use the `.gitmessage` template
@@ -301,6 +323,7 @@ echo "✅ All validations passed!"
 5. **Team training**: Ensure all contributors understand the workflow
 
 #### 📚 Resources
+
 - [Conventional Commits](https://www.conventionalcommits.org/)
 - [Security Best Practices](https://owasp.org/www-community/controls/Static_Code_Analysis)
 - [Git Best Practices](https://git-scm.com/book/en/v2/Distributed-Git-Contributing-to-a-Project)
@@ -310,7 +333,8 @@ echo "✅ All validations passed!"
 ## 🎯 Quick Reference
 
 ### Commit Checklist
-- [ ] Code quality checks pass (ruff, black, mypy)
+
+- [ ] Code quality checks pass (ruff check, ruff format, mypy)
 - [ ] Tests pass (if applicable)
 - [ ] Security scan complete (for dependency changes)
 - [ ] Single logical change (atomic commit)
@@ -321,9 +345,10 @@ echo "✅ All validations passed!"
 - [ ] Security validation documented (for security/dependency changes)
 
 ### Command Quick Reference
+
 ```bash
 # Validate
-ruff check . && black . && pytest
+ruff check . && ruff format . && pytest
 
 # Security check
 safety check

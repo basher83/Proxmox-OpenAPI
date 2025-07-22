@@ -114,16 +114,6 @@ uv sync --extra dev
 uv sync --extra all
 ```
 
-### Setup with pip (Alternative)
-
-```bash
-# Install core dependencies
-pip install -r requirements.txt
-
-# Or install with pyproject.toml
-pip install -e .
-```
-
 ### Regenerate Specifications
 
 #### Using UV (Recommended)

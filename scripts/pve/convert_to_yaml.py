@@ -44,9 +44,9 @@ def convert_json_to_yaml(input_file: str, output_file: str) -> bool:
         yaml_size = os.path.getsize(output_file)
 
         print("\n📁 File Comparison:")
-        print(f"   JSON: {json_size:,} bytes ({json_size/1024/1024:.1f} MB)")
-        print(f"   YAML: {yaml_size:,} bytes ({yaml_size/1024/1024:.1f} MB)")
-        print(f"   Ratio: {yaml_size/json_size:.1%}")
+        print(f"   JSON: {json_size:,} bytes ({json_size / 1024 / 1024:.1f} MB)")
+        print(f"   YAML: {yaml_size:,} bytes ({yaml_size / 1024 / 1024:.1f} MB)")
+        print(f"   Ratio: {yaml_size / json_size:.1%}")
 
         return True
 

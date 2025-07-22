@@ -73,18 +73,18 @@ if find . -name "*.py" -not -path "./.*" | head -1 | read; then
         print_status $YELLOW "  ⚠️  Ruff not found, skipping linting"
     fi
 
-    # Black formatting check
-    if command_exists black; then
-        print_status $BLUE "  🎨 Checking black formatting..."
-        if black . --check --diff; then
-            print_status $GREEN "  ✅ Black formatting passed"
+    # Ruff formatting check
+    if command_exists ruff; then
+        print_status $BLUE "  🎨 Checking ruff formatting..."
+        if ruff format . --check --diff; then
+            print_status $GREEN "  ✅ Ruff formatting passed"
         else
-            print_status $RED "  ❌ Black formatting failed"
-            print_status $YELLOW "  💡 Run 'black .' to fix formatting"
+            print_status $RED "  ❌ Ruff formatting failed"
+            print_status $YELLOW "  💡 Run 'ruff format .' to fix formatting"
             exit 1
         fi
     else
-        print_status $YELLOW "  ⚠️  Black not found, skipping formatting check"
+        print_status $YELLOW "  ⚠️  Ruff not found, skipping formatting check"
     fi
 
     # MyPy type checking
@@ -105,7 +105,7 @@ fi
 # 3. Test execution
 echo ""
 print_status $BLUE "🧪 Running tests..."
-if [ -d "tests" ] || find . -name "test_*.py" -o -name "*_test.py" | head -1 | read; then
+if [ -d "tests" ] || find . -path "./.venv" -prune -o -name "test_*.py" -print -o -name "*_test.py" -print | head -1 | read; then
     if command_exists pytest; then
         print_status $BLUE "  🎯 Running pytest..."
         if pytest --tb=short -q; then
@@ -146,7 +146,7 @@ if [ "$DEPS_CHANGED" = true ]; then
     print_status $BLUE "  🛡️  Running security validation..."
     
     # Python dependency security
-    if [ -f "pyproject.toml" ] || [ -f "requirements.txt" ]; then
+    if [ -f "pyproject.toml" ]; then
         if command_exists safety; then
             print_status $BLUE "    🔍 Running safety check..."
             if safety check; then
