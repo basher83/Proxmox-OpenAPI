@@ -588,7 +588,7 @@ class UnifiedProxmoxParser:
 
             operation = {
                 "summary": method_info.get(
-                    "description", f'{method} {endpoint["path"]}'
+                    "description", f"{method} {endpoint['path']}"
                 ),
                 "description": method_info.get("description", ""),
                 "operationId": f"{method.lower()}_{endpoint['path'].replace('/', '_').replace('{', '').replace('}', '').strip('_')}",
@@ -600,7 +600,9 @@ class UnifiedProxmoxParser:
 
             # Path parameters
             path_params = self._PATH_PARAMS_PATTERN.findall(endpoint["path"])
-            for param in path_params:
+            # Deduplicate path parameters to avoid OpenAPI validation errors
+            unique_path_params = list(dict.fromkeys(path_params))
+            for param in unique_path_params:
                 parameters.append(
                     {
                         "name": param,
@@ -774,9 +776,14 @@ class UnifiedProxmoxParser:
         self, param_name: str, param_info: dict[str, Any]
     ) -> dict[str, Any]:
         """Build schema for a single parameter."""
+        format_hint = param_info.get("format")
+        # Only pass format if it's a string, ignore complex format objects
+        if not isinstance(format_hint, str):
+            format_hint = None
+
         param_schema = self._convert_type_to_openapi(
             param_info.get("type", "string"),
-            param_info.get("format") if param_info.get("format") else None,
+            format_hint,
             param_info,
         )
 
@@ -796,7 +803,26 @@ class UnifiedProxmoxParser:
 
         # Handle default values
         if "default" in param_info:
-            param_schema["default"] = param_info["default"]
+            default_value = param_info["default"]
+            # Only add simple default values, skip complex descriptions
+            if isinstance(default_value, (str, int, float, bool)) and (
+                not isinstance(default_value, str) or len(default_value) < 50
+            ):
+                # Convert boolean-like integers to proper booleans for boolean types
+                if param_schema.get("type") == "boolean" and isinstance(
+                    default_value, int
+                ):
+                    param_schema["default"] = bool(default_value)
+                else:
+                    # Check if the default value is valid for enum types
+                    if (
+                        "enum" in param_schema
+                        and default_value not in param_schema["enum"]
+                    ):
+                        # Skip invalid enum defaults
+                        pass
+                    else:
+                        param_schema["default"] = default_value
 
         # Handle array items
         self._add_array_items(param_schema, param_info)
@@ -810,7 +836,12 @@ class UnifiedProxmoxParser:
         for constraint in ["minLength", "maxLength", "minimum", "maximum"]:
             if constraint in param_info:
                 try:
-                    param_schema[constraint] = param_info[constraint]
+                    value = param_info[constraint]
+                    # Only add numeric constraints, skip complex or invalid values
+                    if isinstance(value, (int, float)):
+                        param_schema[constraint] = value
+                    elif isinstance(value, str) and value.isdigit():
+                        param_schema[constraint] = int(value)
                 except (ValueError, TypeError):
                     pass
 
@@ -864,12 +895,15 @@ class UnifiedProxmoxParser:
             "boolean": {"type": "boolean"},
             "array": {"type": "array"},
             "object": {"type": "object"},
-            "null": {"type": "null"},
         }
+
+        # Handle null type specially for OpenAPI 3.0.3 compatibility
+        if pbs_type == "null":
+            return {"type": "object", "nullable": True}
 
         if pbs_type in type_mapping:
             schema = type_mapping[pbs_type].copy()
-            if format_hint:
+            if format_hint and isinstance(format_hint, str):
                 schema["format"] = format_hint
             return schema
 
@@ -902,11 +936,16 @@ class UnifiedProxmoxParser:
                     else {"$ref": "#/components/schemas/ProxmoxEmail"}
                 )
 
-        # VM ID pattern
+        # VM ID pattern - be more specific to avoid false matches
         if (
             param_type == "integer"
             and param_info.get("minimum") == 1
             and param_info.get("maximum", 0) > 100000
+            and (
+                "vmid" in description
+                or "vm id" in description
+                or "vm identifier" in description
+            )
         ):
             return {"$ref": "#/components/schemas/ProxmoxVmId"}
 
