@@ -1,0 +1,22 @@
+{
+    "permissions": {
+        "allow": [
+            "Bash(eza:*)",
+            "Bash(fd:*)",
+            "Bash(mkdir:*)",
+            "Bash(git:*)",
+            "Bash(rg:*)",
+            "Bash(chmod:*)",
+            "Bash(uv:*)"
+        ],
+        "deny": []
+    },
+    "enableAllProjectMcpServers": true,
+    "enabledMcpjsonServers": [
+        "grep",
+        "deepwiki"
+    ],
+    "hooks": {
+        "PreToolUse": []
+    }
+}
