@@ -32,7 +32,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install UV
         uses: astral-sh/setup-uv@v6
@@ -63,71 +63,35 @@ jobs:
           echo "🚀 Running PVE OpenAPI generation..."
           uv run python generate_openapi.py
           
-          echo "🔄 Running YAML conversion..."
-          uv run python convert_to_yaml.py
-          
-          echo "📁 Files after generation:"
-          ls -la *.json *.yaml 2>/dev/null || echo "No JSON/YAML files found"
-          
-          echo "📦 Moving files to output directory..."
-          # Move generated files to correct location
-          if [ -f "pve-api.json" ]; then
-            mv pve-api.json ../../proxmox-virtual-environment/
-            echo "✅ Moved pve-api.json"
-          else
-            echo "❌ pve-api.json not found"
-            exit 1
-          fi
-          
-          if [ -f "pve-api.yaml" ]; then
-            mv pve-api.yaml ../../proxmox-virtual-environment/
-            echo "✅ Moved pve-api.yaml"
-          else
-            echo "❌ pve-api.yaml not found"
-            exit 1
-          fi
-          
-          echo "📁 Final verification:"
-          ls -la ../../proxmox-virtual-environment/*.json ../../proxmox-virtual-environment/*.yaml 2>/dev/null || echo "Files not found in target directory"
-
-      - name: Install OpenAPI validator
-        run: |
-          # Install Python-based OpenAPI validator instead of npm
-          uv add --dev openapi-spec-validator
+          echo "📁 Verifying generated files:"
+          ls -la ../../proxmox-virtual-environment/*.json ../../proxmox-virtual-environment/*.yaml
 
       - name: Validate PVE OpenAPI specification
         run: |
           echo "🔍 Validating PVE OpenAPI specifications..."
           
-          if [ -f "proxmox-virtual-environment/pve-api.json" ]; then
+          # Validate the generated specifications
+          cd proxmox-virtual-environment
+          
+          # Validate JSON
+          if [ -f "pve-api.json" ]; then
             echo "📄 Validating pve-api.json..."
-            uv run python -c "
-from openapi_spec_validator import validate_spec
-import yaml, json
-with open('proxmox-virtual-environment/pve-api.json') as f:
-    spec = json.load(f)
-validate_spec(spec)
-print('✅ pve-api.json validation passed')
-"
+            uv run python -c "import json; from openapi_spec_validator import validate_spec; spec = json.load(open('pve-api.json')); validate_spec(spec); print('✅ pve-api.json validation passed')"
           else
-            echo "❌ pve-api.json not found for validation"
+            echo "❌ pve-api.json not found"
             exit 1
           fi
           
-          if [ -f "proxmox-virtual-environment/pve-api.yaml" ]; then
+          # Validate YAML
+          if [ -f "pve-api.yaml" ]; then
             echo "📄 Validating pve-api.yaml..."
-            uv run python -c "
-from openapi_spec_validator import validate_spec
-import yaml
-with open('proxmox-virtual-environment/pve-api.yaml') as f:
-    spec = yaml.safe_load(f)
-validate_spec(spec)
-print('✅ pve-api.yaml validation passed')
-"
+            uv run python -c "import yaml; from openapi_spec_validator import validate_spec; spec = yaml.safe_load(open('pve-api.yaml')); validate_spec(spec); print('✅ pve-api.yaml validation passed')"
           else
-            echo "❌ pve-api.yaml not found for validation"
+            echo "❌ pve-api.yaml not found"
             exit 1
           fi
+          
+          cd ..
 
       - name: Update PVE README with stats
         run: |
@@ -170,7 +134,7 @@ print('✅ pve-api.yaml validation passed')
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: "3.11"
 
       - name: Install UV
         uses: astral-sh/setup-uv@v6
@@ -201,71 +165,35 @@ print('✅ pve-api.yaml validation passed')
           echo "🚀 Running PBS OpenAPI generation..."
           uv run python generate_openapi.py
           
-          echo "🔄 Running YAML conversion..."
-          uv run python convert_to_yaml.py
-          
-          echo "📁 Files after generation:"
-          ls -la *.json *.yaml 2>/dev/null || echo "No JSON/YAML files found"
-          
-          echo "📦 Moving files to output directory..."
-          # Move generated files to correct location
-          if [ -f "pbs-api.json" ]; then
-            mv pbs-api.json ../../proxmox-backup-server/
-            echo "✅ Moved pbs-api.json"
-          else
-            echo "❌ pbs-api.json not found"
-            exit 1
-          fi
-          
-          if [ -f "pbs-api.yaml" ]; then
-            mv pbs-api.yaml ../../proxmox-backup-server/
-            echo "✅ Moved pbs-api.yaml"
-          else
-            echo "❌ pbs-api.yaml not found"
-            exit 1
-          fi
-          
-          echo "📁 Final verification:"
-          ls -la ../../proxmox-backup-server/*.json ../../proxmox-backup-server/*.yaml 2>/dev/null || echo "Files not found in target directory"
-
-      - name: Install OpenAPI validator
-        run: |
-          # Install Python-based OpenAPI validator instead of npm
-          uv add --dev openapi-spec-validator
+          echo "📁 Verifying generated files:"
+          ls -la ../../proxmox-backup-server/*.json ../../proxmox-backup-server/*.yaml
 
       - name: Validate PBS OpenAPI specification
         run: |
           echo "🔍 Validating PBS OpenAPI specifications..."
           
-          if [ -f "proxmox-backup-server/pbs-api.json" ]; then
+          # Validate the generated specifications
+          cd proxmox-backup-server
+          
+          # Validate JSON
+          if [ -f "pbs-api.json" ]; then
             echo "📄 Validating pbs-api.json..."
-            uv run python -c "
-from openapi_spec_validator import validate_spec
-import yaml, json
-with open('proxmox-backup-server/pbs-api.json') as f:
-    spec = json.load(f)
-validate_spec(spec)
-print('✅ pbs-api.json validation passed')
-"
+            uv run python -c "import json; from openapi_spec_validator import validate_spec; spec = json.load(open('pbs-api.json')); validate_spec(spec); print('✅ pbs-api.json validation passed')"
           else
-            echo "❌ pbs-api.json not found for validation"
+            echo "❌ pbs-api.json not found"
             exit 1
           fi
           
-          if [ -f "proxmox-backup-server/pbs-api.yaml" ]; then
+          # Validate YAML
+          if [ -f "pbs-api.yaml" ]; then
             echo "📄 Validating pbs-api.yaml..."
-            uv run python -c "
-from openapi_spec_validator import validate_spec
-import yaml
-with open('proxmox-backup-server/pbs-api.yaml') as f:
-    spec = yaml.safe_load(f)
-validate_spec(spec)
-print('✅ pbs-api.yaml validation passed')
-"
+            uv run python -c "import yaml; from openapi_spec_validator import validate_spec; spec = yaml.safe_load(open('pbs-api.yaml')); validate_spec(spec); print('✅ pbs-api.yaml validation passed')"
           else
-            echo "❌ pbs-api.yaml not found for validation"
+            echo "❌ pbs-api.yaml not found"
             exit 1
           fi
+          
+          cd ..
 
       - name: Update PBS README with stats
         run: |
