@@ -1,22 +1,44 @@
 {
     "permissions": {
         "allow": [
-            "Bash(eza:*)",
-            "Bash(fd:*)",
             "Bash(mkdir:*)",
-            "Bash(git:*)",
+            "Bash(uv:*)",
+            "Bash(fd:*)",
+            "Bash(mv:*)",
             "Bash(rg:*)",
+            "Bash(eza:*)",
+            "Bash(npm:*)",
+            "Bash(ls:*)",
+            "Bash(cp:*)",
+            "Write",
+            "Edit",
             "Bash(chmod:*)",
-            "Bash(uv:*)"
+            "Bash(touch:*)"
         ],
         "deny": []
     },
-    "enableAllProjectMcpServers": true,
-    "enabledMcpjsonServers": [
-        "grep",
-        "deepwiki"
-    ],
     "hooks": {
-        "PreToolUse": []
+        "PreToolUse": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "uv run .claude/hooks/pre_tool_use.py"
+                    }
+                ]
+            }
+        ],
+        "PostToolUse": [
+            {
+                "matcher": "",
+                "hooks": [
+                    {
+                        "type": "command",
+                        "command": "uv run .claude/hooks/post_tool_use.py"
+                    }
+                ]
+            }
+        ]
     }
 }
