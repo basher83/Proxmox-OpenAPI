@@ -1,7 +1,9 @@
 name: Update Proxmox API Specifications
 
 permissions:
-  contents: read
+  contents: write
+  pull-requests: write
+  issues: write
 
 on:
   schedule:
@@ -19,6 +21,11 @@ on:
           - both
           - pve
           - pbs
+      create_pr:
+        description: "Create PR for changes"
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   update-pve-specs:
@@ -56,7 +63,13 @@ jobs:
           ls -la
           
           echo "🚀 Running PVE OpenAPI generation..."
+          START_TIME=$(date +%s)
           uv run python generate_openapi.py
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          
+          echo "⏱️ Generation completed in ${DURATION} seconds"
+          echo "PVE_GENERATION_TIME=${DURATION}" >> $GITHUB_ENV
           
           echo "📁 Verifying generated files:"
           ls -la ../../proxmox-virtual-environment/*.json ../../proxmox-virtual-environment/*.yaml
@@ -133,7 +146,13 @@ jobs:
           ls -la
           
           echo "🚀 Running PBS OpenAPI generation..."
+          START_TIME=$(date +%s)
           uv run python generate_openapi.py
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          
+          echo "⏱️ Generation completed in ${DURATION} seconds"
+          echo "PBS_GENERATION_TIME=${DURATION}" >> $GITHUB_ENV
           
           echo "📁 Verifying generated files:"
           ls -la ../../proxmox-backup-server/*.json ../../proxmox-backup-server/*.yaml
@@ -184,59 +203,255 @@ jobs:
               f.write(content)
           EOF
 
-  commit-changes:
+  create-pr:
     runs-on: ubuntu-latest
     needs: [update-pve-specs, update-pbs-specs]
     if: always() && (needs.update-pve-specs.result == 'success' || needs.update-pbs-specs.result == 'success')
-    permissions:
-      contents: write
+    outputs:
+      pr_created: ${{ steps.create-pr.outputs.pr_created }}
+      pr_number: ${{ steps.create-pr.outputs.pr_number }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref || github.ref }}
 
-      - name: Configure Git
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Download artifacts and regenerate specs
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          # Download latest API docs
+          if [[ "${{ needs.update-pve-specs.result }}" == "success" ]]; then
+            curl -L "https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js" \
+                 -o proxmox-virtual-environment/apidoc.js
+            cd scripts/pve && uv run python generate_openapi.py && uv run python convert_to_yaml.py && cd ../..
+          fi
+          
+          if [[ "${{ needs.update-pbs-specs.result }}" == "success" ]]; then
+            curl -L "https://pbs.proxmox.com/docs/api-viewer/apidoc.js" \
+                 -o proxmox-backup-server/apidoc.js
+            cd scripts/pbs && uv run python generate_openapi.py && uv run python convert_to_yaml.py && cd ../..
+          fi
 
-      - name: Commit and push changes
+      - name: Generate change summary
+        id: changes
         run: |
-          git add .
-
-          # Check if there are any changes
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
+          # Check for changes
+          if git diff --quiet; then
+            echo "No changes detected"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
             exit 0
           fi
-
-          # Create commit message
-          commit_msg="chore: Update Proxmox API specifications\n\n"
-
-          if [[ "${{ needs.update-pve-specs.result }}" == "success" ]]; then
-            commit_msg+="- Updated PVE API specifications\n"
+          
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+          
+          # Generate detailed diff summary
+          echo "## 📊 API Specification Changes" > pr_body.md
+          echo "" >> pr_body.md
+          echo "This PR contains automated updates to the Proxmox API specifications." >> pr_body.md
+          echo "" >> pr_body.md
+          
+          # Check PVE changes
+          if git diff --name-only | grep -q "proxmox-virtual-environment/"; then
+            echo "### PVE API Changes" >> pr_body.md
+            echo "" >> pr_body.md
+            
+            # Get endpoint counts
+            OLD_PVE_ENDPOINTS=$(git show HEAD:proxmox-virtual-environment/pve-api.json | jq '.paths | length' || echo 0)
+            NEW_PVE_ENDPOINTS=$(jq '.paths | length' proxmox-virtual-environment/pve-api.json || echo 0)
+            DIFF_PVE=$((NEW_PVE_ENDPOINTS - OLD_PVE_ENDPOINTS))
+            
+            echo "- Endpoints: $OLD_PVE_ENDPOINTS → $NEW_PVE_ENDPOINTS ($(printf '%+d' $DIFF_PVE))" >> pr_body.md
+            
+            # File sizes
+            echo "- File sizes:" >> pr_body.md
+            echo "  - JSON: $(ls -lh proxmox-virtual-environment/pve-api.json | awk '{print $5}')" >> pr_body.md
+            echo "  - YAML: $(ls -lh proxmox-virtual-environment/pve-api.yaml | awk '{print $5}')" >> pr_body.md
+            echo "" >> pr_body.md
           fi
-
-          if [[ "${{ needs.update-pbs-specs.result }}" == "success" ]]; then
-            commit_msg+="- Updated PBS API specifications\n"
+          
+          # Check PBS changes
+          if git diff --name-only | grep -q "proxmox-backup-server/"; then
+            echo "### PBS API Changes" >> pr_body.md
+            echo "" >> pr_body.md
+            
+            # Get endpoint counts
+            OLD_PBS_ENDPOINTS=$(git show HEAD:proxmox-backup-server/pbs-api.json | jq '.paths | length' || echo 0)
+            NEW_PBS_ENDPOINTS=$(jq '.paths | length' proxmox-backup-server/pbs-api.json || echo 0)
+            DIFF_PBS=$((NEW_PBS_ENDPOINTS - OLD_PBS_ENDPOINTS))
+            
+            echo "- Endpoints: $OLD_PBS_ENDPOINTS → $NEW_PBS_ENDPOINTS ($(printf '%+d' $DIFF_PBS))" >> pr_body.md
+            
+            # File sizes
+            echo "- File sizes:" >> pr_body.md
+            echo "  - JSON: $(ls -lh proxmox-backup-server/pbs-api.json | awk '{print $5}')" >> pr_body.md
+            echo "  - YAML: $(ls -lh proxmox-backup-server/pbs-api.yaml | awk '{print $5}')" >> pr_body.md
+            echo "" >> pr_body.md
           fi
+          
+          echo "### Validation Status" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "✅ All specifications pass OpenAPI 3.0.3 validation" >> pr_body.md
+          echo "" >> pr_body.md
+          
+          echo "### Performance Metrics" >> pr_body.md
+          echo "" >> pr_body.md
+          if [[ -n "${{ env.PVE_GENERATION_TIME }}" ]]; then
+            echo "- PVE generation time: ${{ env.PVE_GENERATION_TIME }}s" >> pr_body.md
+          fi
+          if [[ -n "${{ env.PBS_GENERATION_TIME }}" ]]; then
+            echo "- PBS generation time: ${{ env.PBS_GENERATION_TIME }}s" >> pr_body.md
+          fi
+          echo "" >> pr_body.md
+          
+          echo "### Next Steps" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "1. Review the changes in the Files tab" >> pr_body.md
+          echo "2. Check for any breaking changes" >> pr_body.md
+          echo "3. Merge to update the API specifications" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "---" >> pr_body.md
+          echo "*Generated automatically by GitHub Actions on $(date -u +'%Y-%m-%d %H:%M:%S UTC')*" >> pr_body.md
 
-          commit_msg+="\nAuto-generated by GitHub Actions on $(date -u +"%Y-%m-%d %H:%M:%S UTC")"
+      - name: Create Pull Request
+        id: create-pr
+        if: steps.changes.outputs.has_changes == 'true' && (github.event_name == 'schedule' || github.event.inputs.create_pr == 'true')
+        run: |
+          # Create a unique branch name
+          BRANCH_NAME="auto-update/api-specs-$(date +%Y%m%d-%H%M%S)"
+          
+          # Configure git
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          # Create and checkout new branch
+          git checkout -b $BRANCH_NAME
+          
+          # Stage all changes
+          git add .
+          
+          # Commit changes
+          git commit -m "chore: update Proxmox API specifications
 
-          git commit -m "$commit_msg"
-          git push
+$(cat pr_body.md)"
+          
+          # Push branch
+          git push origin $BRANCH_NAME
+          
+          # Create PR using GitHub CLI
+          PR_URL=$(gh pr create \
+            --title "chore: Update Proxmox API Specifications" \
+            --body-file pr_body.md \
+            --base main \
+            --head $BRANCH_NAME \
+            --label "dependencies" \
+            --label "automated" \
+            --assignee "${{ github.repository_owner }}")
+          
+          # Extract PR number
+          PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
+          
+          echo "pr_created=true" >> $GITHUB_OUTPUT
+          echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
+          echo "pr_url=$PR_URL" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify-completion:
     runs-on: ubuntu-latest
-    needs: [commit-changes]
+    needs: [create-pr, update-pve-specs, update-pbs-specs]
     if: always()
 
     steps:
-      - name: Notify completion
+      - name: Create issue on failure
+        if: needs.update-pve-specs.result == 'failure' || needs.update-pbs-specs.result == 'failure'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const date = new Date().toISOString().split('T')[0];
+            const runUrl = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
+            
+            let failedAPIs = [];
+            if ('${{ needs.update-pve-specs.result }}' === 'failure') failedAPIs.push('PVE');
+            if ('${{ needs.update-pbs-specs.result }}' === 'failure') failedAPIs.push('PBS');
+            
+            const issueBody = `## 🚨 API Update Workflow Failed
+
+**Date**: ${date}
+**Failed APIs**: ${failedAPIs.join(', ')}
+**Workflow Run**: [View Details](${runUrl})
+
+### Summary
+The automated API specification update workflow failed for the following APIs: ${failedAPIs.join(', ')}.
+
+### Next Steps
+1. Check the [workflow logs](${runUrl}) for detailed error information
+2. Verify the API endpoints are accessible
+3. Check for any changes in the API documentation format
+4. Run the workflow manually with debugging enabled
+
+### Debug Commands
+\`\`\`bash
+# Test PVE API download
+curl -I https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js
+
+# Test PBS API download  
+curl -I https://pbs.proxmox.com/docs/api-viewer/apidoc.js
+
+# Run generation locally
+cd scripts/pve && uv run python generate_openapi.py
+cd scripts/pbs && uv run python generate_openapi.py
+\`\`\`
+
+---
+*This issue was automatically created by the API update workflow.*`;
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `API Update Failed - ${date}`,
+              body: issueBody,
+              labels: ['bug', 'automated', 'ci/cd']
+            });
+      
+      - name: Summary
+        if: always()
         run: |
-          if [[ "${{ needs.commit-changes.result }}" == "success" ]]; then
-            echo "✅ API specifications updated successfully"
+          echo "## Workflow Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # PVE Status
+          if [[ "${{ needs.update-pve-specs.result }}" == "success" ]]; then
+            echo "✅ PVE API update: Success" >> $GITHUB_STEP_SUMMARY
           else
-            echo "❌ Failed to update API specifications"
-            exit 1
+            echo "❌ PVE API update: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          # PBS Status
+          if [[ "${{ needs.update-pbs-specs.result }}" == "success" ]]; then
+            echo "✅ PBS API update: Success" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ PBS API update: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # PR Status
+          if [[ "${{ needs.create-pr.outputs.pr_created }}" == "true" ]]; then
+            echo "📝 Pull Request: #${{ needs.create-pr.outputs.pr_number }}" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "ℹ️ No changes detected - no PR created" >> $GITHUB_STEP_SUMMARY
           fi

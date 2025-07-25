@@ -1,0 +1,224 @@
+name: Update API Specs (Parallel)
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_pr:
+        description: "Create PR for changes"
+        required: false
+        default: true
+        type: boolean
+
+jobs:
+  update-specs:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        api: [pve, pbs]
+        include:
+          - api: pve
+            name: "Proxmox Virtual Environment"
+            url: "https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js"
+            dir: "proxmox-virtual-environment"
+          - api: pbs
+            name: "Proxmox Backup Server"
+            url: "https://pbs.proxmox.com/docs/api-viewer/apidoc.js"
+            dir: "proxmox-backup-server"
+    
+    outputs:
+      pve_changed: ${{ steps.check-changes.outputs.pve_changed }}
+      pbs_changed: ${{ steps.check-changes.outputs.pbs_changed }}
+      pve_time: ${{ steps.generate.outputs.duration }}
+      pbs_time: ${{ steps.generate.outputs.duration }}
+      pve_endpoints: ${{ steps.stats.outputs.endpoints }}
+      pbs_endpoints: ${{ steps.stats.outputs.endpoints }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Download ${{ matrix.name }} API documentation
+        run: |
+          echo "📥 Downloading ${{ matrix.name }} API documentation..."
+          curl -L "${{ matrix.url }}" -o ${{ matrix.dir }}/apidoc.js
+
+      - name: Generate ${{ matrix.api }} OpenAPI specification
+        id: generate
+        run: |
+          cd scripts/${{ matrix.api }}
+          echo "🚀 Generating ${{ matrix.name }} OpenAPI specification..."
+          
+          START_TIME=$(date +%s.%N)
+          uv run python generate_openapi.py
+          uv run python convert_to_yaml.py
+          END_TIME=$(date +%s.%N)
+          
+          DURATION=$(echo "$END_TIME - $START_TIME" | bc | xargs printf "%.2f")
+          echo "⏱️ Generation completed in ${DURATION} seconds"
+          echo "duration=${DURATION}" >> $GITHUB_OUTPUT
+
+      - name: Validate ${{ matrix.api }} specifications
+        run: |
+          echo "🔍 Validating ${{ matrix.name }} specifications..."
+          uv run python scripts/validate_openapi.py ${{ matrix.dir }}/${{ matrix.api }}-api.json ${{ matrix.dir }}/${{ matrix.api }}-api.yaml
+
+      - name: Calculate statistics
+        id: stats
+        run: |
+          cd ${{ matrix.dir }}
+          ENDPOINTS=$(jq '.paths | length' ${{ matrix.api }}-api.json)
+          OPERATIONS=$(jq '[.paths | to_entries | .[].value | keys | .[] | select(. == "get" or . == "post" or . == "put" or . == "delete" or . == "patch")] | length' ${{ matrix.api }}-api.json)
+          
+          echo "endpoints=${ENDPOINTS}" >> $GITHUB_OUTPUT
+          echo "operations=${OPERATIONS}" >> $GITHUB_OUTPUT
+          
+          # Update README
+          uv run python << 'EOF'
+          import json
+          import re
+          import os
+
+          with open('${{ matrix.api }}-api.json', 'r') as f:
+              spec = json.load(f)
+
+          total_paths = len(spec.get('paths', {}))
+          total_operations = sum(len([k for k in path.keys() if k in ['get', 'post', 'put', 'delete', 'patch']]) 
+                                for path in spec['paths'].values())
+
+          with open('README.md', 'r') as f:
+              content = f.read()
+
+          content = re.sub(r'- \*\*Total Endpoints\*\*: \d+ unique API paths', 
+                          f'- **Total Endpoints**: {total_paths} unique API paths', content)
+          content = re.sub(r'- \*\*Total Operations\*\*: \d+ HTTP operations', 
+                          f'- **Total Operations**: {total_operations} HTTP operations', content)
+
+          if '${{ matrix.api }}' == 'pbs':
+              json_size = os.path.getsize('pbs-api.json')
+              yaml_size = os.path.getsize('pbs-api.yaml')
+              content = re.sub(r'- `pbs-api\.json` - \*\*[\d.]+\w+\*\* comprehensive JSON', 
+                              f'- `pbs-api.json` - **{json_size/1024/1024:.1f}MB** comprehensive JSON', content)
+              content = re.sub(r'- `pbs-api\.yaml` - \*\*[\d.]+\w+\*\* comprehensive YAML', 
+                              f'- `pbs-api.yaml` - **{yaml_size/1024:.0f}KB** comprehensive YAML', content)
+
+          with open('README.md', 'w') as f:
+              f.write(content)
+          EOF
+
+      - name: Check for changes
+        id: check-changes
+        run: |
+          if git diff --quiet ${{ matrix.dir }}/; then
+            echo "${{ matrix.api }}_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "${{ matrix.api }}_changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.api }}-specs
+          path: |
+            ${{ matrix.dir }}/${{ matrix.api }}-api.json
+            ${{ matrix.dir }}/${{ matrix.api }}-api.yaml
+            ${{ matrix.dir }}/README.md
+
+  create-pr:
+    runs-on: ubuntu-latest
+    needs: update-specs
+    if: github.event.inputs.create_pr == 'true' && (needs.update-specs.outputs.pve_changed == 'true' || needs.update-specs.outputs.pbs_changed == 'true')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Copy updated files
+        run: |
+          if [ -d "artifacts/pve-specs" ]; then
+            cp -r artifacts/pve-specs/* proxmox-virtual-environment/
+          fi
+          if [ -d "artifacts/pbs-specs" ]; then
+            cp -r artifacts/pbs-specs/* proxmox-backup-server/
+          fi
+
+      - name: Create PR body
+        run: |
+          echo "## 📊 API Specification Updates" > pr_body.md
+          echo "" >> pr_body.md
+          echo "This PR contains automated updates to the Proxmox API specifications." >> pr_body.md
+          echo "" >> pr_body.md
+          
+          echo "### 📈 Summary" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "| API | Status | Generation Time | Endpoints |" >> pr_body.md
+          echo "|-----|--------|-----------------|-----------|" >> pr_body.md
+          
+          if [[ "${{ needs.update-specs.outputs.pve_changed }}" == "true" ]]; then
+            echo "| PVE | ✅ Updated | ${{ needs.update-specs.outputs.pve_time }}s | ${{ needs.update-specs.outputs.pve_endpoints }} |" >> pr_body.md
+          else
+            echo "| PVE | ℹ️ No changes | - | ${{ needs.update-specs.outputs.pve_endpoints }} |" >> pr_body.md
+          fi
+          
+          if [[ "${{ needs.update-specs.outputs.pbs_changed }}" == "true" ]]; then
+            echo "| PBS | ✅ Updated | ${{ needs.update-specs.outputs.pbs_time }}s | ${{ needs.update-specs.outputs.pbs_endpoints }} |" >> pr_body.md
+          else
+            echo "| PBS | ℹ️ No changes | - | ${{ needs.update-specs.outputs.pbs_endpoints }} |" >> pr_body.md
+          fi
+          
+          echo "" >> pr_body.md
+          echo "### ✅ Validation" >> pr_body.md
+          echo "" >> pr_body.md
+          echo "All specifications have been validated against OpenAPI 3.0.3 schema." >> pr_body.md
+          echo "" >> pr_body.md
+          echo "---" >> pr_body.md
+          echo "*Generated by parallel processing workflow on $(date -u +'%Y-%m-%d %H:%M:%S UTC')*" >> pr_body.md
+
+      - name: Create Pull Request
+        run: |
+          BRANCH_NAME="auto-update/parallel-$(date +%Y%m%d-%H%M%S)"
+          
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git checkout -b $BRANCH_NAME
+          git add .
+          
+          git commit -m "chore: update Proxmox API specifications (parallel)
+
+$(cat pr_body.md)"
+          
+          git push origin $BRANCH_NAME
+          
+          gh pr create \
+            --title "chore: Update Proxmox API Specifications (Parallel Processing)" \
+            --body-file pr_body.md \
+            --base main \
+            --head $BRANCH_NAME \
+            --label "dependencies" \
+            --label "automated" \
+            --assignee "${{ github.repository_owner }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
