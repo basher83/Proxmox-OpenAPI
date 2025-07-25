@@ -43,7 +43,7 @@
 | **PVE OpenAPI Generation** | Automated OpenAPI 3.0.3 spec generation from PVE API documentation | As a developer, I want accurate PVE API specifications to generate reliable client code | Must     | 385 endpoints, 687 operations, JSON/YAML formats, <2MB file size   | Python parser, API docs |
 | **PBS OpenAPI Generation** | Automated OpenAPI 3.0.3 spec generation from PBS API documentation | As a developer, I want PBS API specifications for backup automation                     | Must     | 233 endpoints, 348 operations, consistent authentication patterns  | Python parser, API docs |
 | **Unified Authentication** | Standardized authentication patterns across PVE/PBS specifications | As a developer, I want consistent auth to avoid integration complexity                  | Must     | Single auth pattern, clear token format, documented permissions    | API analysis            |
-| **Dagger Pipeline**        | Containerized generation pipeline with intelligent caching         | As a contributor, I want reliable spec generation without environment setup             | Should   | Single command execution, 50%+ faster builds, consistent outputs   | Dagger module           |
+| **Docker Support**         | Containerized generation environment for consistency               | As a contributor, I want reliable spec generation without environment setup             | Should   | Single command execution, consistent outputs across environments   | Docker/Docker Compose   |
 | **Multi-format Output**    | JSON and YAML specification formats with proper naming             | As a developer, I want both machine-readable JSON and human-readable YAML               | Must     | pve-api.json/yaml, pbs-api.json/yaml, identical content            | Format converters       |
 | **Validation Suite**       | Comprehensive OpenAPI specification validation                     | As a maintainer, I want to ensure specification accuracy and completeness               | Should   | OpenAPI 3.0.3 compliance, API endpoint coverage, schema validation | Validation tools        |
 | **Client Generation**      | Pre-built client libraries for popular languages                   | As a developer, I want ready-to-use SDKs to accelerate development                      | Could    | Python, Go, JavaScript clients, package registry publishing        | OpenAPI Generator       |
@@ -64,7 +64,7 @@
 ### Flow 2: Contributor Workflow
 
 1. Contributor identifies API documentation update
-2. Clones repository and runs Dagger pipeline locally
+2. Clones repository and runs generation scripts locally
 3. Pipeline generates updated specifications automatically
    - Alternative: Manual specification fixes required
    - Error state: Generation fails, debug output provided
@@ -119,14 +119,14 @@
 ### Backend
 
 - **Technology Stack:** Python 3.9+, UV package manager, Node.js for JS parsing
-- **Generation Pipeline:** Dagger modules for containerized builds
+- **Generation Pipeline:** Python scripts with UV for dependency management
 - **Parsing Logic:** JavaScript AST parsing for API documentation extraction
 
 ### Infrastructure
 
 - **Hosting:** GitHub repository with releases and GitHub Pages
 - **CI/CD:** GitHub Actions for automated generation and validation
-- **Containerization:** Dagger for reproducible build environments
+- **Containerization:** Docker for reproducible build environments
 
 ## Analytics & Monitoring
 
@@ -145,7 +145,7 @@
 
 ### v1.1 - Developer Experience Enhancement
 
-- **Features:** Dagger pipeline, improved validation, CLI tool, better documentation
+- **Features:** Docker support, improved validation, CLI tool, better documentation
 - **Timeline:** 2 weeks after v1.0
 - **Success Criteria:** <2 minute generation time, single-command usage, contributor adoption
 
@@ -169,7 +169,7 @@
 
 - **Assumption 1:** Proxmox API structure will remain stable enough for automated parsing
 - **Assumption 2:** Developer demand exists for standardized Proxmox OpenAPI specifications
-- **Assumption 3:** Dagger adoption will provide sufficient developer experience improvements
+- **Assumption 3:** Docker adoption will provide sufficient developer experience improvements
 
 ## Appendix
 
@@ -199,5 +199,5 @@
 - **PVE:** Proxmox Virtual Environment - VM and container management platform
 - **PBS:** Proxmox Backup Server - Backup and data protection solution
 - **OpenAPI:** API specification standard for REST APIs, formerly Swagger
-- **Dagger:** CI/CD engine for containerized pipelines
+- **Docker:** Container platform for consistent development environments
 - **IaC:** Infrastructure as Code - managing infrastructure through code
