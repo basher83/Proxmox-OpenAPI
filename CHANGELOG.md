@@ -7,18 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Performance optimization: Implemented orjson for JSON serialization (~3% faster generation)
-- GitHub workflow improvements: Replaced swagger-parser with native Python validation
+## [1.1.1] - 2025-07-25
 
-### Fixed
-- Fixed GitHub Actions workflow failures by removing non-existent swagger-parser commands
-- Updated workflow to use validate_openapi.py script for specification validation
+### Added
+- Comprehensive ROADMAP.md with feature tracking and implementation plans
+- Enhanced Renovate configuration for better dependency management
+  - Semantic commits and dependency dashboard
+  - Automerge for dev dependencies and GitHub Actions
+  - Vulnerability alerts with security labels
 
 ### Changed
-- Removed unnecessary Node.js setup from GitHub workflows
+- Updated README.md to reference new ROADMAP document
+- Corrected CHANGELOG dates to match actual repository history
 
-## [1.1.0] - 2025-01-25
+### Removed
+- Removed all Dagger references and implementation strategy
+- Simplified containerization approach to use Docker/Docker Compose
+
+## [1.1.0] - 2025-07-25
 
 ### Added
 - Claude AI development configuration (.claude directory)
@@ -41,7 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Regenerated API specifications with validation fixes
 - Cleaned up development artifacts and duplicate files
 
-## [1.0.0] - 2024-07-22
+## [1.0.0] - 2025-06-11
 
 ### Added
 - Unified parser for both PVE and PBS APIs with file caching (40-60% performance improvement)
@@ -61,6 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Ruff for code formatting and linting
 - MyPy for type checking
 
-[Unreleased]: https://github.com/basher83/Proxmox-OpenAPI/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/basher83/Proxmox-OpenAPI/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/basher83/Proxmox-OpenAPI/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/basher83/Proxmox-OpenAPI/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/basher83/Proxmox-OpenAPI/releases/tag/v1.0.0
