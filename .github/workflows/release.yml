@@ -1,0 +1,86 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies
+        run: uv sync --extra all
+
+      - name: Generate API specifications
+        run: |
+          # Generate PVE specifications
+          cd scripts/pve
+          uv run python generate_openapi.py
+          uv run python convert_to_yaml.py
+          cd ../..
+          
+          # Generate PBS specifications
+          cd scripts/pbs
+          uv run python generate_openapi.py
+          uv run python convert_to_yaml.py
+          cd ../..
+
+      - name: Validate specifications
+        run: uv run python scripts/validate_openapi.py
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Extract changelog for version
+        id: changelog
+        run: |
+          # Extract the specific version section from CHANGELOG.md
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          CHANGELOG=$(awk "/## \[${VERSION#v}\]/{flag=1; next} /## \[/{flag=0} flag" CHANGELOG.md)
+          
+          # Write to file to preserve formatting
+          echo "$CHANGELOG" > release_notes.md
+          echo "Generated release notes for $VERSION"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: ${{ steps.version.outputs.VERSION }}
+          body_path: release_notes.md
+          draft: false
+          prerelease: false
+          files: |
+            proxmox-virtual-environment/pve-api.json
+            proxmox-virtual-environment/pve-api.yaml
+            proxmox-backup-server/pbs-api.json
+            proxmox-backup-server/pbs-api.yaml
+
+      - name: Update release badges
+        run: |
+          echo "Release ${{ steps.version.outputs.VERSION }} created successfully!"
+          echo "Download links:"
+          echo "- PVE API (JSON): https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/pve-api.json"
+          echo "- PVE API (YAML): https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/pve-api.yaml"
+          echo "- PBS API (JSON): https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/pbs-api.json"
+          echo "- PBS API (YAML): https://github.com/${{ github.repository }}/releases/download/${{ steps.version.outputs.VERSION }}/pbs-api.yaml"
