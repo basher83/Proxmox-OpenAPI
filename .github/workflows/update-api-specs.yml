@@ -391,36 +391,38 @@ jobs:
             if ('${{ needs.update-pve-specs.result }}' === 'failure') failedAPIs.push('PVE');
             if ('${{ needs.update-pbs-specs.result }}' === 'failure') failedAPIs.push('PBS');
             
-            const issueBody = `## 🚨 API Update Workflow Failed
-
-**Date**: ${date}
-**Failed APIs**: ${failedAPIs.join(', ')}
-**Workflow Run**: [View Details](${runUrl})
-
-### Summary
-The automated API specification update workflow failed for the following APIs: ${failedAPIs.join(', ')}.
-
-### Next Steps
-1. Check the [workflow logs](${runUrl}) for detailed error information
-2. Verify the API endpoints are accessible
-3. Check for any changes in the API documentation format
-4. Run the workflow manually with debugging enabled
-
-### Debug Commands
-\`\`\`bash
-# Test PVE API download
-curl -I https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js
-
-# Test PBS API download  
-curl -I https://pbs.proxmox.com/docs/api-viewer/apidoc.js
-
-# Run generation locally
-cd scripts/pve && uv run python generate_openapi.py
-cd scripts/pbs && uv run python generate_openapi.py
-\`\`\`
-
----
-*This issue was automatically created by the API update workflow.*`;
+            const issueBody = [
+              '## 🚨 API Update Workflow Failed',
+              '',
+              `**Date**: ${date}`,
+              `**Failed APIs**: ${failedAPIs.join(', ')}`,
+              `**Workflow Run**: [View Details](${runUrl})`,
+              '',
+              '### Summary',
+              `The automated API specification update workflow failed for the following APIs: ${failedAPIs.join(', ')}.`,
+              '',
+              '### Next Steps',
+              `1. Check the [workflow logs](${runUrl}) for detailed error information`,
+              '2. Verify the API endpoints are accessible',
+              '3. Check for any changes in the API documentation format',
+              '4. Run the workflow manually with debugging enabled',
+              '',
+              '### Debug Commands',
+              '```bash',
+              '# Test PVE API download',
+              'curl -I https://pve.proxmox.com/pve-docs/api-viewer/apidoc.js',
+              '',
+              '# Test PBS API download',
+              'curl -I https://pbs.proxmox.com/docs/api-viewer/apidoc.js',
+              '',
+              '# Run generation locally',
+              'cd scripts/pve && uv run python generate_openapi.py',
+              'cd scripts/pbs && uv run python generate_openapi.py',
+              '```',
+              '',
+              '---',
+              '*This issue was automatically created by the API update workflow.*'
+            ].join('\\n');
             
             await github.rest.issues.create({
               owner: context.repo.owner,
