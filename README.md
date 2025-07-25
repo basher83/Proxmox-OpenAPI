@@ -193,12 +193,15 @@ curl -k -H "Authorization: PBSAPIToken=USER@REALM!TOKENID=UUID" \
 
 ## 🛣️ Roadmap
 
-- [ ] **Unified Parser Framework** - Combine PVE and PBS parsing logic
-- [ ] **CI/CD Pipeline** - Automated spec generation and updates
-- [ ] **Direct API Fetching** - Parse from live API viewers instead of downloaded files
-- [ ] **Enhanced Validation** - Comprehensive OpenAPI spec validation
-- [ ] **Client Libraries** - Pre-generated clients in multiple languages
-- [ ] **Docker Images** - Containerized parsing and generation tools
+See our detailed [ROADMAP.md](ROADMAP.md) for feature tracking, implementation plans, and release timeline.
+
+**Current Priorities**:
+- ✅ Unified Parser Framework - **Completed in v1.0**
+- ⚠️ CI/CD Pipeline Enhancements - Auto-PR creation and monitoring
+- ❌ Direct API Fetching - Parse from live Proxmox instances
+- ❌ Enhanced Validation - Semantic validation and breaking change detection
+- ❌ Client Libraries - Python, Go, and TypeScript
+- ❌ Docker Images - Containerized tools for consistent environments
 
 ## 🤝 Contributing
 

@@ -1,6 +1,54 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
-    "config:recommended"
-  ]
+    "config:recommended",
+    ":dependencyDashboard",
+    ":semanticCommits",
+    ":preserveSemverRanges"
+  ],
+  "timezone": "UTC",
+  "schedule": ["after 10pm every weekday", "before 5am every weekday", "every weekend"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Python dependencies",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dependencies"],
+      "groupName": "Python dependencies",
+      "automerge": false
+    },
+    {
+      "description": "Automerge Python dev dependencies",
+      "matchManagers": ["pep621"],
+      "matchDepTypes": ["dev", "optional-dependencies"],
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "GitHub Actions",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "automerge": true,
+      "automergeType": "pr"
+    },
+    {
+      "description": "Pin Python version updates",
+      "matchPackageNames": ["python"],
+      "rangeStrategy": "pin"
+    }
+  ],
+  "python": {
+    "ignorePythonVersion": false
+  },
+  "vulnerabilityAlerts": {
+    "labels": ["security"],
+    "automerge": true
+  },
+  "prConcurrentLimit": 10,
+  "prCreation": "immediate",
+  "commitMessagePrefix": "chore(deps):",
+  "commitMessageAction": "update",
+  "commitMessageExtra": "to {{newVersion}}",
+  "commitMessageSuffix": "",
+  "prBodyTemplate": "This PR contains the following updates:\n\n{{#each updates}}\n{{>dependencyTable}}\n{{/each}}\n\n---\n\n{{>releaseNotes}}\n\n---\n\n{{>footer}}"
 }
