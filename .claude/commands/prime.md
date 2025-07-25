@@ -53,6 +53,8 @@ File counts by type: !`fd -t f --exclude .git --exclude node_modules --exclude .
 ### 📖 Documentation
 
 - Project README: @README.md
+- Changelog: @CHANGELOG.md
+- Roadmap: @ROADMAP.md
 
 ### 🔍 Additional Context
 
