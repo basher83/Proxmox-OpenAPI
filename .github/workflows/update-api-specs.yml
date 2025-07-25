@@ -343,10 +343,13 @@ jobs:
           # Stage all changes
           git add .
           
-          # Commit changes
-          git commit -m "chore: update Proxmox API specifications
+          # Commit changes with PR body
+          git commit -m "$(cat <<EOF
+chore: update Proxmox API specifications
 
-$(cat pr_body.md)"
+$(cat pr_body.md)
+EOF
+)"
           
           # Push branch
           git push origin $BRANCH_NAME
