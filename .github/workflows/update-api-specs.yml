@@ -344,10 +344,12 @@ jobs:
           git add .
           
           # Commit changes with PR body
-          COMMIT_MSG="chore: update Proxmox API specifications
-
-$(cat pr_body.md)"
-          git commit -m "$COMMIT_MSG"
+          {
+            echo "chore: update Proxmox API specifications"
+            echo ""
+            cat pr_body.md
+          } > commit_message.txt
+          git commit -F commit_message.txt
           
           # Push branch
           git push origin $BRANCH_NAME
