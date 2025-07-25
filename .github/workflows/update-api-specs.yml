@@ -39,11 +39,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
       - name: Install Python dependencies
         run: uv sync
 
@@ -70,28 +65,8 @@ jobs:
         run: |
           echo "🔍 Validating PVE OpenAPI specifications..."
           
-          # Validate the generated specifications
-          cd proxmox-virtual-environment
-          
-          # Validate JSON
-          if [ -f "pve-api.json" ]; then
-            echo "📄 Validating pve-api.json..."
-            uv run python -c "import json; from openapi_spec_validator import validate_spec; spec = json.load(open('pve-api.json')); validate_spec(spec); print('✅ pve-api.json validation passed')"
-          else
-            echo "❌ pve-api.json not found"
-            exit 1
-          fi
-          
-          # Validate YAML
-          if [ -f "pve-api.yaml" ]; then
-            echo "📄 Validating pve-api.yaml..."
-            uv run python -c "import yaml; from openapi_spec_validator import validate_spec; spec = yaml.safe_load(open('pve-api.yaml')); validate_spec(spec); print('✅ pve-api.yaml validation passed')"
-          else
-            echo "❌ pve-api.yaml not found"
-            exit 1
-          fi
-          
-          cd ..
+          # Use the dedicated validation script
+          uv run python scripts/validate_openapi.py proxmox-virtual-environment/pve-api.json proxmox-virtual-environment/pve-api.yaml
 
       - name: Update PVE README with stats
         run: |
@@ -141,11 +116,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "22"
-
       - name: Install Python dependencies
         run: uv sync
 
@@ -172,28 +142,8 @@ jobs:
         run: |
           echo "🔍 Validating PBS OpenAPI specifications..."
           
-          # Validate the generated specifications
-          cd proxmox-backup-server
-          
-          # Validate JSON
-          if [ -f "pbs-api.json" ]; then
-            echo "📄 Validating pbs-api.json..."
-            uv run python -c "import json; from openapi_spec_validator import validate_spec; spec = json.load(open('pbs-api.json')); validate_spec(spec); print('✅ pbs-api.json validation passed')"
-          else
-            echo "❌ pbs-api.json not found"
-            exit 1
-          fi
-          
-          # Validate YAML
-          if [ -f "pbs-api.yaml" ]; then
-            echo "📄 Validating pbs-api.yaml..."
-            uv run python -c "import yaml; from openapi_spec_validator import validate_spec; spec = yaml.safe_load(open('pbs-api.yaml')); validate_spec(spec); print('✅ pbs-api.yaml validation passed')"
-          else
-            echo "❌ pbs-api.yaml not found"
-            exit 1
-          fi
-          
-          cd ..
+          # Use the dedicated validation script
+          uv run python scripts/validate_openapi.py proxmox-backup-server/pbs-api.json proxmox-backup-server/pbs-api.yaml
 
       - name: Update PBS README with stats
         run: |

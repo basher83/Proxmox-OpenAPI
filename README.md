@@ -209,6 +209,8 @@ curl -k -H "Authorization: PBSAPIToken=USER@REALM!TOKENID=UUID" \
 5. **Update documentation** as needed
 6. **Submit a pull request**
 
+For a detailed history of changes, see our [CHANGELOG](CHANGELOG.md).
+
 ### Contribution Guidelines
 
 - **Follow the [Git Commit Workflow](./docs/GIT_COMMIT_WORKFLOW.md)** - Comprehensive commit standards and quality gates
