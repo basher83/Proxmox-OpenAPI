@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- CI/CD Pipeline Enhancement (ROADMAP v1.1 feature completed)
+  - Automatic PR creation for API specification updates
+  - Performance metrics tracking for generation times
+  - GitHub Issues creation on workflow failures
+  - Parallel processing workflow for improved performance
+  - Detailed change summaries with endpoint diffs
+  - Configurable PR creation for manual runs
+
 ## [1.1.1] - 2025-07-25
 
 ### Added
