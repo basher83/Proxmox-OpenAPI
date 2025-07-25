@@ -220,7 +220,7 @@ jobs:
             --body-file pr_body.md \
             --base main \
             --head $BRANCH_NAME \
-            --label "dependencies" \
+            --label "⚡ api" \
             --label "automated" \
             --assignee "${{ github.repository_owner }}"
         env:
