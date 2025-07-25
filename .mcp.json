@@ -8,17 +8,16 @@
       "type": "http",
       "url": "https://mcp.grep.app"
     },
-    "serena": {
+    "github": {
       "type": "stdio",
-      "command": "uvx",
+      "command": "docker",
       "args": [
-        "--from",
-        "git+https://github.com/oraios/serena",
-        "serena-mcp-server",
-        "--context",
-        "ide-assistant",
-        "--project",
-        "/workspaces/Proxmox-OpenAPI"
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GITHUB_PERSONAL_ACCESS_TOKEN",
+        "ghcr.io/github/github-mcp-server"
       ],
       "env": {}
     }
