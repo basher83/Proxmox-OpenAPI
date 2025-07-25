@@ -206,12 +206,10 @@ jobs:
           git checkout -b $BRANCH_NAME
           git add .
           
-          git commit -m "$(cat <<EOF
-chore: update Proxmox API specifications (parallel)
+          COMMIT_MSG="chore: update Proxmox API specifications (parallel)
 
-$(cat pr_body.md)
-EOF
-)"
+$(cat pr_body.md)"
+          git commit -m "$COMMIT_MSG"
           
           git push origin $BRANCH_NAME
           
