@@ -1356,6 +1356,57 @@
                     "type": "string",
                     "description": "The InfluxDB organization. Only necessary when using the http v2 api. Has no meaning when using v2 compatibility api."
                   },
+                  "otel-compression": {
+                    "type": "string",
+                    "description": "Compression algorithm for requests",
+                    "enum": [
+                      "none",
+                      "gzip"
+                    ],
+                    "default": "gzip"
+                  },
+                  "otel-headers": {
+                    "type": "string",
+                    "description": "Custom HTTP headers (JSON format, base64 encoded)",
+                    "maxLength": 1024
+                  },
+                  "otel-max-body-size": {
+                    "type": "integer",
+                    "description": "Maximum request body size in bytes",
+                    "minimum": 1024,
+                    "default": 10000000
+                  },
+                  "otel-path": {
+                    "type": "string",
+                    "description": "OTLP endpoint path",
+                    "default": "/v1/metrics"
+                  },
+                  "otel-protocol": {
+                    "type": "string",
+                    "description": "HTTP protocol",
+                    "enum": [
+                      "http",
+                      "https"
+                    ],
+                    "default": "https"
+                  },
+                  "otel-resource-attributes": {
+                    "type": "string",
+                    "description": "Additional resource attributes as JSON, base64 encoded",
+                    "maxLength": 1024
+                  },
+                  "otel-timeout": {
+                    "type": "integer",
+                    "description": "HTTP request timeout in seconds",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 5
+                  },
+                  "otel-verify-ssl": {
+                    "type": "boolean",
+                    "description": "Verify SSL certificates",
+                    "default": true
+                  },
                   "path": {
                     "type": "string",
                     "format": "graphite-path",
@@ -1396,7 +1447,8 @@
                     "description": "Plugin type.",
                     "enum": [
                       "graphite",
-                      "influxdb"
+                      "influxdb",
+                      "opentelemetry"
                     ]
                   },
                   "verify-certificate": {
@@ -1582,6 +1634,57 @@
                   "organization": {
                     "type": "string",
                     "description": "The InfluxDB organization. Only necessary when using the http v2 api. Has no meaning when using v2 compatibility api."
+                  },
+                  "otel-compression": {
+                    "type": "string",
+                    "description": "Compression algorithm for requests",
+                    "enum": [
+                      "none",
+                      "gzip"
+                    ],
+                    "default": "gzip"
+                  },
+                  "otel-headers": {
+                    "type": "string",
+                    "description": "Custom HTTP headers (JSON format, base64 encoded)",
+                    "maxLength": 1024
+                  },
+                  "otel-max-body-size": {
+                    "type": "integer",
+                    "description": "Maximum request body size in bytes",
+                    "minimum": 1024,
+                    "default": 10000000
+                  },
+                  "otel-path": {
+                    "type": "string",
+                    "description": "OTLP endpoint path",
+                    "default": "/v1/metrics"
+                  },
+                  "otel-protocol": {
+                    "type": "string",
+                    "description": "HTTP protocol",
+                    "enum": [
+                      "http",
+                      "https"
+                    ],
+                    "default": "https"
+                  },
+                  "otel-resource-attributes": {
+                    "type": "string",
+                    "description": "Additional resource attributes as JSON, base64 encoded",
+                    "maxLength": 1024
+                  },
+                  "otel-timeout": {
+                    "type": "integer",
+                    "description": "HTTP request timeout in seconds",
+                    "minimum": 1,
+                    "maximum": 10,
+                    "default": 5
+                  },
+                  "otel-verify-ssl": {
+                    "type": "boolean",
+                    "description": "Verify SSL certificates",
+                    "default": true
                   },
                   "path": {
                     "type": "string",
@@ -12282,21 +12385,6 @@
                     ],
                     "default": "auto"
                   },
-                  "notification-policy": {
-                    "type": "string",
-                    "description": "Deprecated: Do not use",
-                    "enum": [
-                      "always",
-                      "failure",
-                      "never"
-                    ],
-                    "default": "always"
-                  },
-                  "notification-target": {
-                    "type": "string",
-                    "format": "pve-configid",
-                    "description": "Deprecated: Do not use"
-                  },
                   "pbs-change-detection-mode": {
                     "type": "string",
                     "description": "PBS mode used to detect file changes and switch encoding format for container backups.",
@@ -12859,21 +12947,6 @@
                       "notification-system"
                     ],
                     "default": "auto"
-                  },
-                  "notification-policy": {
-                    "type": "string",
-                    "description": "Deprecated: Do not use",
-                    "enum": [
-                      "always",
-                      "failure",
-                      "never"
-                    ],
-                    "default": "always"
-                  },
-                  "notification-target": {
-                    "type": "string",
-                    "format": "pve-configid",
-                    "description": "Deprecated: Do not use"
                   },
                   "pbs-change-detection-mode": {
                     "type": "string",
@@ -13728,6 +13801,11 @@
                     "description": "Description.",
                     "maxLength": 4096
                   },
+                  "failback": {
+                    "type": "boolean",
+                    "description": "Automatically migrate HA resource to the node with the highest priority according to their node affinity  rules, if a node with a higher priority than the current node comes online.",
+                    "default": true
+                  },
                   "group": {
                     "type": "string",
                     "format": "pve-configid",
@@ -14022,6 +14100,10 @@
                       "type": "string",
                       "description": "Can be used to prevent concurrent modifications."
                     },
+                    "failback": {
+                      "type": "boolean",
+                      "description": "The HA resource is automatically migrated to the node with the highest priority according to their node affinity rule, if a node with a higher priority than the current node comes online."
+                    },
                     "group": {
                       "type": "string",
                       "format": "pve-configid",
@@ -14163,6 +14245,11 @@
                     "type": "string",
                     "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
                     "maxLength": 64
+                  },
+                  "failback": {
+                    "type": "boolean",
+                    "description": "Automatically migrate HA resource to the node with the highest priority according to their node affinity  rules, if a node with a higher priority than the current node comes online.",
+                    "default": true
                   },
                   "group": {
                     "type": "string",
@@ -14352,8 +14439,38 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
+                  "properties": {
+                    "blocking-resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cause": {
+                            "type": "string",
+                            "description": "The reason why the HA resource is blocking the migration."
+                          },
+                          "sid": {
+                            "type": "string",
+                            "description": "The blocking HA resource id"
+                          }
+                        },
+                        "description": "A blocking HA resource"
+                      },
+                      "description": "HA resources, which are blocking the given HA resource from being migrated to the requested target node."
+                    },
+                    "comigrated-resources": {
+                      "type": "array",
+                      "description": "HA resources, which are migrated to the same requested target node as the given HA resource, because these are in positive affinity with the HA resource."
+                    },
+                    "requested-node": {
+                      "type": "string",
+                      "description": "Node, which was requested to be migrated to."
+                    },
+                    "sid": {
+                      "type": "string",
+                      "description": "HA resource, which is requested to be migrated."
+                    }
+                  }
                 }
               }
             }
@@ -14487,8 +14604,42 @@
               "application/json": {
                 "schema": {
                   "type": "object",
-                  "properties": {},
-                  "additionalProperties": false
+                  "properties": {
+                    "blocking-resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "cause": {
+                            "type": "string",
+                            "description": "The reason why the HA resource is blocking the relocation."
+                          },
+                          "sid": {
+                            "type": "string",
+                            "description": "The blocking HA resource id"
+                          }
+                        },
+                        "description": "A blocking HA resource"
+                      },
+                      "description": "HA resources, which are blocking the given HA resource from being relocated to the requested target node."
+                    },
+                    "comigrated-resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "A comigrated HA resource"
+                      },
+                      "description": "HA resources, which are relocated to the same requested target node as the given HA resource, because these are in positive affinity with the HA resource."
+                    },
+                    "requested-node": {
+                      "type": "string",
+                      "description": "Node, which was requested to be relocated to."
+                    },
+                    "sid": {
+                      "type": "string",
+                      "description": "HA resource, which is requested to be relocated."
+                    }
+                  }
                 }
               }
             }
@@ -14577,8 +14728,8 @@
     },
     "/cluster/cluster/ha/cluster/ha/groups": {
       "get": {
-        "summary": "Get HA groups.",
-        "description": "Get HA groups.",
+        "summary": "Get HA groups. (deprecated in favor of HA rules)",
+        "description": "Get HA groups. (deprecated in favor of HA rules)",
         "operationId": "get_cluster_cluster_ha_cluster_ha_groups",
         "tags": [
           "Cluster"
@@ -14684,8 +14835,8 @@
         ]
       },
       "post": {
-        "summary": "Create a new HA group.",
-        "description": "Create a new HA group.",
+        "summary": "Create a new HA group. (deprecated in favor of HA rules)",
+        "description": "Create a new HA group. (deprecated in favor of HA rules)",
         "operationId": "post_cluster_cluster_ha_cluster_ha_groups",
         "tags": [
           "Cluster"
@@ -14835,8 +14986,8 @@
     },
     "/cluster/cluster/ha/cluster/ha/groups/cluster/ha/groups/{group}": {
       "delete": {
-        "summary": "Delete ha group configuration.",
-        "description": "Delete ha group configuration.",
+        "summary": "Delete ha group configuration. (deprecated in favor of HA rules)",
+        "description": "Delete ha group configuration. (deprecated in favor of HA rules)",
         "operationId": "delete_cluster_cluster_ha_cluster_ha_groups_cluster_ha_groups_group",
         "tags": [
           "Cluster"
@@ -14947,8 +15098,8 @@
         ]
       },
       "get": {
-        "summary": "Read ha group configuration.",
-        "description": "Read ha group configuration.",
+        "summary": "Read ha group configuration. (deprecated in favor of HA rules)",
+        "description": "Read ha group configuration. (deprecated in favor of HA rules)",
         "operationId": "get_cluster_cluster_ha_cluster_ha_groups_cluster_ha_groups_group",
         "tags": [
           "Cluster"
@@ -15057,8 +15208,8 @@
         ]
       },
       "put": {
-        "summary": "Update ha group configuration.",
-        "description": "Update ha group configuration.",
+        "summary": "Update ha group configuration. (deprecated in favor of HA rules)",
+        "description": "Update ha group configuration. (deprecated in favor of HA rules)",
         "operationId": "put_cluster_cluster_ha_cluster_ha_groups_cluster_ha_groups_group",
         "tags": [
           "Cluster"
@@ -15115,6 +15266,720 @@
               "$ref": "#/components/schemas/ProxmoxResourceName"
             },
             "description": "The group parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/ha/cluster/ha/rules": {
+      "get": {
+        "summary": "Get HA rules.",
+        "description": "Get HA rules.",
+        "operationId": "get_cluster_cluster_ha_cluster_ha_rules",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "resource",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Limit the returned list to rules affecting the specified resource."
+            },
+            "description": "Limit the returned list to rules affecting the specified resource."
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Limit the returned list to the specified rule type.",
+              "enum": [
+                "node-affinity",
+                "resource-affinity"
+              ]
+            },
+            "description": "Limit the returned list to the specified rule type."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "rule": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Create HA rule.",
+        "description": "Create HA rule.",
+        "operationId": "post_cluster_cluster_ha_cluster_ha_rules",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "affinity": {
+                    "type": "string",
+                    "description": "Describes whether the HA resources are supposed to be kept on the same node ('positive'), or are supposed to be kept on separate nodes ('negative').",
+                    "enum": [
+                      "positive",
+                      "negative"
+                    ]
+                  },
+                  "comment": {
+                    "type": "string",
+                    "description": "HA rule description.",
+                    "maxLength": 4096
+                  },
+                  "disable": {
+                    "type": "boolean",
+                    "description": "Whether the HA rule is disabled."
+                  },
+                  "nodes": {
+                    "type": "string",
+                    "format": "pve-ha-group-node-list",
+                    "description": "List of cluster node names with optional priority."
+                  },
+                  "resources": {
+                    "type": "string",
+                    "format": "pve-ha-resource-id-list",
+                    "description": "List of HA resource IDs. This consists of a list of resource types followed by a resource specific name separated with a colon (example: vm:100,ct:101)."
+                  },
+                  "rule": {
+                    "type": "string",
+                    "format": "pve-configid",
+                    "description": "HA rule identifier."
+                  },
+                  "strict": {
+                    "type": "boolean",
+                    "description": "Describes whether the node affinity rule is strict or non-strict.",
+                    "default": false
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "HA rule type.",
+                    "enum": [
+                      "node-affinity",
+                      "resource-affinity"
+                    ]
+                  }
+                },
+                "required": [
+                  "resources",
+                  "rule",
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/ha/cluster/ha/rules/cluster/ha/rules/{rule}": {
+      "delete": {
+        "summary": "Delete HA rule.",
+        "description": "Delete HA rule.",
+        "operationId": "delete_cluster_cluster_ha_cluster_ha_rules_cluster_ha_rules_rule",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "rule",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The rule parameter"
+            },
+            "description": "The rule parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Read HA rule.",
+        "description": "Read HA rule.",
+        "operationId": "get_cluster_cluster_ha_cluster_ha_rules_cluster_ha_rules_rule",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "rule",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The rule parameter"
+            },
+            "description": "The rule parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "rule": {
+                      "type": "string",
+                      "format": "pve-configid",
+                      "description": "HA rule identifier."
+                    },
+                    "type": {
+                      "type": "string",
+                      "description": "HA rule type."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update HA rule.",
+        "description": "Update HA rule.",
+        "operationId": "put_cluster_cluster_ha_cluster_ha_rules_cluster_ha_rules_rule",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "affinity": {
+                    "type": "string",
+                    "description": "Describes whether the HA resources are supposed to be kept on the same node ('positive'), or are supposed to be kept on separate nodes ('negative').",
+                    "enum": [
+                      "positive",
+                      "negative"
+                    ]
+                  },
+                  "comment": {
+                    "type": "string",
+                    "description": "HA rule description.",
+                    "maxLength": 4096
+                  },
+                  "delete": {
+                    "type": "string",
+                    "format": "pve-configid-list",
+                    "description": "A list of settings you want to delete.",
+                    "maxLength": 4096
+                  },
+                  "digest": {
+                    "type": "string",
+                    "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                    "maxLength": 64
+                  },
+                  "disable": {
+                    "type": "boolean",
+                    "description": "Whether the HA rule is disabled."
+                  },
+                  "nodes": {
+                    "type": "string",
+                    "format": "pve-ha-group-node-list",
+                    "description": "List of cluster node names with optional priority."
+                  },
+                  "resources": {
+                    "type": "string",
+                    "format": "pve-ha-resource-id-list",
+                    "description": "List of HA resource IDs. This consists of a list of resource types followed by a resource specific name separated with a colon (example: vm:100,ct:101)."
+                  },
+                  "strict": {
+                    "type": "boolean",
+                    "description": "Describes whether the node affinity rule is strict or non-strict.",
+                    "default": false
+                  },
+                  "type": {
+                    "type": "string",
+                    "description": "HA rule type.",
+                    "enum": [
+                      "node-affinity",
+                      "resource-affinity"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "rule",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The rule parameter"
+            },
+            "description": "The rule parameter"
           }
         ],
         "responses": {
@@ -15337,6 +16202,10 @@
                       "crm_state": {
                         "type": "string",
                         "description": "For type 'service'. Service state as seen by the CRM."
+                      },
+                      "failback": {
+                        "type": "boolean",
+                        "description": "The HA resource is automatically migrated to the node with the highest priority according to their node affinity rule, if a node with a higher priority than the current node comes online."
                       },
                       "id": {
                         "type": "string",
@@ -15834,6 +16703,7 @@
                       "aws",
                       "azion",
                       "azure",
+                      "beget",
                       "bookmyname",
                       "bunny",
                       "cf",
@@ -15865,11 +16735,13 @@
                       "dynu",
                       "dynv6",
                       "easydns",
+                      "edgecenter",
                       "edgedns",
                       "euserv",
                       "exoscale",
                       "fornex",
                       "freedns",
+                      "freemyip",
                       "gandi_livedns",
                       "gcloud",
                       "gcore",
@@ -15877,6 +16749,7 @@
                       "geoscaling",
                       "googledomains",
                       "he",
+                      "he_ddns",
                       "hetzner",
                       "hexonet",
                       "hostingde",
@@ -15906,6 +16779,7 @@
                       "maradns",
                       "me",
                       "miab",
+                      "mijnhost",
                       "misaka",
                       "myapi",
                       "mydevil",
@@ -16368,6 +17242,7 @@
                       "aws",
                       "azion",
                       "azure",
+                      "beget",
                       "bookmyname",
                       "bunny",
                       "cf",
@@ -16399,11 +17274,13 @@
                       "dynu",
                       "dynv6",
                       "easydns",
+                      "edgecenter",
                       "edgedns",
                       "euserv",
                       "exoscale",
                       "fornex",
                       "freedns",
+                      "freemyip",
                       "gandi_livedns",
                       "gcloud",
                       "gcore",
@@ -16411,6 +17288,7 @@
                       "geoscaling",
                       "googledomains",
                       "he",
+                      "he_ddns",
                       "hetzner",
                       "hexonet",
                       "hostingde",
@@ -16440,6 +17318,7 @@
                       "maradns",
                       "me",
                       "miab",
+                      "mijnhost",
                       "misaka",
                       "myapi",
                       "mydevil",
@@ -21936,6 +22815,27 @@
         "tags": [
           "Cluster"
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "release-lock": {
+                    "type": "boolean",
+                    "description": "When lock-token has been provided and configuration successfully commited, release the lock automatically afterwards",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -22177,6 +23077,10 @@
                     "type": "boolean",
                     "description": "If true, sets the isolated property for all members of this VNet"
                   },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
                   "tag": {
                     "type": "integer",
                     "description": "vlan or vxlan id"
@@ -22323,6 +23227,16 @@
               "description": "The vnet parameter"
             },
             "description": "The vnet parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -22583,6 +23497,10 @@
                   "isolate-ports": {
                     "type": "boolean",
                     "description": "If true, sets the isolated property for all members of this VNet"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "tag": {
                     "type": "integer",
@@ -24171,6 +25089,10 @@
                     "format": "ip",
                     "description": "Subnet Gateway: Will be assign on vnet for layer3 zones"
                   },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
                   "snat": {
                     "type": "boolean",
                     "description": "enable masquerade for this subnet if pve-firewall"
@@ -24330,6 +25252,16 @@
               "description": "The subnet parameter"
             },
             "description": "The subnet parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -24614,6 +25546,10 @@
                     "type": "string",
                     "format": "ip",
                     "description": "Subnet Gateway: Will be assign on vnet for layer3 zones"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "snat": {
                     "type": "boolean",
@@ -25429,9 +26365,18 @@
                     "format": "pve-node",
                     "description": "Force traffic to this exitnode first."
                   },
+                  "fabric": {
+                    "type": "string",
+                    "format": "pve-sdn-fabric-id",
+                    "description": "SDN fabric to use as underlay for this VXLAN zone."
+                  },
                   "ipam": {
                     "type": "string",
                     "description": "use a specific ipam"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "mac": {
                     "type": "string",
@@ -25624,6 +26569,16 @@
               "description": "The zone parameter"
             },
             "description": "The zone parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -25929,9 +26884,18 @@
                     "format": "pve-node",
                     "description": "Force traffic to this exitnode first."
                   },
+                  "fabric": {
+                    "type": "string",
+                    "format": "pve-sdn-fabric-id",
+                    "description": "SDN fabric to use as underlay for this VXLAN zone."
+                  },
                   "ipam": {
                     "type": "string",
                     "description": "use a specific ipam"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "mac": {
                     "type": "string",
@@ -26286,6 +27250,11 @@
                   "ebgp-multihop": {
                     "type": "integer"
                   },
+                  "fabric": {
+                    "type": "string",
+                    "format": "pve-sdn-fabric-id",
+                    "description": "SDN fabric to use as underlay for this EVPN controller."
+                  },
                   "isis-domain": {
                     "type": "string",
                     "description": "ISIS domain."
@@ -26299,6 +27268,10 @@
                     "type": "string",
                     "format": "pve-sdn-isis-net",
                     "description": "ISIS network entity title."
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "loopback": {
                     "type": "string",
@@ -26447,6 +27420,16 @@
               "description": "The controller parameter"
             },
             "description": "The controller parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -26715,6 +27698,11 @@
                   "ebgp-multihop": {
                     "type": "integer"
                   },
+                  "fabric": {
+                    "type": "string",
+                    "format": "pve-sdn-fabric-id",
+                    "description": "SDN fabric to use as underlay for this EVPN controller."
+                  },
                   "isis-domain": {
                     "type": "string",
                     "description": "ISIS domain."
@@ -26728,6 +27716,10 @@
                     "type": "string",
                     "format": "pve-sdn-isis-net",
                     "description": "ISIS network entity title."
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "loopback": {
                     "type": "string",
@@ -27007,6 +27999,10 @@
                     "format": "pve-sdn-ipam-id",
                     "description": "The SDN ipam object identifier."
                   },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
                   "section": {
                     "type": "integer"
                   },
@@ -27148,6 +28144,16 @@
               "description": "The ipam parameter"
             },
             "description": "The ipam parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -27384,6 +28390,10 @@
                     "type": "string",
                     "description": "Certificate SHA 256 fingerprint.",
                     "pattern": "([A-Fa-f0-9]{2}:){31}[A-Fa-f0-9]{2}"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
                   },
                   "section": {
                     "type": "integer"
@@ -27772,6 +28782,10 @@
                   "key": {
                     "type": "string"
                   },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
                   "reversemaskv6": {
                     "type": "integer"
                   },
@@ -27916,6 +28930,16 @@
               "description": "The dns parameter"
             },
             "description": "The dns parameter"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
           }
         ],
         "responses": {
@@ -28156,6 +29180,10 @@
                   "key": {
                     "type": "string"
                   },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
                   "reversemaskv6": {
                     "type": "integer"
                   },
@@ -28182,6 +29210,2392 @@
             "description": "The dns parameter"
           }
         ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics": {
+      "get": {
+        "summary": "SDN Fabrics Index",
+        "description": "SDN Fabrics Index",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics",
+        "tags": [
+          "Cluster"
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "subdir": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/fabric": {
+      "get": {
+        "summary": "SDN Fabrics Index",
+        "description": "SDN Fabrics Index",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_fabric",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "pending",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display pending config."
+            },
+            "description": "Display pending config."
+          },
+          {
+            "name": "running",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display running config."
+            },
+            "description": "Display running config."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "area": {
+                        "type": "string",
+                        "description": "OSPF area. Either a IPv4 address or a 32-bit number. Gets validated in rust."
+                      },
+                      "csnp_interval": {
+                        "type": "number",
+                        "description": "The csnp_interval property for Openfabric"
+                      },
+                      "digest": {
+                        "type": "string",
+                        "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                      },
+                      "hello_interval": {
+                        "type": "number",
+                        "description": "The hello_interval property for Openfabric"
+                      },
+                      "id": {
+                        "type": "string",
+                        "format": "pve-sdn-fabric-id",
+                        "description": "Identifier for SDN fabrics"
+                      },
+                      "ip6_prefix": {
+                        "type": "string",
+                        "format": "CIDR",
+                        "description": "The IP prefix for Node IPs"
+                      },
+                      "ip_prefix": {
+                        "type": "string",
+                        "format": "CIDR",
+                        "description": "The IP prefix for Node IPs"
+                      },
+                      "lock-token": {
+                        "type": "string",
+                        "description": "the token for unlocking the global SDN configuration"
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "description": "Type of configuration entry in an SDN Fabric section config"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add a fabric",
+        "description": "Add a fabric",
+        "operationId": "post_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_fabric",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area": {
+                    "type": "string",
+                    "description": "OSPF area. Either a IPv4 address or a 32-bit number. Gets validated in rust."
+                  },
+                  "csnp_interval": {
+                    "type": "number",
+                    "description": "The csnp_interval property for Openfabric",
+                    "minimum": 1,
+                    "maximum": 600
+                  },
+                  "digest": {
+                    "type": "string",
+                    "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                    "maxLength": 64
+                  },
+                  "hello_interval": {
+                    "type": "number",
+                    "description": "The hello_interval property for Openfabric",
+                    "minimum": 1,
+                    "maximum": 600
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "pve-sdn-fabric-id",
+                    "description": "Identifier for SDN fabrics"
+                  },
+                  "ip6_prefix": {
+                    "type": "string",
+                    "format": "CIDR",
+                    "description": "The IP prefix for Node IPs"
+                  },
+                  "ip_prefix": {
+                    "type": "string",
+                    "format": "CIDR",
+                    "description": "The IP prefix for Node IPs"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "Type of configuration entry in an SDN Fabric section config",
+                    "enum": [
+                      "openfabric",
+                      "ospf"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "protocol"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/fabric/cluster/sdn/fabrics/fabric/{id}": {
+      "delete": {
+        "summary": "Add a fabric",
+        "description": "Add a fabric",
+        "operationId": "delete_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_fabric_cluster_sdn_fabrics_fabric_id",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The id parameter"
+            },
+            "description": "The id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Update a fabric",
+        "description": "Update a fabric",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_fabric_cluster_sdn_fabrics_fabric_id",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The id parameter"
+            },
+            "description": "The id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "area": {
+                      "type": "string",
+                      "description": "OSPF area. Either a IPv4 address or a 32-bit number. Gets validated in rust."
+                    },
+                    "csnp_interval": {
+                      "type": "number",
+                      "description": "The csnp_interval property for Openfabric"
+                    },
+                    "digest": {
+                      "type": "string",
+                      "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                    },
+                    "hello_interval": {
+                      "type": "number",
+                      "description": "The hello_interval property for Openfabric"
+                    },
+                    "id": {
+                      "type": "string",
+                      "format": "pve-sdn-fabric-id",
+                      "description": "Identifier for SDN fabrics"
+                    },
+                    "ip6_prefix": {
+                      "type": "string",
+                      "format": "CIDR",
+                      "description": "The IP prefix for Node IPs"
+                    },
+                    "ip_prefix": {
+                      "type": "string",
+                      "format": "CIDR",
+                      "description": "The IP prefix for Node IPs"
+                    },
+                    "lock-token": {
+                      "type": "string",
+                      "description": "the token for unlocking the global SDN configuration"
+                    },
+                    "protocol": {
+                      "type": "string",
+                      "description": "Type of configuration entry in an SDN Fabric section config"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update a fabric",
+        "description": "Update a fabric",
+        "operationId": "put_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_fabric_cluster_sdn_fabrics_fabric_id",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "area": {
+                    "type": "string",
+                    "description": "OSPF area. Either a IPv4 address or a 32-bit number. Gets validated in rust."
+                  },
+                  "csnp_interval": {
+                    "type": "number",
+                    "description": "The csnp_interval property for Openfabric",
+                    "minimum": 1,
+                    "maximum": 600
+                  },
+                  "delete": {
+                    "type": "array"
+                  },
+                  "digest": {
+                    "type": "string",
+                    "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                    "maxLength": 64
+                  },
+                  "hello_interval": {
+                    "type": "number",
+                    "description": "The hello_interval property for Openfabric",
+                    "minimum": 1,
+                    "maximum": 600
+                  },
+                  "ip6_prefix": {
+                    "type": "string",
+                    "format": "CIDR",
+                    "description": "The IP prefix for Node IPs"
+                  },
+                  "ip_prefix": {
+                    "type": "string",
+                    "format": "CIDR",
+                    "description": "The IP prefix for Node IPs"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "Type of configuration entry in an SDN Fabric section config",
+                    "enum": [
+                      "openfabric",
+                      "ospf"
+                    ]
+                  }
+                },
+                "required": [
+                  "delete",
+                  "protocol"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The id parameter"
+            },
+            "description": "The id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/node": {
+      "get": {
+        "summary": "SDN Fabrics Index",
+        "description": "SDN Fabrics Index",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "pending",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display pending config."
+            },
+            "description": "Display pending config."
+          },
+          {
+            "name": "running",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display running config."
+            },
+            "description": "Display running config."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "digest": {
+                        "type": "string",
+                        "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                      },
+                      "fabric_id": {
+                        "type": "string",
+                        "format": "pve-sdn-fabric-id",
+                        "description": "Identifier for SDN fabrics"
+                      },
+                      "interfaces": {
+                        "type": "array"
+                      },
+                      "ip": {
+                        "type": "string",
+                        "format": "ipv4",
+                        "description": "IPv4 address for this node"
+                      },
+                      "ip6": {
+                        "type": "string",
+                        "format": "ipv6",
+                        "description": "IPv6 address for this node"
+                      },
+                      "lock-token": {
+                        "type": "string",
+                        "description": "the token for unlocking the global SDN configuration"
+                      },
+                      "node_id": {
+                        "type": "string",
+                        "format": "pve-node",
+                        "description": "Identifier for nodes in an SDN fabric"
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "description": "Type of configuration entry in an SDN Fabric section config"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/node/cluster/sdn/fabrics/node/{fabric_id}": {
+      "get": {
+        "summary": "SDN Fabrics Index",
+        "description": "SDN Fabrics Index",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node_cluster_sdn_fabrics_node_fabric_id",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "fabric_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The fabric_id parameter"
+            },
+            "description": "The fabric_id parameter"
+          },
+          {
+            "name": "pending",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display pending config."
+            },
+            "description": "Display pending config."
+          },
+          {
+            "name": "running",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display running config."
+            },
+            "description": "Display running config."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "digest": {
+                        "type": "string",
+                        "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                      },
+                      "fabric_id": {
+                        "type": "string",
+                        "format": "pve-sdn-fabric-id",
+                        "description": "Identifier for SDN fabrics"
+                      },
+                      "interfaces": {
+                        "type": "array"
+                      },
+                      "ip": {
+                        "type": "string",
+                        "format": "ipv4",
+                        "description": "IPv4 address for this node"
+                      },
+                      "ip6": {
+                        "type": "string",
+                        "format": "ipv6",
+                        "description": "IPv6 address for this node"
+                      },
+                      "lock-token": {
+                        "type": "string",
+                        "description": "the token for unlocking the global SDN configuration"
+                      },
+                      "node_id": {
+                        "type": "string",
+                        "format": "pve-node",
+                        "description": "Identifier for nodes in an SDN fabric"
+                      },
+                      "protocol": {
+                        "type": "string",
+                        "description": "Type of configuration entry in an SDN Fabric section config"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Add a node",
+        "description": "Add a node",
+        "operationId": "post_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node_cluster_sdn_fabrics_node_fabric_id",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "digest": {
+                    "type": "string",
+                    "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                    "maxLength": 64
+                  },
+                  "interfaces": {
+                    "type": "array"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "format": "ipv4",
+                    "description": "IPv4 address for this node"
+                  },
+                  "ip6": {
+                    "type": "string",
+                    "format": "ipv6",
+                    "description": "IPv6 address for this node"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "node_id": {
+                    "type": "string",
+                    "format": "pve-node",
+                    "description": "Identifier for nodes in an SDN fabric"
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "Type of configuration entry in an SDN Fabric section config",
+                    "enum": [
+                      "openfabric",
+                      "ospf"
+                    ]
+                  }
+                },
+                "required": [
+                  "interfaces",
+                  "node_id",
+                  "protocol"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fabric_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The fabric_id parameter"
+            },
+            "description": "The fabric_id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/node/cluster/sdn/fabrics/node/{fabric_id}/cluster/sdn/fabrics/node/{fabric_id}/{node_id}": {
+      "delete": {
+        "summary": "Add a node",
+        "description": "Add a node",
+        "operationId": "delete_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node_cluster_sdn_fabrics_node_fabric_id_cluster_sdn_fabrics_node_fabric_id_node_id",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "fabric_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The fabric_id parameter"
+            },
+            "description": "The fabric_id parameter"
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The node_id parameter"
+            },
+            "description": "The node_id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "get": {
+        "summary": "Get a node",
+        "description": "Get a node",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node_cluster_sdn_fabrics_node_fabric_id_cluster_sdn_fabrics_node_fabric_id_node_id",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "fabric_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The fabric_id parameter"
+            },
+            "description": "The fabric_id parameter"
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The node_id parameter"
+            },
+            "description": "The node_id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "put": {
+        "summary": "Update a node",
+        "description": "Update a node",
+        "operationId": "put_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_node_cluster_sdn_fabrics_node_fabric_id_cluster_sdn_fabrics_node_fabric_id_node_id",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "delete": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "digest": {
+                    "type": "string",
+                    "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                    "maxLength": 64
+                  },
+                  "interfaces": {
+                    "type": "array"
+                  },
+                  "ip": {
+                    "type": "string",
+                    "format": "ipv4",
+                    "description": "IPv4 address for this node"
+                  },
+                  "ip6": {
+                    "type": "string",
+                    "format": "ipv6",
+                    "description": "IPv6 address for this node"
+                  },
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "protocol": {
+                    "type": "string",
+                    "description": "Type of configuration entry in an SDN Fabric section config",
+                    "enum": [
+                      "openfabric",
+                      "ospf"
+                    ]
+                  }
+                },
+                "required": [
+                  "interfaces",
+                  "protocol"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fabric_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The fabric_id parameter"
+            },
+            "description": "The fabric_id parameter"
+          },
+          {
+            "name": "node_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "description": "The node_id parameter"
+            },
+            "description": "The node_id parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/fabrics/cluster/sdn/fabrics/all": {
+      "get": {
+        "summary": "SDN Fabrics Index",
+        "description": "SDN Fabrics Index",
+        "operationId": "get_cluster_cluster_sdn_cluster_sdn_fabrics_cluster_sdn_fabrics_all",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "pending",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display pending config."
+            },
+            "description": "Display pending config."
+          },
+          {
+            "name": "running",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Display running config."
+            },
+            "description": "Display running config."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "fabrics": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "area": {
+                            "type": "string",
+                            "description": "OSPF area. Either a IPv4 address or a 32-bit number. Gets validated in rust."
+                          },
+                          "csnp_interval": {
+                            "type": "number",
+                            "description": "The csnp_interval property for Openfabric"
+                          },
+                          "digest": {
+                            "type": "string",
+                            "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                          },
+                          "hello_interval": {
+                            "type": "number",
+                            "description": "The hello_interval property for Openfabric"
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "pve-sdn-fabric-id",
+                            "description": "Identifier for SDN fabrics"
+                          },
+                          "ip6_prefix": {
+                            "type": "string",
+                            "format": "CIDR",
+                            "description": "The IP prefix for Node IPs"
+                          },
+                          "ip_prefix": {
+                            "type": "string",
+                            "format": "CIDR",
+                            "description": "The IP prefix for Node IPs"
+                          },
+                          "lock-token": {
+                            "type": "string",
+                            "description": "the token for unlocking the global SDN configuration"
+                          },
+                          "protocol": {
+                            "type": "string",
+                            "description": "Type of configuration entry in an SDN Fabric section config"
+                          }
+                        }
+                      }
+                    },
+                    "nodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "digest": {
+                            "type": "string",
+                            "description": "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications."
+                          },
+                          "fabric_id": {
+                            "type": "string",
+                            "format": "pve-sdn-fabric-id",
+                            "description": "Identifier for SDN fabrics"
+                          },
+                          "interfaces": {
+                            "type": "array"
+                          },
+                          "ip": {
+                            "type": "string",
+                            "format": "ipv4",
+                            "description": "IPv4 address for this node"
+                          },
+                          "ip6": {
+                            "type": "string",
+                            "format": "ipv6",
+                            "description": "IPv6 address for this node"
+                          },
+                          "lock-token": {
+                            "type": "string",
+                            "description": "the token for unlocking the global SDN configuration"
+                          },
+                          "node_id": {
+                            "type": "string",
+                            "format": "pve-node",
+                            "description": "Identifier for nodes in an SDN fabric"
+                          },
+                          "protocol": {
+                            "type": "string",
+                            "description": "Type of configuration entry in an SDN Fabric section config"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/lock": {
+      "delete": {
+        "summary": "Release global lock for SDN configuration",
+        "description": "Release global lock for SDN configuration",
+        "operationId": "delete_cluster_cluster_sdn_cluster_sdn_lock",
+        "tags": [
+          "Cluster"
+        ],
+        "parameters": [
+          {
+            "name": "force",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "if true, allow releasing lock without providing the token",
+              "default": false
+            },
+            "description": "if true, allow releasing lock without providing the token"
+          },
+          {
+            "name": "lock-token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "the token for unlocking the global SDN configuration"
+            },
+            "description": "the token for unlocking the global SDN configuration"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
+      "post": {
+        "summary": "Acquire global lock for SDN configuration",
+        "description": "Acquire global lock for SDN configuration",
+        "operationId": "post_cluster_cluster_sdn_cluster_sdn_lock",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "allow-pending": {
+                    "type": "boolean",
+                    "description": "if true, allow acquiring lock even though there are pending changes",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/cluster/cluster/sdn/cluster/sdn/rollback": {
+      "post": {
+        "summary": "Rollback pending changes to SDN configuration",
+        "description": "Rollback pending changes to SDN configuration",
+        "operationId": "post_cluster_cluster_sdn_cluster_sdn_rollback",
+        "tags": [
+          "Cluster"
+        ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "lock-token": {
+                    "type": "string",
+                    "description": "the token for unlocking the global SDN configuration"
+                  },
+                  "release-lock": {
+                    "type": "boolean",
+                    "description": "When lock-token has been provided and configuration successfully rollbacked, release the lock automatically afterwards",
+                    "default": true
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "description": "Successful operation",
@@ -28486,6 +31900,10 @@
                       "mem": {
                         "type": "integer",
                         "description": "Used memory in bytes (for types 'node', 'qemu' and 'lxc')."
+                      },
+                      "memhost": {
+                        "type": "integer",
+                        "description": "Used memory in bytes from the point of view of the host (for types 'qemu')."
                       },
                       "name": {
                         "type": "string",
@@ -29004,6 +32422,10 @@
                   "registered-tags": {
                     "type": "string",
                     "description": "A list of tags that require a `Sys.Modify` on '/' to set and delete. Tags set here that are also in 'user-tag-access' also require `Sys.Modify`."
+                  },
+                  "replication": {
+                    "type": "string",
+                    "description": "For cluster wide replication settings."
                   },
                   "tag-style": {
                     "type": "string",
@@ -29715,6 +33137,10 @@
                         "type": "integer",
                         "description": "Currently used memory in bytes."
                       },
+                      "memhost": {
+                        "type": "integer",
+                        "description": "Current memory usage on the host."
+                      },
                       "name": {
                         "type": "string",
                         "description": "VM (host)name."
@@ -29730,6 +33156,30 @@
                       "pid": {
                         "type": "integer",
                         "description": "PID of the QEMU process, if the VM is running."
+                      },
+                      "pressurecpufull": {
+                        "type": "number",
+                        "description": "CPU Full pressure stall average over the last 10 seconds."
+                      },
+                      "pressurecpusome": {
+                        "type": "number",
+                        "description": "CPU Some pressure stall average over the last 10 seconds."
+                      },
+                      "pressureiofull": {
+                        "type": "number",
+                        "description": "IO Full pressure stall average over the last 10 seconds."
+                      },
+                      "pressureiosome": {
+                        "type": "number",
+                        "description": "IO Some pressure stall average over the last 10 seconds."
+                      },
+                      "pressurememoryfull": {
+                        "type": "number",
+                        "description": "Memory Full pressure stall average over the last 10 seconds."
+                      },
+                      "pressurememorysome": {
+                        "type": "number",
+                        "description": "Memory Some pressure stall average over the last 10 seconds."
                       },
                       "qmpstatus": {
                         "type": "string",
@@ -41473,6 +44923,10 @@
                       "type": "integer",
                       "description": "Currently used memory in bytes."
                     },
+                    "memhost": {
+                      "type": "integer",
+                      "description": "Current memory usage on the host."
+                    },
                     "name": {
                       "type": "string",
                       "description": "VM (host)name."
@@ -41488,6 +44942,30 @@
                     "pid": {
                       "type": "integer",
                       "description": "PID of the QEMU process, if the VM is running."
+                    },
+                    "pressurecpufull": {
+                      "type": "number",
+                      "description": "CPU Full pressure stall average over the last 10 seconds."
+                    },
+                    "pressurecpusome": {
+                      "type": "number",
+                      "description": "CPU Some pressure stall average over the last 10 seconds."
+                    },
+                    "pressureiofull": {
+                      "type": "number",
+                      "description": "IO Full pressure stall average over the last 10 seconds."
+                    },
+                    "pressureiosome": {
+                      "type": "number",
+                      "description": "IO Some pressure stall average over the last 10 seconds."
+                    },
+                    "pressurememoryfull": {
+                      "type": "number",
+                      "description": "Memory Full pressure stall average over the last 10 seconds."
+                    },
+                    "pressurememorysome": {
+                      "type": "number",
+                      "description": "Memory Some pressure stall average over the last 10 seconds."
                     },
                     "qmpstatus": {
                       "type": "string",
@@ -41677,6 +45155,11 @@
                     "description": "Wait maximal timeout seconds.",
                     "minimum": 0,
                     "default": "max(30, vm memory in GiB)"
+                  },
+                  "with-conntrack-state": {
+                    "type": "boolean",
+                    "description": "Whether to migrate conntrack entries for running VMs.",
+                    "default": false
                   }
                 }
               }
@@ -44040,6 +47523,18 @@
                       },
                       "description": "List of nodes allowed for migration."
                     },
+                    "dependent-ha-resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "The '<ty>:<id>' resource IDs of a HA resource with a positive affinity rule to this VM."
+                      },
+                      "description": "HA resources, which will be migrated to the same target node as the VM, because these are in positive affinity with the VM."
+                    },
+                    "has-dbus-vmstate": {
+                      "type": "boolean",
+                      "description": "Whether the VM host supports migrating additional VM state, such as conntrack entries."
+                    },
                     "local_disks": {
                       "type": "array",
                       "items": {
@@ -44088,6 +47583,24 @@
                     "not_allowed_nodes": {
                       "type": "object",
                       "properties": {
+                        "blocking-ha-resources": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "cause": {
+                                "type": "string",
+                                "description": "The reason why the HA resource is blocking the migration."
+                              },
+                              "sid": {
+                                "type": "string",
+                                "description": "The blocking HA resource id"
+                              }
+                            },
+                            "description": "A blocking HA resource"
+                          },
+                          "description": "HA resources, which are blocking the VM from being migrated to the node."
+                        },
                         "unavailable_storages": {
                           "type": "array",
                           "items": {
@@ -44239,6 +47752,11 @@
                     "type": "string",
                     "format": "storage-pair-list",
                     "description": "Mapping from source to target storages. Providing only a single storage ID maps all source storages to that storage. Providing the special value '1' will map each source storage to itself."
+                  },
+                  "with-conntrack-state": {
+                    "type": "boolean",
+                    "description": "Whether to migrate conntrack entries for running VMs.",
+                    "default": false
                   },
                   "with-local-disks": {
                     "type": "boolean",
@@ -46386,6 +49904,152 @@
         ]
       }
     },
+    "/nodes/nodes/{node}/nodes/{node}/qemu/nodes/{node}/qemu/{vmid}/nodes/{node}/qemu/{vmid}/dbus-vmstate": {
+      "post": {
+        "summary": "Stop the dbus-vmstate helper for the given VM if running.",
+        "description": "Stop the dbus-vmstate helper for the given VM if running.",
+        "operationId": "post_nodes_nodes_node_nodes_node_qemu_nodes_node_qemu_vmid_nodes_node_qemu_vmid_dbus-vmstate",
+        "tags": [
+          "Nodes"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "description": "Action to perform on the DBus VMState helper.",
+                    "enum": [
+                      "start",
+                      "stop"
+                    ]
+                  }
+                },
+                "required": [
+                  "action"
+                ]
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProxmoxNodeId"
+            },
+            "description": "The node parameter"
+          },
+          {
+            "name": "vmid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProxmoxVmId"
+            },
+            "description": "The vmid parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
     "/nodes/nodes/{node}/nodes/{node}/lxc": {
       "get": {
         "summary": "LXC container index (per node).",
@@ -46466,6 +50130,26 @@
                       "netout": {
                         "type": "integer",
                         "description": "The amount of traffic in bytes that was sent from the guest over the network since it was started."
+                      },
+                      "pressurecpusome": {
+                        "type": "number",
+                        "description": "CPU Some pressure stall average over the last 10 seconds."
+                      },
+                      "pressureiofull": {
+                        "type": "number",
+                        "description": "IO Full pressure stall average over the last 10 seconds."
+                      },
+                      "pressureiosome": {
+                        "type": "number",
+                        "description": "IO Some pressure stall average over the last 10 seconds."
+                      },
+                      "pressurememoryfull": {
+                        "type": "number",
+                        "description": "Memory Full pressure stall average over the last 10 seconds."
+                      },
+                      "pressurememorysome": {
+                        "type": "number",
+                        "description": "Memory Some pressure stall average over the last 10 seconds."
                       },
                       "status": {
                         "type": "string",
@@ -48076,6 +51760,26 @@
                     "netout": {
                       "type": "integer",
                       "description": "The amount of traffic in bytes that was sent from the guest over the network since it was started."
+                    },
+                    "pressurecpusome": {
+                      "type": "number",
+                      "description": "CPU Some pressure stall average over the last 10 seconds."
+                    },
+                    "pressureiofull": {
+                      "type": "number",
+                      "description": "IO Full pressure stall average over the last 10 seconds."
+                    },
+                    "pressureiosome": {
+                      "type": "number",
+                      "description": "IO Some pressure stall average over the last 10 seconds."
+                    },
+                    "pressurememoryfull": {
+                      "type": "number",
+                      "description": "Memory Full pressure stall average over the last 10 seconds."
+                    },
+                    "pressurememorysome": {
+                      "type": "number",
+                      "description": "Memory Some pressure stall average over the last 10 seconds."
                     },
                     "status": {
                       "type": "string",
@@ -54737,6 +58441,182 @@
       }
     },
     "/nodes/nodes/{node}/nodes/{node}/lxc/nodes/{node}/lxc/{vmid}/nodes/{node}/lxc/{vmid}/migrate": {
+      "get": {
+        "summary": "Get preconditions for migration.",
+        "description": "Get preconditions for migration.",
+        "operationId": "get_nodes_nodes_node_nodes_node_lxc_nodes_node_lxc_vmid_nodes_node_lxc_vmid_migrate",
+        "tags": [
+          "Nodes"
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProxmoxNodeId"
+            },
+            "description": "The node parameter"
+          },
+          {
+            "name": "vmid",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProxmoxVmId"
+            },
+            "description": "The vmid parameter"
+          },
+          {
+            "name": "target",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "pve-node",
+              "description": "Target node."
+            },
+            "description": "Target node."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "allowed-nodes": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "An allowed node"
+                      },
+                      "description": "List of nodes allowed for migration."
+                    },
+                    "dependent-ha-resources": {
+                      "type": "array",
+                      "items": {
+                        "type": "string",
+                        "description": "The '<ty>:<id>' resource IDs of a HA resource with a positive affinity rule to this CT."
+                      },
+                      "description": "HA resources, which will be migrated to the same target node as the VM, because these are in positive affinity with the VM."
+                    },
+                    "not-allowed-nodes": {
+                      "type": "object",
+                      "properties": {
+                        "blocking-ha-resources": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "cause": {
+                                "type": "string",
+                                "description": "The reason why the HA resource is blocking the migration."
+                              },
+                              "sid": {
+                                "type": "string",
+                                "description": "The blocking HA resource id"
+                              }
+                            },
+                            "description": "A blocking HA resource"
+                          },
+                          "description": "HA resources, which are blocking the container from being migrated to the node."
+                        }
+                      },
+                      "description": "List of not allowed nodes with additional information."
+                    },
+                    "running": {
+                      "type": "boolean",
+                      "description": "Determines if the container is running."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      },
       "post": {
         "summary": "Migrate the container to another node. Creates a new migration task.",
         "description": "Migrate the container to another node. Creates a new migration task.",
@@ -63293,21 +67173,6 @@
                     ],
                     "default": "auto"
                   },
-                  "notification-policy": {
-                    "type": "string",
-                    "description": "Deprecated: Do not use",
-                    "enum": [
-                      "always",
-                      "failure",
-                      "never"
-                    ],
-                    "default": "always"
-                  },
-                  "notification-target": {
-                    "type": "string",
-                    "format": "pve-configid",
-                    "description": "Deprecated: Do not use"
-                  },
                   "pbs-change-detection-mode": {
                     "type": "string",
                     "description": "PBS mode used to detect file changes and switch encoding format for container backups.",
@@ -63611,15 +67476,6 @@
                     "notification-mode": {
                       "type": "string",
                       "description": "Determine which notification system to use. If set to 'legacy-sendmail', vzdump will consider the mailto/mailnotification parameters and send emails to the specified address(es) via the 'sendmail' command. If set to 'notification-system', a notification will be sent via PVE's notification system, and the mailto and mailnotification will be ignored. If set to 'auto' (default setting), an email will be sent if mailto is set, and the notification system will be used if not."
-                    },
-                    "notification-policy": {
-                      "type": "string",
-                      "description": "Deprecated: Do not use"
-                    },
-                    "notification-target": {
-                      "type": "string",
-                      "format": "pve-configid",
-                      "description": "Deprecated: Do not use"
                     },
                     "pbs-change-detection-mode": {
                       "type": "string",
@@ -65432,13 +69288,15 @@
                 "eth",
                 "alias",
                 "vlan",
+                "fabric",
                 "OVSBridge",
                 "OVSBond",
                 "OVSPort",
                 "OVSIntPort",
                 "vnet",
                 "any_bridge",
-                "any_local_bridge"
+                "any_local_bridge",
+                "include_sdn"
               ]
             },
             "description": "Only list specific interface types."
@@ -65925,6 +69783,7 @@
                       "eth",
                       "alias",
                       "vlan",
+                      "fabric",
                       "OVSBridge",
                       "OVSBond",
                       "OVSPort",
@@ -66065,6 +69924,23 @@
         "tags": [
           "Nodes"
         ],
+        "requestBody": {
+          "required": false,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "regenerate-frr": {
+                    "type": "boolean",
+                    "description": "Whether FRR config generation should get skipped or not.",
+                    "default": false
+                  }
+                }
+              }
+            }
+          }
+        },
         "parameters": [
           {
             "name": "node",
@@ -66582,6 +70458,7 @@
                       "eth",
                       "alias",
                       "vlan",
+                      "fabric",
                       "OVSBridge",
                       "OVSBond",
                       "OVSPort",
@@ -68070,138 +71947,6 @@
                       "store": {
                         "type": "string",
                         "description": "The datastore name."
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Bad Request - Invalid input parameters or malformed request",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Unauthorized - Authentication required or invalid credentials",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Forbidden - Insufficient permissions for the requested operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Not Found - Requested resource does not exist",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "422": {
-            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal Server Error - Unexpected server error",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          },
-          "503": {
-            "description": "Service Unavailable - Service temporarily unavailable",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ProxmoxError"
-                }
-              }
-            }
-          }
-        },
-        "security": [
-          {
-            "ProxmoxApiToken": []
-          },
-          {
-            "ProxmoxSessionCookie": [],
-            "ProxmoxCSRFToken": []
-          }
-        ]
-      }
-    },
-    "/nodes/nodes/{node}/nodes/{node}/scan/nodes/{node}/scan/glusterfs": {
-      "get": {
-        "summary": "Scan remote GlusterFS server.",
-        "description": "Scan remote GlusterFS server.",
-        "operationId": "get_nodes_nodes_node_nodes_node_scan_nodes_node_scan_glusterfs",
-        "tags": [
-          "Nodes"
-        ],
-        "parameters": [
-          {
-            "name": "node",
-            "in": "path",
-            "required": true,
-            "schema": {
-              "$ref": "#/components/schemas/ProxmoxNodeId"
-            },
-            "description": "The node parameter"
-          },
-          {
-            "name": "server",
-            "in": "query",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "format": "pve-storage-server",
-              "description": "The server address (name or IP)."
-            },
-            "description": "The server address (name or IP)."
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "volname": {
-                        "type": "string",
-                        "description": "The volume name."
                       }
                     }
                   }
@@ -69934,6 +73679,124 @@
                         "type": "string",
                         "description": "The machine version."
                       }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input parameters or malformed request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required or invalid credentials",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden - Insufficient permissions for the requested operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found - Requested resource does not exist",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity - Request is well-formed but contains semantic errors",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal Server Error - Unexpected server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service Unavailable - Service temporarily unavailable",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProxmoxError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ProxmoxApiToken": []
+          },
+          {
+            "ProxmoxSessionCookie": [],
+            "ProxmoxCSRFToken": []
+          }
+        ]
+      }
+    },
+    "/nodes/nodes/{node}/nodes/{node}/capabilities/nodes/{node}/capabilities/qemu/nodes/{node}/capabilities/qemu/migration": {
+      "get": {
+        "summary": "Get node-specific QEMU migration capabilities of the node. Requires the 'Sys.Audit' permission on '/nodes/<node>'.",
+        "description": "Get node-specific QEMU migration capabilities of the node. Requires the 'Sys.Audit' permission on '/nodes/<node>'.",
+        "operationId": "get_nodes_nodes_node_nodes_node_capabilities_nodes_node_capabilities_qemu_nodes_node_capabilities_qemu_migration",
+        "tags": [
+          "Nodes"
+        ],
+        "parameters": [
+          {
+            "name": "node",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/ProxmoxNodeId"
+            },
+            "description": "The node parameter"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "dbus-vmstate": {
+                      "type": "boolean",
+                      "description": "Whether the host supports live-migrating additional VM state via the dbus-vmstate helper."
                     }
                   }
                 }
@@ -81258,6 +85121,10 @@
                     "memory": {
                       "type": "object",
                       "properties": {
+                        "available": {
+                          "type": "integer",
+                          "description": "The available memory in bytes."
+                        },
                         "free": {
                           "type": "integer",
                           "description": "The free memory in bytes."
@@ -81938,7 +85805,8 @@
                 "day",
                 "week",
                 "month",
-                "year"
+                "year",
+                "decade"
               ]
             },
             "description": "Specify the time frame you are interested in."
@@ -82086,7 +85954,8 @@
                 "day",
                 "week",
                 "month",
-                "year"
+                "year",
+                "decade"
               ]
             },
             "description": "Specify the time frame you are interested in."
@@ -82551,8 +86420,8 @@
                     "type": "string",
                     "description": "Run specific command or default to login (requires 'root@pam')",
                     "enum": [
-                      "ceph_install",
                       "upgrade",
+                      "ceph_install",
                       "login"
                     ],
                     "default": "login"
@@ -82706,8 +86575,8 @@
                     "type": "string",
                     "description": "Run specific command or default to login (requires 'root@pam')",
                     "enum": [
-                      "ceph_install",
                       "upgrade",
+                      "ceph_install",
                       "login"
                     ],
                     "default": "login"
@@ -82985,8 +86854,8 @@
                     "type": "string",
                     "description": "Run specific command or default to login (requires 'root@pam')",
                     "enum": [
-                      "ceph_install",
                       "upgrade",
+                      "ceph_install",
                       "login"
                     ],
                     "default": "login"
@@ -84982,7 +88851,6 @@
                 "cifs",
                 "dir",
                 "esxi",
-                "glusterfs",
                 "iscsi",
                 "iscsidirect",
                 "lvm",
@@ -85237,11 +89105,6 @@
                     "description": "Maximal number of protected backups per guest. Use '-1' for unlimited.",
                     "minimum": -1
                   },
-                  "maxfiles": {
-                    "type": "integer",
-                    "description": "Deprecated: use 'prune-backups' instead. Maximal number of backup files per VM. Use '0' for unlimited.",
-                    "minimum": 0
-                  },
                   "mkdir": {
                     "type": "boolean",
                     "description": "Create the directory if it doesn't exist and populate it with default sub-dirs. NOTE: Deprecated, use the 'create-base-path' and 'create-subdirs' options instead.",
@@ -85334,11 +89197,6 @@
                     "format": "pve-storage-server",
                     "description": "Server IP or DNS name."
                   },
-                  "server2": {
-                    "type": "string",
-                    "format": "pve-storage-server",
-                    "description": "Backup volfile server IP or DNS name."
-                  },
                   "share": {
                     "type": "string",
                     "description": "CIFS share."
@@ -85364,6 +89222,11 @@
                       "3.11"
                     ],
                     "default": "default"
+                  },
+                  "snapshot-as-volume-chain": {
+                    "type": "boolean",
+                    "description": "Enable support for creating storage-vendor agnostic snapshot through volume backing-chains.",
+                    "default": false
                   },
                   "sparse": {
                     "type": "boolean",
@@ -85392,15 +89255,6 @@
                     "format": "pve-storage-vgname",
                     "description": "LVM thin pool LV name."
                   },
-                  "transport": {
-                    "type": "string",
-                    "description": "Gluster transport: tcp or rdma",
-                    "enum": [
-                      "tcp",
-                      "rdma",
-                      "unix"
-                    ]
-                  },
                   "type": {
                     "type": "string",
                     "description": "Storage type.",
@@ -85410,7 +89264,6 @@
                       "cifs",
                       "dir",
                       "esxi",
-                      "glusterfs",
                       "iscsi",
                       "iscsidirect",
                       "lvm",
@@ -85431,9 +89284,10 @@
                     "format": "pve-storage-vgname",
                     "description": "Volume group name."
                   },
-                  "volume": {
+                  "zfs-base-path": {
                     "type": "string",
-                    "description": "Glusterfs Volume."
+                    "format": "pve-storage-path",
+                    "description": "Base path where to look for the created ZFS block devices. Set automatically during creation if not specified. Usually '/dev/zvol'."
                   }
                 },
                 "required": [
@@ -85909,11 +89763,6 @@
                     "description": "Maximal number of protected backups per guest. Use '-1' for unlimited.",
                     "minimum": -1
                   },
-                  "maxfiles": {
-                    "type": "integer",
-                    "description": "Deprecated: use 'prune-backups' instead. Maximal number of backup files per VM. Use '0' for unlimited.",
-                    "minimum": 0
-                  },
                   "mkdir": {
                     "type": "boolean",
                     "description": "Create the directory if it doesn't exist and populate it with default sub-dirs. NOTE: Deprecated, use the 'create-base-path' and 'create-subdirs' options instead.",
@@ -85996,11 +89845,6 @@
                     "format": "pve-storage-server",
                     "description": "Server IP or DNS name."
                   },
-                  "server2": {
-                    "type": "string",
-                    "format": "pve-storage-server",
-                    "description": "Backup volfile server IP or DNS name."
-                  },
                   "shared": {
                     "type": "boolean",
                     "description": "Indicate that this is a single storage with the same contents on all nodes (or all listed in the 'nodes' option). It will not make the contents of a local storage automatically accessible to other nodes, it just marks an already shared storage as such!"
@@ -86023,6 +89867,11 @@
                     ],
                     "default": "default"
                   },
+                  "snapshot-as-volume-chain": {
+                    "type": "boolean",
+                    "description": "Enable support for creating storage-vendor agnostic snapshot through volume backing-chains.",
+                    "default": false
+                  },
                   "sparse": {
                     "type": "boolean",
                     "description": "use sparse volumes"
@@ -86036,18 +89885,14 @@
                     "type": "boolean",
                     "description": "Only use logical volumes tagged with 'pve-vm-ID'."
                   },
-                  "transport": {
-                    "type": "string",
-                    "description": "Gluster transport: tcp or rdma",
-                    "enum": [
-                      "tcp",
-                      "rdma",
-                      "unix"
-                    ]
-                  },
                   "username": {
                     "type": "string",
                     "description": "RBD Id."
+                  },
+                  "zfs-base-path": {
+                    "type": "string",
+                    "format": "pve-storage-path",
+                    "description": "Base path where to look for the created ZFS block devices. Set automatically during creation if not specified. Usually '/dev/zvol'."
                   }
                 }
               }
@@ -89149,13 +92994,28 @@
                     "VM.Console": {
                       "type": "boolean"
                     },
+                    "VM.GuestAgent.Audit": {
+                      "type": "boolean"
+                    },
+                    "VM.GuestAgent.FileRead": {
+                      "type": "boolean"
+                    },
+                    "VM.GuestAgent.FileSystemMgmt": {
+                      "type": "boolean"
+                    },
+                    "VM.GuestAgent.FileWrite": {
+                      "type": "boolean"
+                    },
+                    "VM.GuestAgent.Unrestricted": {
+                      "type": "boolean"
+                    },
                     "VM.Migrate": {
                       "type": "boolean"
                     },
-                    "VM.Monitor": {
+                    "VM.PowerMgmt": {
                       "type": "boolean"
                     },
-                    "VM.PowerMgmt": {
+                    "VM.Replicate": {
                       "type": "boolean"
                     },
                     "VM.Snapshot": {

@@ -1029,13 +1029,34 @@ var apiSchema = [
           },
           {
             "info": {
+              "DELETE": {
+                "description": "",
+                "method": "DELETE",
+                "parameters": {
+                  "additionalProperties": false,
+                  "description": "",
+                  "properties": {}
+                },
+                "permissions": {
+                  "user": "world"
+                },
+                "returns": {
+                  "type": "null"
+                }
+              },
               "POST": {
-                "description": "Create or verify authentication ticket.",
+                "description": "Either create a new HttpOnly ticket or a regular ticket.",
                 "method": "POST",
                 "parameters": {
                   "additionalProperties": false,
-                  "description": "Create or verify authentication ticket.",
+                  "description": "Either create a new HttpOnly ticket or a regular ticket.",
                   "properties": {
+                    "http-only": {
+                      "default": false,
+                      "description": "Whether the HttpOnly authentication flow should be used.",
+                      "optional": 1,
+                      "type": "boolean"
+                    },
                     "password": {
                       "description": "The secret password. This can also be a valid ticket. Only optional if the ticket is\nprovided in a cookie header and only if the endpoint supports this.",
                       "optional": 1,
@@ -2472,6 +2493,24 @@ var apiSchema = [
                           "additionalProperties": false,
                           "description": "Garbage Collection general info",
                           "properties": {
+                            "cache-stats": {
+                              "additionalProperties": false,
+                              "description": "Garbage collection cache statistics",
+                              "optional": 1,
+                              "properties": {
+                                "hits": {
+                                  "description": "Number of atime update cache hits",
+                                  "minimum": 0,
+                                  "type": "integer"
+                                },
+                                "misses": {
+                                  "description": "Number of atime update cache misses",
+                                  "minimum": 0,
+                                  "type": "integer"
+                                }
+                              },
+                              "type": "object"
+                            },
                             "disk-bytes": {
                               "description": "Bytes used on disk.",
                               "minimum": 0,
@@ -3646,6 +3685,48 @@ var apiSchema = [
                   },
                   {
                     "info": {
+                      "PUT": {
+                        "description": "Refresh datastore contents from S3 to local cache store.",
+                        "method": "PUT",
+                        "parameters": {
+                          "additionalProperties": false,
+                          "description": "Refresh datastore contents from S3 to local cache store.",
+                          "properties": {
+                            "store": {
+                              "description": "Datastore name.",
+                              "maxLength": 32,
+                              "minLength": 3,
+                              "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "permissions": {
+                          "check": {
+                            "partial": false,
+                            "path": [
+                              "datastore",
+                              "{store}"
+                            ],
+                            "privs": [
+                              "Datastore.Modify"
+                            ]
+                          }
+                        },
+                        "returns": {
+                          "description": "Unique Process/Task Identifier",
+                          "minLength": 36,
+                          "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "leaf": 1,
+                    "path": "/admin/datastore/{store}/s3-refresh",
+                    "text": "s3-refresh"
+                  },
+                  {
+                    "info": {
                       "DELETE": {
                         "description": "Delete backup snapshot.",
                         "method": "DELETE",
@@ -3958,6 +4039,24 @@ var apiSchema = [
                               "description": "Garbage collection status.",
                               "optional": 1,
                               "properties": {
+                                "cache-stats": {
+                                  "additionalProperties": false,
+                                  "description": "Garbage collection cache statistics",
+                                  "optional": 1,
+                                  "properties": {
+                                    "hits": {
+                                      "description": "Number of atime update cache hits",
+                                      "minimum": 0,
+                                      "type": "integer"
+                                    },
+                                    "misses": {
+                                      "description": "Number of atime update cache misses",
+                                      "minimum": 0,
+                                      "type": "integer"
+                                    }
+                                  },
+                                  "type": "object"
+                                },
                                 "disk-bytes": {
                                   "description": "Bytes used on disk.",
                                   "minimum": 0,
@@ -4303,7 +4402,8 @@ var apiSchema = [
                                 "read-only",
                                 "offline",
                                 "delete",
-                                "unmount"
+                                "unmount",
+                                "s3-refresh"
                               ],
                               "type": "string"
                             }
@@ -4373,6 +4473,24 @@ var apiSchema = [
                         "additionalProperties": false,
                         "description": "Garbage Collection general info",
                         "properties": {
+                          "cache-stats": {
+                            "additionalProperties": false,
+                            "description": "Garbage collection cache statistics",
+                            "optional": 1,
+                            "properties": {
+                              "hits": {
+                                "description": "Number of atime update cache hits",
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "misses": {
+                                "description": "Number of atime update cache misses",
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
                           "disk-bytes": {
                             "description": "Bytes used on disk.",
                             "minimum": 0,
@@ -4499,6 +4617,24 @@ var apiSchema = [
                     "additionalProperties": false,
                     "description": "Garbage Collection general info",
                     "properties": {
+                      "cache-stats": {
+                        "additionalProperties": false,
+                        "description": "Garbage collection cache statistics",
+                        "optional": 1,
+                        "properties": {
+                          "hits": {
+                            "description": "Number of atime update cache hits",
+                            "minimum": 0,
+                            "type": "integer"
+                          },
+                          "misses": {
+                            "description": "Number of atime update cache misses",
+                            "minimum": 0,
+                            "type": "integer"
+                          }
+                        },
+                        "type": "object"
+                      },
                       "disk-bytes": {
                         "description": "Bytes used on disk.",
                         "minimum": 0,
@@ -4868,6 +5004,85 @@ var apiSchema = [
                 "children": [
                   {
                     "info": {
+                      "PUT": {
+                        "description": "Perform basic sanity check for given s3 client configuration",
+                        "method": "PUT",
+                        "parameters": {
+                          "additionalProperties": false,
+                          "description": "Perform basic sanity check for given s3 client configuration",
+                          "properties": {
+                            "bucket": {
+                              "description": "Bucket name for S3 object store.",
+                              "maxLength": 63,
+                              "minLength": 3,
+                              "type": "string"
+                            },
+                            "s3-client-id": {
+                              "description": "ID to uniquely identify s3 client config.",
+                              "maxLength": 32,
+                              "minLength": 3,
+                              "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                              "type": "string"
+                            },
+                            "store-prefix": {
+                              "description": "Store prefix within bucket for S3 object keys (commonly datastore name)",
+                              "optional": 1,
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "permissions": {
+                          "check": {
+                            "partial": false,
+                            "path": [],
+                            "privs": [
+                              "Sys.Modify"
+                            ]
+                          }
+                        },
+                        "returns": {
+                          "type": "null"
+                        }
+                      }
+                    },
+                    "leaf": 1,
+                    "path": "/admin/s3/{s3-client-id}/check",
+                    "text": "check"
+                  }
+                ],
+                "info": {
+                  "GET": {
+                    "description": "Directory index.",
+                    "method": "GET",
+                    "parameters": {
+                      "additionalProperties": true,
+                      "description": "Directory index.",
+                      "properties": {}
+                    },
+                    "permissions": {
+                      "user": "all"
+                    },
+                    "returns": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "leaf": 0,
+                "path": "/admin/s3/{s3-client-id}",
+                "text": "{s3-client-id}"
+              }
+            ],
+            "info": {},
+            "leaf": 0,
+            "path": "/admin/s3",
+            "text": "s3"
+          },
+          {
+            "children": [
+              {
+                "children": [
+                  {
+                    "info": {
                       "POST": {
                         "description": "Runs the sync jobs manually.",
                         "method": "POST",
@@ -5088,6 +5303,11 @@ var apiSchema = [
                       },
                       "resync-corrupt": {
                         "description": "If the verification failed for a local snapshot, try to pull it again.",
+                        "optional": 1,
+                        "type": "boolean"
+                      },
+                      "run-on-mount": {
+                        "description": "Run this job when a relevant datastore is mounted.",
                         "optional": 1,
                         "type": "boolean"
                       },
@@ -5471,6 +5691,11 @@ var apiSchema = [
                 },
                 "debug": {
                   "description": "Enable verbose debug logging.",
+                  "optional": 1,
+                  "type": "boolean"
+                },
+                "no-cache": {
+                  "description": "Disable local datastore cache for network storages",
                   "optional": 1,
                   "type": "boolean"
                 },
@@ -9678,6 +9903,12 @@ var apiSchema = [
                       "additionalProperties": false,
                       "description": "Datastore configuration properties.",
                       "properties": {
+                        "backend": {
+                          "description": "Datastore backend config",
+                          "optional": 1,
+                          "type": "string",
+                          "typetext": "<backend-config>"
+                        },
                         "backing-device": {
                           "description": "The UUID of the filesystem partition for removable datastores.",
                           "optional": 1,
@@ -9753,7 +9984,8 @@ var apiSchema = [
                                   "read-only",
                                   "offline",
                                   "delete",
-                                  "unmount"
+                                  "unmount",
+                                  "s3-refresh"
                                 ],
                                 "type": "string"
                               }
@@ -9772,7 +10004,7 @@ var apiSchema = [
                           "type": "string"
                         },
                         "notification-mode": {
-                          "default": "legacy-sendmail",
+                          "default": "notification-system",
                           "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                           "enum": [
                             "legacy-sendmail",
@@ -10027,7 +10259,8 @@ var apiSchema = [
                                   "read-only",
                                   "offline",
                                   "delete",
-                                  "unmount"
+                                  "unmount",
+                                  "s3-refresh"
                                 ],
                                 "type": "string"
                               }
@@ -10046,7 +10279,7 @@ var apiSchema = [
                           "type": "string"
                         },
                         "notification-mode": {
-                          "default": "legacy-sendmail",
+                          "default": "notification-system",
                           "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                           "enum": [
                             "legacy-sendmail",
@@ -10225,6 +10458,12 @@ var apiSchema = [
                     "additionalProperties": false,
                     "description": "Datastore configuration properties.",
                     "properties": {
+                      "backend": {
+                        "description": "Datastore backend config",
+                        "optional": 1,
+                        "type": "string",
+                        "typetext": "<backend-config>"
+                      },
                       "backing-device": {
                         "description": "The UUID of the filesystem partition for removable datastores.",
                         "optional": 1,
@@ -10300,7 +10539,8 @@ var apiSchema = [
                                 "read-only",
                                 "offline",
                                 "delete",
-                                "unmount"
+                                "unmount",
+                                "s3-refresh"
                               ],
                               "type": "string"
                             }
@@ -10319,7 +10559,7 @@ var apiSchema = [
                         "type": "string"
                       },
                       "notification-mode": {
-                        "default": "legacy-sendmail",
+                        "default": "notification-system",
                         "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                         "enum": [
                           "legacy-sendmail",
@@ -10475,6 +10715,12 @@ var apiSchema = [
                   "additionalProperties": false,
                   "description": "Create new datastore config.",
                   "properties": {
+                    "backend": {
+                      "description": "Datastore backend config",
+                      "optional": 1,
+                      "type": "string",
+                      "typetext": "<backend-config>"
+                    },
                     "backing-device": {
                       "description": "The UUID of the filesystem partition for removable datastores.",
                       "optional": 1,
@@ -10550,7 +10796,8 @@ var apiSchema = [
                               "read-only",
                               "offline",
                               "delete",
-                              "unmount"
+                              "unmount",
+                              "s3-refresh"
                             ],
                             "type": "string"
                           }
@@ -10569,7 +10816,7 @@ var apiSchema = [
                       "type": "string"
                     },
                     "notification-mode": {
-                      "default": "legacy-sendmail",
+                      "default": "notification-system",
                       "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                       "enum": [
                         "legacy-sendmail",
@@ -10638,6 +10885,12 @@ var apiSchema = [
                       "optional": 1,
                       "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                       "type": "string"
+                    },
+                    "overwrite-in-use": {
+                      "default": false,
+                      "description": "Overwrite in use marker (S3 backed datastores only).",
+                      "optional": 1,
+                      "type": "boolean"
                     },
                     "path": {
                       "description": "Either the absolute path to the datastore directory, or a relative on-device path for removable datastores.",
@@ -15556,7 +15809,8 @@ var apiSchema = [
                                         "read-only",
                                         "offline",
                                         "delete",
-                                        "unmount"
+                                        "unmount",
+                                        "s3-refresh"
                                       ],
                                       "type": "string"
                                     }
@@ -15944,6 +16198,476 @@ var apiSchema = [
           {
             "children": [
               {
+                "children": [
+                  {
+                    "info": {
+                      "GET": {
+                        "description": "List buckets accessible by given s3 client configuration",
+                        "method": "GET",
+                        "parameters": {
+                          "additionalProperties": false,
+                          "description": "List buckets accessible by given s3 client configuration",
+                          "properties": {
+                            "id": {
+                              "description": "ID to uniquely identify s3 client config.",
+                              "maxLength": 32,
+                              "minLength": 3,
+                              "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "permissions": {
+                          "check": {
+                            "partial": false,
+                            "path": [],
+                            "privs": [
+                              "Sys.Audit"
+                            ]
+                          }
+                        },
+                        "returns": {
+                          "type": "null"
+                        }
+                      }
+                    },
+                    "leaf": 1,
+                    "path": "/config/s3/{id}/list-buckets",
+                    "text": "list-buckets"
+                  }
+                ],
+                "info": {
+                  "DELETE": {
+                    "description": "Remove an s3 client configuration.",
+                    "method": "DELETE",
+                    "parameters": {
+                      "additionalProperties": false,
+                      "description": "Remove an s3 client configuration.",
+                      "properties": {
+                        "digest": {
+                          "description": "Prevent changes if current configuration file has different SHA256 digest. This can be used to prevent concurrent modifications.",
+                          "optional": 1,
+                          "pattern": "/^[a-f0-9]{64}$/",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "Job ID.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "permissions": {
+                      "check": {
+                        "partial": false,
+                        "path": [
+                          "system",
+                          "s3-endpoint",
+                          "{id}"
+                        ],
+                        "privs": [
+                          "Sys.Modify"
+                        ]
+                      }
+                    },
+                    "returns": {
+                      "type": "null"
+                    }
+                  },
+                  "GET": {
+                    "description": "Read an s3 client configuration.",
+                    "method": "GET",
+                    "parameters": {
+                      "additionalProperties": false,
+                      "description": "Read an s3 client configuration.",
+                      "properties": {
+                        "id": {
+                          "description": "Job ID.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "permissions": {
+                      "check": {
+                        "partial": false,
+                        "path": [
+                          "system",
+                          "s3-endpoint",
+                          "{id}"
+                        ],
+                        "privs": [
+                          "Sys.Audit"
+                        ]
+                      }
+                    },
+                    "returns": {
+                      "additionalProperties": false,
+                      "description": "S3 client configuration properties without secret.",
+                      "properties": {
+                        "access-key": {
+                          "description": "Access key for S3 object store.",
+                          "type": "string"
+                        },
+                        "endpoint": {
+                          "description": "Endpoint to access S3 object store.",
+                          "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
+                          "type": "string"
+                        },
+                        "fingerprint": {
+                          "description": "X509 certificate fingerprint (sha256).",
+                          "optional": 1,
+                          "pattern": "/^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$/",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "ID to uniquely identify s3 client config.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                          "type": "string"
+                        },
+                        "path-style": {
+                          "default": false,
+                          "description": "Use path style bucket addressing over vhost style.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "port": {
+                          "description": "Port to access S3 object store.",
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "provider-quirks": {
+                          "description": "List of provider specific feature implementation quirks.",
+                          "items": {
+                            "description": "Provider specific feature implementation quirks.",
+                            "enum": [
+                              "skip-if-none-match-header"
+                            ],
+                            "type": "string"
+                          },
+                          "optional": 1,
+                          "type": "array"
+                        },
+                        "put-rate-limit": {
+                          "description": "Rate limit for put requests given as #reqest/s.",
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "region": {
+                          "description": "Region to access S3 object store.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "optional": 1,
+                          "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
+                          "type": "string"
+                        }
+                      },
+                      "type": "object"
+                    }
+                  },
+                  "PUT": {
+                    "description": "Update an s3 client configuration.",
+                    "method": "PUT",
+                    "parameters": {
+                      "additionalProperties": false,
+                      "description": "Update an s3 client configuration.",
+                      "properties": {
+                        "access-key": {
+                          "description": "Access key for S3 object store.",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "delete": {
+                          "description": "List of properties to delete.",
+                          "items": {
+                            "description": "Deletable property name",
+                            "enum": [
+                              "port",
+                              "region",
+                              "fingerprint",
+                              "path-style",
+                              "provider-quirks"
+                            ],
+                            "type": "string"
+                          },
+                          "optional": 1,
+                          "type": "array"
+                        },
+                        "digest": {
+                          "description": "Prevent changes if current configuration file has different SHA256 digest. This can be used to prevent concurrent modifications.",
+                          "optional": 1,
+                          "pattern": "/^[a-f0-9]{64}$/",
+                          "type": "string"
+                        },
+                        "endpoint": {
+                          "description": "Endpoint to access S3 object store.",
+                          "optional": 1,
+                          "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
+                          "type": "string"
+                        },
+                        "fingerprint": {
+                          "description": "X509 certificate fingerprint (sha256).",
+                          "optional": 1,
+                          "pattern": "/^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$/",
+                          "type": "string"
+                        },
+                        "id": {
+                          "description": "Job ID.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                          "type": "string"
+                        },
+                        "path-style": {
+                          "default": false,
+                          "description": "Use path style bucket addressing over vhost style.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "port": {
+                          "description": "Port to access S3 object store.",
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "provider-quirks": {
+                          "description": "List of provider specific feature implementation quirks.",
+                          "items": {
+                            "description": "Provider specific feature implementation quirks.",
+                            "enum": [
+                              "skip-if-none-match-header"
+                            ],
+                            "type": "string"
+                          },
+                          "optional": 1,
+                          "type": "array"
+                        },
+                        "put-rate-limit": {
+                          "description": "Rate limit for put requests given as #reqest/s.",
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "region": {
+                          "description": "Region to access S3 object store.",
+                          "maxLength": 32,
+                          "minLength": 3,
+                          "optional": 1,
+                          "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
+                          "type": "string"
+                        },
+                        "secret-key": {
+                          "description": "S3 client secret key.",
+                          "optional": 1,
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "permissions": {
+                      "check": {
+                        "partial": false,
+                        "path": [
+                          "system",
+                          "s3-endpoint",
+                          "{id}"
+                        ],
+                        "privs": [
+                          "Sys.Modify"
+                        ]
+                      }
+                    },
+                    "returns": {
+                      "type": "null"
+                    }
+                  }
+                },
+                "leaf": 0,
+                "path": "/config/s3/{id}",
+                "text": "{id}"
+              }
+            ],
+            "info": {
+              "GET": {
+                "description": "List all s3 client configurations.",
+                "method": "GET",
+                "parameters": {
+                  "additionalProperties": false,
+                  "description": "List all s3 client configurations.",
+                  "properties": {}
+                },
+                "permissions": {
+                  "description": "List configured s3 endpoints filtered by Sys.Audit privileges",
+                  "user": "all"
+                },
+                "returns": {
+                  "description": "List configured s3 clients.",
+                  "items": {
+                    "additionalProperties": false,
+                    "description": "S3 client configuration properties without secret.",
+                    "properties": {
+                      "access-key": {
+                        "description": "Access key for S3 object store.",
+                        "type": "string"
+                      },
+                      "endpoint": {
+                        "description": "Endpoint to access S3 object store.",
+                        "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
+                        "type": "string"
+                      },
+                      "fingerprint": {
+                        "description": "X509 certificate fingerprint (sha256).",
+                        "optional": 1,
+                        "pattern": "/^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$/",
+                        "type": "string"
+                      },
+                      "id": {
+                        "description": "ID to uniquely identify s3 client config.",
+                        "maxLength": 32,
+                        "minLength": 3,
+                        "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                        "type": "string"
+                      },
+                      "path-style": {
+                        "default": false,
+                        "description": "Use path style bucket addressing over vhost style.",
+                        "optional": 1,
+                        "type": "boolean"
+                      },
+                      "port": {
+                        "description": "Port to access S3 object store.",
+                        "optional": 1,
+                        "type": "integer"
+                      },
+                      "provider-quirks": {
+                        "description": "List of provider specific feature implementation quirks.",
+                        "items": {
+                          "description": "Provider specific feature implementation quirks.",
+                          "enum": [
+                            "skip-if-none-match-header"
+                          ],
+                          "type": "string"
+                        },
+                        "optional": 1,
+                        "type": "array"
+                      },
+                      "put-rate-limit": {
+                        "description": "Rate limit for put requests given as #reqest/s.",
+                        "optional": 1,
+                        "type": "integer"
+                      },
+                      "region": {
+                        "description": "Region to access S3 object store.",
+                        "maxLength": 32,
+                        "minLength": 3,
+                        "optional": 1,
+                        "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
+                        "type": "string"
+                      }
+                    },
+                    "type": "object"
+                  },
+                  "type": "array"
+                }
+              },
+              "POST": {
+                "description": "Create a new s3 client configuration.",
+                "method": "POST",
+                "parameters": {
+                  "additionalProperties": false,
+                  "description": "Create a new s3 client configuration.",
+                  "properties": {
+                    "access-key": {
+                      "description": "Access key for S3 object store.",
+                      "type": "string"
+                    },
+                    "endpoint": {
+                      "description": "Endpoint to access S3 object store.",
+                      "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
+                      "type": "string"
+                    },
+                    "fingerprint": {
+                      "description": "X509 certificate fingerprint (sha256).",
+                      "optional": 1,
+                      "pattern": "/^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$/",
+                      "type": "string"
+                    },
+                    "id": {
+                      "description": "ID to uniquely identify s3 client config.",
+                      "maxLength": 32,
+                      "minLength": 3,
+                      "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                      "type": "string"
+                    },
+                    "path-style": {
+                      "default": false,
+                      "description": "Use path style bucket addressing over vhost style.",
+                      "optional": 1,
+                      "type": "boolean"
+                    },
+                    "port": {
+                      "description": "Port to access S3 object store.",
+                      "optional": 1,
+                      "type": "integer"
+                    },
+                    "provider-quirks": {
+                      "description": "List of provider specific feature implementation quirks.",
+                      "items": {
+                        "description": "Provider specific feature implementation quirks.",
+                        "enum": [
+                          "skip-if-none-match-header"
+                        ],
+                        "type": "string"
+                      },
+                      "optional": 1,
+                      "type": "array"
+                    },
+                    "put-rate-limit": {
+                      "description": "Rate limit for put requests given as #reqest/s.",
+                      "optional": 1,
+                      "type": "integer"
+                    },
+                    "region": {
+                      "description": "Region to access S3 object store.",
+                      "maxLength": 32,
+                      "minLength": 3,
+                      "optional": 1,
+                      "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
+                      "type": "string"
+                    },
+                    "secret-key": {
+                      "description": "S3 secret key",
+                      "type": "string"
+                    }
+                  }
+                },
+                "permissions": {
+                  "check": {
+                    "partial": false,
+                    "path": [
+                      "system",
+                      "s3-endpoint"
+                    ],
+                    "privs": [
+                      "Sys.Modify"
+                    ]
+                  }
+                },
+                "returns": {
+                  "type": "null"
+                }
+              }
+            },
+            "leaf": 0,
+            "path": "/config/s3",
+            "text": "s3"
+          },
+          {
+            "children": [
+              {
                 "info": {
                   "DELETE": {
                     "description": "Remove a sync job configuration",
@@ -16111,6 +16835,11 @@ var apiSchema = [
                           "optional": 1,
                           "type": "boolean"
                         },
+                        "run-on-mount": {
+                          "description": "Run this job when a relevant datastore is mounted.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
                         "schedule": {
                           "description": "Run sync job at specified schedule.",
                           "optional": 1,
@@ -16198,6 +16927,7 @@ var apiSchema = [
                               "transfer-last",
                               "encrypted-only",
                               "verified-only",
+                              "run-on-mount",
                               "sync-direction"
                             ],
                             "type": "string"
@@ -16300,6 +17030,11 @@ var apiSchema = [
                         },
                         "resync-corrupt": {
                           "description": "If the verification failed for a local snapshot, try to pull it again.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "run-on-mount": {
+                          "description": "Run this job when a relevant datastore is mounted.",
                           "optional": 1,
                           "type": "boolean"
                         },
@@ -16497,6 +17232,11 @@ var apiSchema = [
                         "optional": 1,
                         "type": "boolean"
                       },
+                      "run-on-mount": {
+                        "description": "Run this job when a relevant datastore is mounted.",
+                        "optional": 1,
+                        "type": "boolean"
+                      },
                       "schedule": {
                         "description": "Run sync job at specified schedule.",
                         "optional": 1,
@@ -16653,6 +17393,11 @@ var apiSchema = [
                     },
                     "resync-corrupt": {
                       "description": "If the verification failed for a local snapshot, try to pull it again.",
+                      "optional": 1,
+                      "type": "boolean"
+                    },
+                    "run-on-mount": {
+                      "description": "Run this job when a relevant datastore is mounted.",
                       "optional": 1,
                       "type": "boolean"
                     },
@@ -16836,7 +17581,7 @@ var apiSchema = [
                           "type": "integer"
                         },
                         "notification-mode": {
-                          "default": "legacy-sendmail",
+                          "default": "notification-system",
                           "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                           "enum": [
                             "legacy-sendmail",
@@ -16983,7 +17728,7 @@ var apiSchema = [
                           "type": "integer"
                         },
                         "notification-mode": {
-                          "default": "legacy-sendmail",
+                          "default": "notification-system",
                           "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                           "enum": [
                             "legacy-sendmail",
@@ -17136,7 +17881,7 @@ var apiSchema = [
                         "type": "integer"
                       },
                       "notification-mode": {
-                        "default": "legacy-sendmail",
+                        "default": "notification-system",
                         "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                         "enum": [
                           "legacy-sendmail",
@@ -17256,7 +18001,7 @@ var apiSchema = [
                       "type": "integer"
                     },
                     "notification-mode": {
-                      "default": "legacy-sendmail",
+                      "default": "notification-system",
                       "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                       "enum": [
                         "legacy-sendmail",
@@ -18823,12 +19568,6 @@ var apiSchema = [
                                 "enterprise",
                                 "no-subscription",
                                 "test",
-                                "ceph-quincy-enterprise",
-                                "ceph-quincy-no-subscription",
-                                "ceph-quincy-test",
-                                "ceph-reef-enterprise",
-                                "ceph-reef-no-subscription",
-                                "ceph-reef-test",
                                 "ceph-squid-enterprise",
                                 "ceph-squid-no-subscription",
                                 "ceph-squid-test"
@@ -21238,6 +21977,14 @@ var apiSchema = [
                               "description": "Interface is active (UP)",
                               "type": "boolean"
                             },
+                            "altnames": {
+                              "description": "List of altnames for this interface",
+                              "items": {
+                                "description": "altname",
+                                "type": "string"
+                              },
+                              "type": "array"
+                            },
                             "autostart": {
                               "description": "Autostart interface",
                               "type": "boolean"
@@ -21738,6 +22485,14 @@ var apiSchema = [
                           "active": {
                             "description": "Interface is active (UP)",
                             "type": "boolean"
+                          },
+                          "altnames": {
+                            "description": "List of altnames for this interface",
+                            "items": {
+                              "description": "altname",
+                              "type": "string"
+                            },
+                            "type": "array"
                           },
                           "autostart": {
                             "description": "Autostart interface",
@@ -24078,6 +24833,24 @@ var apiSchema = [
                         "description": "Garbage collection status.",
                         "optional": 1,
                         "properties": {
+                          "cache-stats": {
+                            "additionalProperties": false,
+                            "description": "Garbage collection cache statistics",
+                            "optional": 1,
+                            "properties": {
+                              "hits": {
+                                "description": "Number of atime update cache hits",
+                                "minimum": 0,
+                                "type": "integer"
+                              },
+                              "misses": {
+                                "description": "Number of atime update cache misses",
+                                "minimum": 0,
+                                "type": "integer"
+                              }
+                            },
+                            "type": "object"
+                          },
                           "disk-bytes": {
                             "description": "Bytes used on disk.",
                             "minimum": 0,
@@ -24392,7 +25165,7 @@ var apiSchema = [
                         "type": "integer"
                       },
                       "notification-mode": {
-                        "default": "legacy-sendmail",
+                        "default": "notification-system",
                         "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                         "enum": [
                           "legacy-sendmail",
@@ -24504,7 +25277,7 @@ var apiSchema = [
                       "type": "integer"
                     },
                     "notification-mode": {
-                      "default": "legacy-sendmail",
+                      "default": "notification-system",
                       "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                       "enum": [
                         "legacy-sendmail",
@@ -26714,7 +27487,7 @@ var apiSchema = [
                       "type": "array"
                     },
                     "notification-mode": {
-                      "default": "legacy-sendmail",
+                      "default": "notification-system",
                       "description": "Configure how notifications for this datastore should be sent.\n`legacy-sendmail` sends email notifications to the user configured\nin `notify-user` via the system's `sendmail` executable.\n`notification-system` emits matchable notification events to the\nnotification system.",
                       "enum": [
                         "legacy-sendmail",
@@ -27527,551 +28300,584 @@ var apiSchema = [
 ];
 /*global apiSchema*/
 
-Ext.onReady(function() {
+Ext.onReady(function () {
     Ext.define('pmx-param-schema', {
         extend: 'Ext.data.Model',
         fields: [
-	    'name', 'type', 'typetext', 'description', 'verbose_description',
-	    'enum', 'minimum', 'maximum', 'minLength', 'maxLength',
-	    'pattern', 'title', 'requires', 'format', 'default',
-	    'disallow', 'extends', 'links', 'instance-types',
-	    {
-		name: 'optional',
-		type: 'boolean',
-	    },
-	],
+            'name',
+            'type',
+            'typetext',
+            'description',
+            'verbose_description',
+            'enum',
+            'minimum',
+            'maximum',
+            'minLength',
+            'maxLength',
+            'pattern',
+            'title',
+            'requires',
+            'format',
+            'default',
+            'disallow',
+            'extends',
+            'links',
+            'instance-types',
+            {
+                name: 'optional',
+                type: 'boolean',
+            },
+        ],
     });
 
     let store = Ext.define('pmx-updated-treestore', {
-	extend: 'Ext.data.TreeStore',
-	model: Ext.define('pmx-api-doc', {
+        extend: 'Ext.data.TreeStore',
+        model: Ext.define('pmx-api-doc', {
             extend: 'Ext.data.Model',
-            fields: [
-		'path', 'info', 'text',
-	    ],
-	}),
-	proxy: {
-	    type: 'memory',
-	    data: apiSchema,
-	},
-	sorters: [{
-	    property: 'leaf',
-	    direction: 'ASC',
-	}, {
-	    property: 'text',
-	    direction: 'ASC',
-	}],
-	filterer: 'bottomup',
-	doFilter: function(node) {
-	    this.filterNodes(node, this.getFilters().getFilterFn(), true);
-	},
+            fields: ['path', 'info', 'text'],
+        }),
+        proxy: {
+            type: 'memory',
+            data: apiSchema,
+        },
+        sorters: [
+            {
+                property: 'leaf',
+                direction: 'ASC',
+            },
+            {
+                property: 'text',
+                direction: 'ASC',
+            },
+        ],
+        filterer: 'bottomup',
+        doFilter: function (node) {
+            this.filterNodes(node, this.getFilters().getFilterFn(), true);
+        },
 
-	filterNodes: function(node, filterFn, parentVisible) {
-	    let me = this;
+        filterNodes: function (node, filterFn, parentVisible) {
+            let me = this;
 
-	    let match = filterFn(node) && (parentVisible || (node.isRoot() && !me.getRootVisible()));
+            let match =
+                filterFn(node) && (parentVisible || (node.isRoot() && !me.getRootVisible()));
 
-	    if (node.childNodes && node.childNodes.length) {
-		let bottomUpFiltering = me.filterer === 'bottomup';
-		let childMatch;
-		for (const child of node.childNodes) {
-		    childMatch = me.filterNodes(child, filterFn, match || bottomUpFiltering) || childMatch;
-		}
-		if (bottomUpFiltering) {
-		    match = childMatch || match;
-		}
-	    }
+            if (node.childNodes && node.childNodes.length) {
+                let bottomUpFiltering = me.filterer === 'bottomup';
+                let childMatch;
+                for (const child of node.childNodes) {
+                    childMatch =
+                        me.filterNodes(child, filterFn, match || bottomUpFiltering) || childMatch;
+                }
+                if (bottomUpFiltering) {
+                    match = childMatch || match;
+                }
+            }
 
-	    node.set("visible", match, me._silentOptions);
-	    return match;
-	},
-
+            node.set('visible', match, me._silentOptions);
+            return match;
+        },
     }).create();
 
-    let render_description = function(value, metaData, record) {
-	let pdef = record.data;
+    let render_description = function (value, metaData, record) {
+        let pdef = record.data;
 
-	value = pdef.verbose_description || value;
+        value = pdef.verbose_description || value;
 
-	// TODO: try to render asciidoc correctly
+        // TODO: try to render asciidoc correctly
 
-	metaData.style = 'white-space:pre-wrap;';
+        metaData.style = 'white-space:pre-wrap;';
 
-	return Ext.htmlEncode(value);
+        return Ext.htmlEncode(value);
     };
 
-    let render_type = function(value, metaData, record) {
-	let pdef = record.data;
+    let render_type = function (value, metaData, record) {
+        let pdef = record.data;
 
-	return pdef.enum ? 'enum' : pdef.type || 'string';
+        return pdef.enum ? 'enum' : pdef.type || 'string';
     };
 
-    const renderFormatString = function(obj) {
-	if (!Ext.isObject(obj)) {
-	    return obj;
-	}
-	const mandatory = [];
-	const optional = [];
-	Object.entries(obj).forEach(function([name, param]) {
-	    let list = param.optional ? optional : mandatory;
-	    let str = param.default_key ? `[${name}=]` : `${name}=`;
-	    if (param.alias) {
-		return;
-	    } else if (param.enum) {
-		str += `(${param.enum?.join(' | ')})`;
-	    } else {
-		str += `<${param.format_description || param.pattern || param.type}>`;
-	    }
-	    list.push(str);
-	});
-	return mandatory.join(", ") + ' ' + optional.map(each => `[,${each}]`).join(' ');
+    const renderFormatString = function (obj) {
+        if (!Ext.isObject(obj)) {
+            return obj;
+        }
+        const mandatory = [];
+        const optional = [];
+        Object.entries(obj).forEach(function ([name, param]) {
+            let list = param.optional ? optional : mandatory;
+            let str = param.default_key ? `[${name}=]` : `${name}=`;
+            if (param.alias) {
+                return;
+            } else if (param.enum) {
+                str += `(${param.enum?.join(' | ')})`;
+            } else {
+                str += `<${param.format_description || param.pattern || param.type}>`;
+            }
+            list.push(str);
+        });
+        return mandatory.join(', ') + ' ' + optional.map((each) => `[,${each}]`).join(' ');
     };
 
-    let render_simple_format = function(pdef, type_fallback) {
-	if (pdef.typetext) {
-	    return pdef.typetext;
-	}
-	if (pdef.enum) {
-	    return pdef.enum.join(' | ');
-	}
-	if (pdef.format) {
-	    return renderFormatString(pdef.format);
-	}
-	if (pdef.pattern) {
-	    return pdef.pattern;
-	}
-	if (pdef.type === 'boolean') {
-	    return `<true|false>`;
-	}
-	if (type_fallback && pdef.type) {
-	    return `<${pdef.type}>`;
-	}
-	if (pdef.minimum || pdef.maximum) {
-	    return `${pdef.minimum || 'N'} - ${pdef.maximum || 'N'}`;
-	}
-	return '';
+    let render_simple_format = function (pdef, type_fallback) {
+        if (pdef.typetext) {
+            return pdef.typetext;
+        }
+        if (pdef.enum) {
+            return pdef.enum.join(' | ');
+        }
+        if (pdef.format) {
+            return renderFormatString(pdef.format);
+        }
+        if (pdef.pattern) {
+            return pdef.pattern;
+        }
+        if (pdef.type === 'boolean') {
+            return `<true|false>`;
+        }
+        if (type_fallback && pdef.type) {
+            return `<${pdef.type}>`;
+        }
+        if (pdef.minimum || pdef.maximum) {
+            return `${pdef.minimum || 'N'} - ${pdef.maximum || 'N'}`;
+        }
+        return '';
     };
 
-    let render_format = function(value, metaData, record) {
-	let pdef = record.data;
+    let render_format = function (value, metaData, record) {
+        let pdef = record.data;
 
-	metaData.style = 'white-space:normal;';
+        metaData.style = 'white-space:normal;';
 
-	if (pdef.type === 'array' && pdef.items) {
-	    let format = render_simple_format(pdef.items, true);
-	    return `[${Ext.htmlEncode(format)}, ...]`;
-	}
+        if (pdef.type === 'array' && pdef.items) {
+            let format = render_simple_format(pdef.items, true);
+            return `[${Ext.htmlEncode(format)}, ...]`;
+        }
 
-	return Ext.htmlEncode(render_simple_format(pdef));
+        return Ext.htmlEncode(render_simple_format(pdef));
     };
 
-    let real_path = function(path) {
-	if (!path.match(/^[/]/)) {
-	    path = `/${path}`;
-	}
-	return path.replace(/^.*\/_upgrade_(\/)?/, "/");
+    let real_path = function (path) {
+        if (!path.match(/^[/]/)) {
+            path = `/${path}`;
+        }
+        return path.replace(/^.*\/_upgrade_(\/)?/, '/');
     };
 
-    let permission_text = function(permission) {
-	let permhtml = "";
+    let permission_text = function (permission) {
+        let permhtml = '';
 
-	if (permission.user) {
-	    if (!permission.description) {
-		if (permission.user === 'world') {
-		    permhtml += "Accessible without any authentication.";
-		} else if (permission.user === 'all') {
-		    permhtml += "Accessible by all authenticated users.";
-		} else {
-		    permhtml += `Only accessible by user "${permission.user}"`;
-		}
-	    }
-	} else if (permission.check) {
-	    permhtml += `<pre>Check: ${Ext.htmlEncode(JSON.stringify(permission.check))}</pre>`;
-	} else if (permission.userParam) {
-	    permhtml += `<div>Check if user matches parameter '${permission.userParam}'`;
-	} else if (permission.or) {
-	    permhtml += "<div>Or<div style='padding-left: 10px;'>";
-	    permhtml += permission.or.map(v => permission_text(v)).join('');
-	    permhtml += "</div></div>";
-	} else if (permission.and) {
-	    permhtml += "<div>And<div style='padding-left: 10px;'>";
-	    permhtml += permission.and.map(v => permission_text(v)).join('');
-	    permhtml += "</div></div>";
-	} else {
-	    permhtml += "Unknown syntax!";
-	}
+        if (permission.user) {
+            if (!permission.description) {
+                if (permission.user === 'world') {
+                    permhtml += 'Accessible without any authentication.';
+                } else if (permission.user === 'all') {
+                    permhtml += 'Accessible by all authenticated users.';
+                } else {
+                    permhtml += `Only accessible by user "${permission.user}"`;
+                }
+            }
+        } else if (permission.check) {
+            permhtml += `<pre>Check: ${Ext.htmlEncode(JSON.stringify(permission.check))}</pre>`;
+        } else if (permission.userParam) {
+            permhtml += `<div>Check if user matches parameter '${permission.userParam}'`;
+        } else if (permission.or) {
+            permhtml += "<div>Or<div style='padding-left: 10px;'>";
+            permhtml += permission.or.map((v) => permission_text(v)).join('');
+            permhtml += '</div></div>';
+        } else if (permission.and) {
+            permhtml += "<div>And<div style='padding-left: 10px;'>";
+            permhtml += permission.and.map((v) => permission_text(v)).join('');
+            permhtml += '</div></div>';
+        } else {
+            permhtml += 'Unknown syntax!';
+        }
 
-	return permhtml;
+        return permhtml;
     };
 
-    let render_docu = function(data) {
-	let md = data.info;
+    let render_docu = function (data) {
+        let md = data.info;
 
-	let items = [];
+        let items = [];
 
-	Ext.Array.each(['GET', 'POST', 'PUT', 'DELETE'], function(method) {
-	    let info = md[method];
-	    if (info) {
-		let endpoint = real_path(data.path);
-		let usage = `<table><tr><td>HTTP:&nbsp;&nbsp;&nbsp;</td><td>`;
-		usage += `${method} /api2/json${endpoint}</td></tr>`;
+        Ext.Array.each(['GET', 'POST', 'PUT', 'DELETE'], function (method) {
+            let info = md[method];
+            if (info) {
+                let endpoint = real_path(data.path);
+                let usage = `<table><tr><td>HTTP:&nbsp;&nbsp;&nbsp;</td><td>`;
+                usage += `${method} /api2/json${endpoint}</td></tr>`;
 
-		if (typeof cliUsageRenderer === 'function') {
-		    usage += cliUsageRenderer(method, endpoint); // eslint-disable-line no-undef
-		}
+                if (typeof cliUsageRenderer === 'function') {
+                    usage += cliUsageRenderer(method, endpoint);
+                }
 
-		let sections = [
-		    {
-			title: 'Description',
-			html: Ext.htmlEncode(info.description),
-			bodyPadding: 10,
-		    },
-		    {
-			title: 'Usage',
-			html: usage,
-			bodyPadding: 10,
-		    },
-		];
+                let sections = [
+                    {
+                        title: 'Description',
+                        html: Ext.htmlEncode(info.description),
+                        bodyPadding: 10,
+                    },
+                    {
+                        title: 'Usage',
+                        html: usage,
+                        bodyPadding: 10,
+                    },
+                ];
 
-		if (info.parameters && info.parameters.properties) {
-		    let pstore = Ext.create('Ext.data.Store', {
-			model: 'pmx-param-schema',
-			proxy: {
-			    type: 'memory',
-			},
-			groupField: 'optional',
-			sorters: [
-			    {
-				property: 'instance-types',
-				direction: 'ASC',
-			    },
-			    {
-				property: 'name',
-				direction: 'ASC',
-			    },
-			],
-		    });
+                if (info.parameters && info.parameters.properties) {
+                    let pstore = Ext.create('Ext.data.Store', {
+                        model: 'pmx-param-schema',
+                        proxy: {
+                            type: 'memory',
+                        },
+                        groupField: 'optional',
+                        sorters: [
+                            {
+                                property: 'instance-types',
+                                direction: 'ASC',
+                            },
+                            {
+                                property: 'name',
+                                direction: 'ASC',
+                            },
+                        ],
+                    });
 
-		    let has_type_properties = false;
+                    let has_type_properties = false;
 
-		    Ext.Object.each(info.parameters.properties, function(name, pdef) {
-			if (pdef.oneOf) {
-			    pdef.oneOf.forEach((alternative) => {
-				alternative.name = name;
-				pstore.add(alternative);
-				has_type_properties = true;
-			    });
-			} else if (pdef['instance-types']) {
-			    pdef['instance-types'].forEach((type) => {
-				let typePdef = Ext.apply({}, pdef);
-				typePdef.name = name;
-				typePdef['instance-types'] = [type];
-				pstore.add(typePdef);
-				has_type_properties = true;
-			    });
-			} else {
-			    pdef.name = name;
-			    pstore.add(pdef);
-			}
-		    });
+                    Ext.Object.each(info.parameters.properties, function (name, pdef) {
+                        if (pdef.oneOf) {
+                            pdef.oneOf.forEach((alternative) => {
+                                alternative.name = name;
+                                pstore.add(alternative);
+                                has_type_properties = true;
+                            });
+                        } else if (pdef['instance-types']) {
+                            pdef['instance-types'].forEach((type) => {
+                                let typePdef = Ext.apply({}, pdef);
+                                typePdef.name = name;
+                                typePdef['instance-types'] = [type];
+                                pstore.add(typePdef);
+                                has_type_properties = true;
+                            });
+                        } else {
+                            pdef.name = name;
+                            pstore.add(pdef);
+                        }
+                    });
 
-		    pstore.sort();
+                    pstore.sort();
 
-		    let groupingFeature = Ext.create('Ext.grid.feature.Grouping', {
-			enableGroupingMenu: false,
-			groupHeaderTpl: '<tpl if="groupValue">Optional</tpl><tpl if="!groupValue">Required</tpl>',
-		    });
+                    let groupingFeature = Ext.create('Ext.grid.feature.Grouping', {
+                        enableGroupingMenu: false,
+                        groupHeaderTpl:
+                            '<tpl if="groupValue">Optional</tpl><tpl if="!groupValue">Required</tpl>',
+                    });
 
-		    sections.push({
-			xtype: 'gridpanel',
-			title: 'Parameters',
-			features: [groupingFeature],
-			store: pstore,
-			viewConfig: {
-			    trackOver: false,
-			    stripeRows: true,
-			    enableTextSelection: true,
-			},
-			columns: [
-			    {
-				header: 'Name',
-				dataIndex: 'name',
-				flex: 1,
-			    },
-			    {
-				header: 'Type',
-				dataIndex: 'type',
-				renderer: render_type,
-				flex: 1,
-			    },
-			    {
-				header: 'For Types',
-				dataIndex: 'instance-types',
-				hidden: !has_type_properties,
-				flex: 1,
-			    },
-			    {
-				header: 'Default',
-				dataIndex: 'default',
-				flex: 1,
-			    },
-			    {
-				header: 'Format',
-				dataIndex: 'type',
-				renderer: render_format,
-				flex: 2,
-			    },
-			    {
-				header: 'Description',
-				dataIndex: 'description',
-				renderer: render_description,
-				flex: 6,
-			    },
-			],
-		    });
-		}
+                    sections.push({
+                        xtype: 'gridpanel',
+                        title: 'Parameters',
+                        features: [groupingFeature],
+                        store: pstore,
+                        viewConfig: {
+                            trackOver: false,
+                            stripeRows: true,
+                            enableTextSelection: true,
+                        },
+                        columns: [
+                            {
+                                header: 'Name',
+                                dataIndex: 'name',
+                                flex: 1,
+                            },
+                            {
+                                header: 'Type',
+                                dataIndex: 'type',
+                                renderer: render_type,
+                                flex: 1,
+                            },
+                            {
+                                header: 'For Types',
+                                dataIndex: 'instance-types',
+                                hidden: !has_type_properties,
+                                flex: 1,
+                            },
+                            {
+                                header: 'Default',
+                                dataIndex: 'default',
+                                flex: 1,
+                            },
+                            {
+                                header: 'Format',
+                                dataIndex: 'type',
+                                renderer: render_format,
+                                flex: 2,
+                            },
+                            {
+                                header: 'Description',
+                                dataIndex: 'description',
+                                renderer: render_description,
+                                flex: 6,
+                            },
+                        ],
+                    });
+                }
 
-		if (info.returns) {
-		    let retinf = info.returns;
-		    let rtype = retinf.type;
-		    if (!rtype && retinf.items) {rtype = 'array';}
-		    if (!rtype) {rtype = 'object';}
+                if (info.returns) {
+                    let retinf = info.returns;
+                    let rtype = retinf.type;
+                    if (!rtype && retinf.items) {
+                        rtype = 'array';
+                    }
+                    if (!rtype) {
+                        rtype = 'object';
+                    }
 
-		    let rpstore = Ext.create('Ext.data.Store', {
-			model: 'pmx-param-schema',
-			proxy: {
-			    type: 'memory',
-			},
-			groupField: 'optional',
-			sorters: [
-			    {
-				property: 'name',
-				direction: 'ASC',
-			   },
-			],
-		    });
+                    let rpstore = Ext.create('Ext.data.Store', {
+                        model: 'pmx-param-schema',
+                        proxy: {
+                            type: 'memory',
+                        },
+                        groupField: 'optional',
+                        sorters: [
+                            {
+                                property: 'name',
+                                direction: 'ASC',
+                            },
+                        ],
+                    });
 
-		    let properties;
-		    if (rtype === 'array' && retinf.items.properties) {
-			properties = retinf.items.properties;
-		    }
+                    let properties;
+                    if (rtype === 'array' && retinf.items.properties) {
+                        properties = retinf.items.properties;
+                    }
 
-		    if (rtype === 'object' && retinf.properties) {
-			properties = retinf.properties;
-		    }
+                    if (rtype === 'object' && retinf.properties) {
+                        properties = retinf.properties;
+                    }
 
-		    Ext.Object.each(properties, function(name, pdef) {
-			pdef.name = name;
-			rpstore.add(pdef);
-		    });
+                    Ext.Object.each(properties, function (name, pdef) {
+                        pdef.name = name;
+                        rpstore.add(pdef);
+                    });
 
-		    rpstore.sort();
+                    rpstore.sort();
 
-		    let groupingFeature = Ext.create('Ext.grid.feature.Grouping', {
-			enableGroupingMenu: false,
-			groupHeaderTpl: '<tpl if="groupValue">Optional</tpl><tpl if="!groupValue">Obligatory</tpl>',
-		    });
-		    let returnhtml;
-		    if (retinf.items) {
-			returnhtml = '<pre>items: ' + Ext.htmlEncode(JSON.stringify(retinf.items, null, 4)) + '</pre>';
-		    }
+                    let groupingFeature = Ext.create('Ext.grid.feature.Grouping', {
+                        enableGroupingMenu: false,
+                        groupHeaderTpl:
+                            '<tpl if="groupValue">Optional</tpl><tpl if="!groupValue">Obligatory</tpl>',
+                    });
+                    let returnhtml;
+                    if (retinf.items) {
+                        returnhtml =
+                            '<pre>items: ' +
+                            Ext.htmlEncode(JSON.stringify(retinf.items, null, 4)) +
+                            '</pre>';
+                    }
 
-		    if (retinf.properties) {
-			returnhtml = returnhtml || '';
-			returnhtml += '<pre>properties:' + Ext.htmlEncode(JSON.stringify(retinf.properties, null, 4)) + '</pre>';
-		    }
+                    if (retinf.properties) {
+                        returnhtml = returnhtml || '';
+                        returnhtml +=
+                            '<pre>properties:' +
+                            Ext.htmlEncode(JSON.stringify(retinf.properties, null, 4)) +
+                            '</pre>';
+                    }
 
-		    let rawSection = Ext.create('Ext.panel.Panel', {
-			bodyPadding: '0px 10px 10px 10px',
-			html: returnhtml,
-			hidden: true,
-		    });
+                    let rawSection = Ext.create('Ext.panel.Panel', {
+                        bodyPadding: '0px 10px 10px 10px',
+                        html: returnhtml,
+                        hidden: true,
+                    });
 
-		    sections.push({
-			xtype: 'gridpanel',
-			title: 'Returns: ' + rtype,
-			features: [groupingFeature],
-			store: rpstore,
-			viewConfig: {
-			    trackOver: false,
-			    stripeRows: true,
-			    enableTextSelection: true,
-			},
-			columns: [
-			    {
-				header: 'Name',
-				dataIndex: 'name',
-				flex: 1,
-			    },
-			    {
-				header: 'Type',
-				dataIndex: 'type',
-				renderer: render_type,
-				flex: 1,
-			    },
-			    {
-				header: 'Default',
-				dataIndex: 'default',
-				flex: 1,
-			    },
-			    {
-				header: 'Format',
-				dataIndex: 'type',
-				renderer: render_format,
-				flex: 2,
-			    },
-			    {
-				header: 'Description',
-				dataIndex: 'description',
-				renderer: render_description,
-				flex: 6,
-			    },
-			],
-			bbar: [
-			    {
-				xtype: 'button',
-				text: 'Show RAW',
-				handler: function(btn) {
-				    rawSection.setVisible(!rawSection.isVisible());
-				    btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
-				},
-			    },
-			],
-		    });
+                    sections.push({
+                        xtype: 'gridpanel',
+                        title: 'Returns: ' + rtype,
+                        features: [groupingFeature],
+                        store: rpstore,
+                        viewConfig: {
+                            trackOver: false,
+                            stripeRows: true,
+                            enableTextSelection: true,
+                        },
+                        columns: [
+                            {
+                                header: 'Name',
+                                dataIndex: 'name',
+                                flex: 1,
+                            },
+                            {
+                                header: 'Type',
+                                dataIndex: 'type',
+                                renderer: render_type,
+                                flex: 1,
+                            },
+                            {
+                                header: 'Default',
+                                dataIndex: 'default',
+                                flex: 1,
+                            },
+                            {
+                                header: 'Format',
+                                dataIndex: 'type',
+                                renderer: render_format,
+                                flex: 2,
+                            },
+                            {
+                                header: 'Description',
+                                dataIndex: 'description',
+                                renderer: render_description,
+                                flex: 6,
+                            },
+                        ],
+                        bbar: [
+                            {
+                                xtype: 'button',
+                                text: 'Show RAW',
+                                handler: function (btn) {
+                                    rawSection.setVisible(!rawSection.isVisible());
+                                    btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                },
+                            },
+                        ],
+                    });
 
-		    sections.push(rawSection);
-		}
+                    sections.push(rawSection);
+                }
 
-		if (!data.path.match(/\/_upgrade_/)) {
-		    let permhtml = '';
+                if (!data.path.match(/\/_upgrade_/)) {
+                    let permhtml = '';
 
-		    if (!info.permissions) {
-			permhtml = "Root only.";
-		    } else {
-			if (info.permissions.description) {
-			    permhtml += "<div style='white-space:pre-wrap;padding-bottom:10px;'>" +
-				Ext.htmlEncode(info.permissions.description) + "</div>";
-			}
-			permhtml += permission_text(info.permissions);
-		    }
+                    if (!info.permissions) {
+                        permhtml = 'Root only.';
+                    } else {
+                        if (info.permissions.description) {
+                            permhtml +=
+                                "<div style='white-space:pre-wrap;padding-bottom:10px;'>" +
+                                Ext.htmlEncode(info.permissions.description) +
+                                '</div>';
+                        }
+                        permhtml += permission_text(info.permissions);
+                    }
 
-		    if (info.allowtoken !== undefined && !info.allowtoken) {
-		        permhtml += "<br />This API endpoint is not available for API tokens.";
-		    }
+                    if (info.allowtoken !== undefined && !info.allowtoken) {
+                        permhtml += '<br />This API endpoint is not available for API tokens.';
+                    }
 
-		    sections.push({
-			title: 'Required permissions',
-			bodyPadding: 10,
-			html: permhtml,
-		    });
-		}
+                    sections.push({
+                        title: 'Required permissions',
+                        bodyPadding: 10,
+                        html: permhtml,
+                    });
+                }
 
-		items.push({
-		    title: method,
-		    autoScroll: true,
-		    defaults: {
-			border: false,
-		    },
-		    items: sections,
-		});
-	    }
-	});
+                items.push({
+                    title: method,
+                    autoScroll: true,
+                    defaults: {
+                        border: false,
+                    },
+                    items: sections,
+                });
+            }
+        });
 
-	let ct = Ext.getCmp('docview');
-	ct.setTitle("Path: " + real_path(data.path));
-	ct.removeAll(true);
-	ct.add(items);
-	ct.setActiveTab(0);
+        let ct = Ext.getCmp('docview');
+        ct.setTitle('Path: ' + real_path(data.path));
+        ct.removeAll(true);
+        ct.add(items);
+        ct.setActiveTab(0);
     };
 
     Ext.define('Ext.form.SearchField', {
-	extend: 'Ext.form.field.Text',
-	alias: 'widget.searchfield',
+        extend: 'Ext.form.field.Text',
+        alias: 'widget.searchfield',
 
-	emptyText: 'Search...',
+        emptyText: 'Search...',
 
-	flex: 1,
+        flex: 1,
 
-	inputType: 'search',
-	listeners: {
-	    'change': function() {
-		let value = this.getValue();
-		if (!Ext.isEmpty(value)) {
-		    store.filter({
-			property: 'path',
-			value: value,
-			anyMatch: true,
-		    });
-		} else {
-		    store.clearFilter();
-		}
-	    },
-	},
+        inputType: 'search',
+        listeners: {
+            change: function () {
+                let value = this.getValue();
+                if (!Ext.isEmpty(value)) {
+                    store.filter({
+                        property: 'path',
+                        value: value,
+                        anyMatch: true,
+                    });
+                } else {
+                    store.clearFilter();
+                }
+            },
+        },
     });
 
     let treePanel = Ext.create('Ext.tree.Panel', {
-	title: 'Resource Tree',
-	tbar: [
-	    {
-		xtype: 'searchfield',
-	    },
-	],
-	tools: [
-	    {
-		type: 'expand',
-		tooltip: 'Expand all',
-		tooltipType: 'title',
-		callback: tree => tree.expandAll(),
-	    },
-	    {
-		type: 'collapse',
-		tooltip: 'Collapse all',
-		tooltipType: 'title',
-		callback: tree => tree.collapseAll(),
-	    },
-	],
+        title: 'Resource Tree',
+        tbar: [
+            {
+                xtype: 'searchfield',
+            },
+        ],
+        tools: [
+            {
+                type: 'expand',
+                tooltip: 'Expand all',
+                tooltipType: 'title',
+                callback: (tree) => tree.expandAll(),
+            },
+            {
+                type: 'collapse',
+                tooltip: 'Collapse all',
+                tooltipType: 'title',
+                callback: (tree) => tree.collapseAll(),
+            },
+        ],
         store: store,
-	width: 200,
+        width: 200,
         region: 'west',
         split: true,
         margins: '5 0 5 5',
         rootVisible: false,
-	listeners: {
-	    selectionchange: function(v, selections) {
-		if (!selections[0]) {return;}
-		let rec = selections[0];
-		render_docu(rec.data);
-		location.hash = '#' + rec.data.path;
-	    },
-	},
+        listeners: {
+            selectionchange: function (v, selections) {
+                if (!selections[0]) {
+                    return;
+                }
+                let rec = selections[0];
+                render_docu(rec.data);
+                location.hash = '#' + rec.data.path;
+            },
+        },
     });
 
     Ext.create('Ext.container.Viewport', {
-	layout: 'border',
-	renderTo: Ext.getBody(),
-	items: [
-	    treePanel,
-	    {
-		xtype: 'tabpanel',
-		title: 'Documentation',
-		id: 'docview',
-		region: 'center',
-		margins: '5 5 5 0',
-		layout: 'fit',
-		items: [],
-	    },
-	],
+        layout: 'border',
+        renderTo: Ext.getBody(),
+        items: [
+            treePanel,
+            {
+                xtype: 'tabpanel',
+                title: 'Documentation',
+                id: 'docview',
+                region: 'center',
+                margins: '5 5 5 0',
+                layout: 'fit',
+                items: [],
+            },
+        ],
     });
 
-    let deepLink = function() {
-	let path = window.location.hash.substring(1).replace(/\/\s*$/, '');
-	let endpoint = store.findNode('path', path);
+    let deepLink = function () {
+        let path = window.location.hash.substring(1).replace(/\/\s*$/, '');
+        let endpoint = store.findNode('path', path);
 
-	if (endpoint) {
-	    treePanel.getSelectionModel().select(endpoint);
-	    treePanel.expandPath(endpoint.getPath());
-	    render_docu(endpoint.data);
-	}
+        if (endpoint) {
+            treePanel.getSelectionModel().select(endpoint);
+            treePanel.expandPath(endpoint.getPath());
+            render_docu(endpoint.data);
+        }
     };
     window.onhashchange = deepLink;
 

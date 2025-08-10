@@ -1670,9 +1670,70 @@ paths:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
   //access/access/ticket:
+    delete:
+      summary: ''
+      description: ''
+      operationId: delete_access_access_ticket
+      tags:
+      - Access Control
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
     post:
-      summary: Create or verify authentication ticket.
-      description: Create or verify authentication ticket.
+      summary: Either create a new HttpOnly ticket or a regular ticket.
+      description: Either create a new HttpOnly ticket or a regular ticket.
       operationId: post_access_access_ticket
       tags:
       - Access Control
@@ -1683,6 +1744,11 @@ paths:
             schema:
               type: object
               properties:
+                http-only:
+                  type: boolean
+                  description: Whether the HttpOnly authentication flow should be
+                    used.
+                  default: false
                 password:
                   type: string
                   description: 'The secret password. This can also be a valid ticket.
@@ -3760,6 +3826,16 @@ paths:
               schema:
                 type: object
                 properties:
+                  cache-stats:
+                    type: object
+                    properties:
+                      hits:
+                        type: integer
+                        description: Number of atime update cache hits
+                      misses:
+                        type: integer
+                        description: Number of atime update cache misses
+                    description: Garbage collection cache statistics
                   disk-bytes:
                     type: integer
                     description: Bytes used on disk.
@@ -5592,6 +5668,74 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
+  //admin/admin/datastore/admin/datastore/{store}/admin/datastore/{store}/s3-refresh:
+    put:
+      summary: Refresh datastore contents from S3 to local cache store.
+      description: Refresh datastore contents from S3 to local cache store.
+      operationId: put_admin_admin_datastore_admin_datastore_store_admin_datastore_store_s3-refresh
+      tags:
+      - Administration
+      parameters:
+      - name: store
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProxmoxDatastoreName'
+        description: The store parameter
+      responses:
+        '200':
+          description: Unique Process/Task Identifier
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Unique Process/Task Identifier
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
   //admin/admin/datastore/admin/datastore/{store}/admin/datastore/{store}/snapshots:
     delete:
       summary: Delete backup snapshot.
@@ -5917,6 +6061,16 @@ paths:
                   gc-status:
                     type: object
                     properties:
+                      cache-stats:
+                        type: object
+                        properties:
+                          hits:
+                            type: integer
+                            description: Number of atime update cache hits
+                          misses:
+                            type: integer
+                            description: Number of atime update cache misses
+                        description: Garbage collection cache statistics
                       disk-bytes:
                         type: integer
                         description: Bytes used on disk.
@@ -6328,6 +6482,16 @@ paths:
                 items:
                   type: object
                   properties:
+                    cache-stats:
+                      type: object
+                      properties:
+                        hits:
+                          type: integer
+                          description: Number of atime update cache hits
+                        misses:
+                          type: integer
+                          description: Number of atime update cache misses
+                      description: Garbage collection cache statistics
                     disk-bytes:
                       type: integer
                       description: Bytes used on disk.
@@ -6455,6 +6619,16 @@ paths:
                 items:
                   type: object
                   properties:
+                    cache-stats:
+                      type: object
+                      properties:
+                        hits:
+                          type: integer
+                          description: Number of atime update cache hits
+                        misses:
+                          type: integer
+                          description: Number of atime update cache misses
+                      description: Garbage collection cache statistics
                     disk-bytes:
                       type: integer
                       description: Bytes used on disk.
@@ -6908,6 +7082,164 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
+  //admin/admin/s3/admin/s3/{s3-client-id}:
+    get:
+      summary: Directory index.
+      description: Directory index.
+      operationId: get_admin_admin_s3_admin_s3_s3-client-id
+      tags:
+      - Administration
+      parameters:
+      - name: s3-client-id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The s3-client-id parameter
+        description: The s3-client-id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //admin/admin/s3/admin/s3/{s3-client-id}/admin/s3/{s3-client-id}/check:
+    put:
+      summary: Perform basic sanity check for given s3 client configuration
+      description: Perform basic sanity check for given s3 client configuration
+      operationId: put_admin_admin_s3_admin_s3_s3-client-id_admin_s3_s3-client-id_check
+      tags:
+      - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bucket:
+                  type: string
+                  description: Bucket name for S3 object store.
+                  minLength: 3
+                  maxLength: 63
+                store-prefix:
+                  type: string
+                  description: Store prefix within bucket for S3 object keys (commonly
+                    datastore name)
+              required:
+              - bucket
+      parameters:
+      - name: s3-client-id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The s3-client-id parameter
+        description: The s3-client-id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
   //admin/admin/sync:
     get:
       summary: List all configured sync jobs
@@ -7022,6 +7354,9 @@ paths:
                       type: boolean
                       description: If the verification failed for a local snapshot,
                         try to pull it again.
+                    run-on-mount:
+                      type: boolean
+                      description: Run this job when a relevant datastore is mounted.
                     schedule:
                       type: string
                       description: Run sync job at specified schedule.
@@ -7637,6 +7972,13 @@ paths:
           type: boolean
           description: Enable verbose debug logging.
         description: Enable verbose debug logging.
+      - name: no-cache
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Disable local datastore cache for network storages
+        description: Disable local datastore cache for network storages
       - name: ns
         in: query
         required: false
@@ -12117,6 +12459,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    backend:
+                      type: string
+                      description: Datastore backend config
                     backing-device:
                       type: string
                       description: The UUID of the filesystem partition for removable
@@ -12247,6 +12592,9 @@ paths:
             schema:
               type: object
               properties:
+                backend:
+                  type: string
+                  description: Datastore backend config
                 backing-device:
                   type: string
                   description: The UUID of the filesystem partition for removable
@@ -12309,7 +12657,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -12320,6 +12668,10 @@ paths:
                   minLength: 3
                   maxLength: 64
                   pattern: ^(?:[^\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                overwrite-in-use:
+                  type: boolean
+                  description: Overwrite in use marker (S3 backed datastores only).
+                  default: false
                 path:
                   type: string
                   description: Either the absolute path to the datastore directory,
@@ -12518,6 +12870,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  backend:
+                    type: string
+                    description: Datastore backend config
                   backing-device:
                     type: string
                     description: The UUID of the filesystem partition for removable
@@ -12708,7 +13063,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -19352,6 +19707,587 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
+  //config/config/s3:
+    get:
+      summary: List all s3 client configurations.
+      description: List all s3 client configurations.
+      operationId: get_config_config_s3
+      tags:
+      - Configuration
+      responses:
+        '200':
+          description: List configured s3 clients.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    access-key:
+                      type: string
+                      description: Access key for S3 object store.
+                    endpoint:
+                      type: string
+                      description: Endpoint to access S3 object store.
+                    fingerprint:
+                      type: string
+                      description: X509 certificate fingerprint (sha256).
+                    id:
+                      type: string
+                      description: ID to uniquely identify s3 client config.
+                    path-style:
+                      type: boolean
+                      description: Use path style bucket addressing over vhost style.
+                    port:
+                      type: integer
+                      description: Port to access S3 object store.
+                    provider-quirks:
+                      type: array
+                      items:
+                        type: string
+                        description: Provider specific feature implementation quirks.
+                      description: List of provider specific feature implementation
+                        quirks.
+                    put-rate-limit:
+                      type: integer
+                      description: 'Rate limit for put requests given as #reqest/s.'
+                    region:
+                      type: string
+                      description: Region to access S3 object store.
+                  description: S3 client configuration properties without secret.
+                description: List configured s3 clients.
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+    post:
+      summary: Create a new s3 client configuration.
+      description: Create a new s3 client configuration.
+      operationId: post_config_config_s3
+      tags:
+      - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access-key:
+                  type: string
+                  description: Access key for S3 object store.
+                endpoint:
+                  type: string
+                  description: Endpoint to access S3 object store.
+                  pattern: ^(?:(^\{\{bucket\}\}\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)|\{\{region\}\})\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$
+                fingerprint:
+                  type: string
+                  description: X509 certificate fingerprint (sha256).
+                  pattern: ^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$
+                id:
+                  type: string
+                  description: ID to uniquely identify s3 client config.
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                path-style:
+                  type: boolean
+                  description: Use path style bucket addressing over vhost style.
+                  default: false
+                port:
+                  type: integer
+                  description: Port to access S3 object store.
+                provider-quirks:
+                  type: array
+                  description: List of provider specific feature implementation quirks.
+                  items:
+                    type: string
+                put-rate-limit:
+                  type: integer
+                  description: 'Rate limit for put requests given as #reqest/s.'
+                region:
+                  type: string
+                  description: Region to access S3 object store.
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^[_a-z\d][-_a-z\d]+$
+                secret-key:
+                  type: string
+                  description: S3 secret key
+              required:
+              - access-key
+              - endpoint
+              - id
+              - secret-key
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //config/config/s3/config/s3/{id}:
+    delete:
+      summary: Remove an s3 client configuration.
+      description: Remove an s3 client configuration.
+      operationId: delete_config_config_s3_config_s3_id
+      tags:
+      - Configuration
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
+      - name: digest
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Prevent changes if current configuration file has different
+            SHA256 digest. This can be used to prevent concurrent modifications.
+          pattern: ^[a-f0-9]{64}$
+        description: Prevent changes if current configuration file has different SHA256
+          digest. This can be used to prevent concurrent modifications.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+    get:
+      summary: Read an s3 client configuration.
+      description: Read an s3 client configuration.
+      operationId: get_config_config_s3_config_s3_id
+      tags:
+      - Configuration
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
+      responses:
+        '200':
+          description: S3 client configuration properties without secret.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access-key:
+                    type: string
+                    description: Access key for S3 object store.
+                  endpoint:
+                    type: string
+                    description: Endpoint to access S3 object store.
+                  fingerprint:
+                    type: string
+                    description: X509 certificate fingerprint (sha256).
+                  id:
+                    type: string
+                    description: ID to uniquely identify s3 client config.
+                  path-style:
+                    type: boolean
+                    description: Use path style bucket addressing over vhost style.
+                  port:
+                    type: integer
+                    description: Port to access S3 object store.
+                  provider-quirks:
+                    type: array
+                    items:
+                      type: string
+                      description: Provider specific feature implementation quirks.
+                    description: List of provider specific feature implementation
+                      quirks.
+                  put-rate-limit:
+                    type: integer
+                    description: 'Rate limit for put requests given as #reqest/s.'
+                  region:
+                    type: string
+                    description: Region to access S3 object store.
+                description: S3 client configuration properties without secret.
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+    put:
+      summary: Update an s3 client configuration.
+      description: Update an s3 client configuration.
+      operationId: put_config_config_s3_config_s3_id
+      tags:
+      - Configuration
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                access-key:
+                  type: string
+                  description: Access key for S3 object store.
+                delete:
+                  type: array
+                  description: List of properties to delete.
+                  items:
+                    type: string
+                digest:
+                  type: string
+                  description: Prevent changes if current configuration file has different
+                    SHA256 digest. This can be used to prevent concurrent modifications.
+                  pattern: ^[a-f0-9]{64}$
+                endpoint:
+                  type: string
+                  description: Endpoint to access S3 object store.
+                  pattern: ^(?:(^\{\{bucket\}\}\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?)|\{\{region\}\})\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$
+                fingerprint:
+                  type: string
+                  description: X509 certificate fingerprint (sha256).
+                  pattern: ^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$
+                path-style:
+                  type: boolean
+                  description: Use path style bucket addressing over vhost style.
+                  default: false
+                port:
+                  type: integer
+                  description: Port to access S3 object store.
+                provider-quirks:
+                  type: array
+                  description: List of provider specific feature implementation quirks.
+                  items:
+                    type: string
+                put-rate-limit:
+                  type: integer
+                  description: 'Rate limit for put requests given as #reqest/s.'
+                region:
+                  type: string
+                  description: Region to access S3 object store.
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^[_a-z\d][-_a-z\d]+$
+                secret-key:
+                  type: string
+                  description: S3 client secret key.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //config/config/s3/config/s3/{id}/config/s3/{id}/list-buckets:
+    get:
+      summary: List buckets accessible by given s3 client configuration
+      description: List buckets accessible by given s3 client configuration
+      operationId: get_config_config_s3_config_s3_id_config_s3_id_list-buckets
+      tags:
+      - Configuration
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
   //config/config/sync:
     get:
       summary: List all sync jobs
@@ -19444,6 +20380,9 @@ paths:
                       type: boolean
                       description: If the verification failed for a local snapshot,
                         try to pull it again.
+                    run-on-mount:
+                      type: boolean
+                      description: Run this job when a relevant datastore is mounted.
                     schedule:
                       type: string
                       description: Run sync job at specified schedule.
@@ -19610,6 +20549,9 @@ paths:
                   type: boolean
                   description: If the verification failed for a local snapshot, try
                     to pull it again.
+                run-on-mount:
+                  type: boolean
+                  description: Run this job when a relevant datastore is mounted.
                 schedule:
                   type: string
                   description: Run sync job at specified schedule.
@@ -19858,6 +20800,9 @@ paths:
                     type: boolean
                     description: If the verification failed for a local snapshot,
                       try to pull it again.
+                  run-on-mount:
+                    type: boolean
+                    description: Run this job when a relevant datastore is mounted.
                   schedule:
                     type: string
                     description: Run sync job at specified schedule.
@@ -20027,6 +20972,9 @@ paths:
                   type: boolean
                   description: If the verification failed for a local snapshot, try
                     to pull it again.
+                run-on-mount:
+                  type: boolean
+                  description: Run this job when a relevant datastore is mounted.
                 schedule:
                   type: string
                   description: Run sync job at specified schedule.
@@ -20308,7 +21256,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify-user:
                   type: string
                   description: User ID
@@ -20681,7 +21629,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify-user:
                   type: string
                   description: User ID
@@ -22902,12 +23850,6 @@ paths:
                   - enterprise
                   - no-subscription
                   - test
-                  - ceph-quincy-enterprise
-                  - ceph-quincy-no-subscription
-                  - ceph-quincy-test
-                  - ceph-reef-enterprise
-                  - ceph-reef-no-subscription
-                  - ceph-reef-test
                   - ceph-squid-enterprise
                   - ceph-squid-no-subscription
                   - ceph-squid-test
@@ -25644,6 +26586,12 @@ paths:
                     active:
                       type: boolean
                       description: Interface is active (UP)
+                    altnames:
+                      type: array
+                      items:
+                        type: string
+                        description: altname
+                      description: List of altnames for this interface
                     autostart:
                       type: boolean
                       description: Autostart interface
@@ -26142,6 +27090,12 @@ paths:
                   active:
                     type: boolean
                     description: Interface is active (UP)
+                  altnames:
+                    type: array
+                    items:
+                      type: string
+                      description: altname
+                    description: List of altnames for this interface
                   autostart:
                     type: boolean
                     description: Autostart interface
@@ -29365,6 +30319,16 @@ paths:
                     gc-status:
                       type: object
                       properties:
+                        cache-stats:
+                          type: object
+                          properties:
+                            hits:
+                              type: integer
+                              description: Number of atime update cache hits
+                            misses:
+                              type: integer
+                              description: Number of atime update cache misses
+                          description: Garbage collection cache statistics
                         disk-bytes:
                           type: integer
                           description: Bytes used on disk.
@@ -29821,7 +30785,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify-user:
                   type: string
                   description: User ID
@@ -33079,7 +34043,7 @@ paths:
                   enum:
                   - legacy-sendmail
                   - notification-system
-                  default: legacy-sendmail
+                  default: notification-system
                 notify-user:
                   type: string
                   description: User ID
