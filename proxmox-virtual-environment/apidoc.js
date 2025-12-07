@@ -65,6 +65,81 @@ const apiSchema = [
                            "user" : "all"
                         },
                         "returns" : {
+                           "properties" : {
+                              "comment" : {
+                                 "description" : "Description.",
+                                 "maxLength" : 4096,
+                                 "optional" : 1,
+                                 "type" : "string"
+                              },
+                              "digest" : {
+                                 "description" : "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                                 "maxLength" : 64,
+                                 "optional" : 1,
+                                 "type" : "string"
+                              },
+                              "disable" : {
+                                 "description" : "Flag to disable/deactivate the entry.",
+                                 "optional" : 1,
+                                 "type" : "boolean"
+                              },
+                              "guest" : {
+                                 "description" : "Guest ID.",
+                                 "type" : "integer"
+                              },
+                              "id" : {
+                                 "description" : "Replication Job ID. The ID is composed of a Guest ID and a job number, separated by a hyphen, i.e. '<GUEST>-<JOBNUM>'.",
+                                 "format" : "pve-replication-job-id",
+                                 "pattern" : "[1-9][0-9]{2,8}-\\d{1,9}",
+                                 "type" : "string"
+                              },
+                              "jobnum" : {
+                                 "description" : "Unique, sequential ID assigned to each job.",
+                                 "type" : "integer"
+                              },
+                              "rate" : {
+                                 "description" : "Rate limit in mbps (megabytes per second) as floating point number.",
+                                 "minimum" : 1,
+                                 "optional" : 1,
+                                 "type" : "number"
+                              },
+                              "remove_job" : {
+                                 "description" : "Mark the replication job for removal. The job will remove all local replication snapshots. When set to 'full', it also tries to remove replicated volumes on the target. The job then removes itself from the configuration file.",
+                                 "enum" : [
+                                    "local",
+                                    "full"
+                                 ],
+                                 "optional" : 1,
+                                 "type" : "string"
+                              },
+                              "schedule" : {
+                                 "default" : "*/15",
+                                 "description" : "Storage replication schedule. The format is a subset of `systemd` calendar events.",
+                                 "format" : "pve-calendar-event",
+                                 "maxLength" : 128,
+                                 "optional" : 1,
+                                 "type" : "string"
+                              },
+                              "source" : {
+                                 "description" : "For internal use, to detect if the guest was stolen.",
+                                 "format" : "pve-node",
+                                 "optional" : 1,
+                                 "type" : "string"
+                              },
+                              "target" : {
+                                 "description" : "Target node.",
+                                 "format" : "pve-node",
+                                 "optional" : 0,
+                                 "type" : "string"
+                              },
+                              "type" : {
+                                 "description" : "Section type.",
+                                 "enum" : [
+                                    "local"
+                                 ],
+                                 "type" : "string"
+                              }
+                           },
                            "type" : "object"
                         }
                      },
@@ -175,7 +250,75 @@ const apiSchema = [
                   },
                   "returns" : {
                      "items" : {
-                        "properties" : {},
+                        "properties" : {
+                           "comment" : {
+                              "description" : "Description.",
+                              "maxLength" : 4096,
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "disable" : {
+                              "description" : "Flag to disable/deactivate the entry.",
+                              "optional" : 1,
+                              "type" : "boolean"
+                           },
+                           "guest" : {
+                              "description" : "Guest ID.",
+                              "type" : "integer"
+                           },
+                           "id" : {
+                              "description" : "Replication Job ID. The ID is composed of a Guest ID and a job number, separated by a hyphen, i.e. '<GUEST>-<JOBNUM>'.",
+                              "format" : "pve-replication-job-id",
+                              "pattern" : "[1-9][0-9]{2,8}-\\d{1,9}",
+                              "type" : "string"
+                           },
+                           "jobnum" : {
+                              "description" : "Unique, sequential ID assigned to each job.",
+                              "type" : "integer"
+                           },
+                           "rate" : {
+                              "description" : "Rate limit in mbps (megabytes per second) as floating point number.",
+                              "minimum" : 1,
+                              "optional" : 1,
+                              "type" : "number"
+                           },
+                           "remove_job" : {
+                              "description" : "Mark the replication job for removal. The job will remove all local replication snapshots. When set to 'full', it also tries to remove replicated volumes on the target. The job then removes itself from the configuration file.",
+                              "enum" : [
+                                 "local",
+                                 "full"
+                              ],
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "schedule" : {
+                              "default" : "*/15",
+                              "description" : "Storage replication schedule. The format is a subset of `systemd` calendar events.",
+                              "format" : "pve-calendar-event",
+                              "maxLength" : 128,
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "source" : {
+                              "description" : "For internal use, to detect if the guest was stolen.",
+                              "format" : "pve-node",
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "target" : {
+                              "description" : "Target node.",
+                              "format" : "pve-node",
+                              "optional" : 0,
+                              "type" : "string"
+                           },
+                           "type" : {
+                              "description" : "Section type.",
+                              "enum" : [
+                                 "local"
+                              ],
+                              "type" : "string"
+                           }
+                        },
                         "type" : "object"
                      },
                      "links" : [
@@ -828,6 +971,7 @@ const apiSchema = [
                      "GET" : {
                         "allowtoken" : 1,
                         "description" : "Retrieve metrics of the cluster.",
+                        "expose_credentials" : 1,
                         "method" : "GET",
                         "name" : "export",
                         "parameters" : {
@@ -847,6 +991,12 @@ const apiSchema = [
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
                               },
+                              "node-list" : {
+                                 "description" : "Only return metrics from nodes passed as comma-separated list",
+                                 "optional" : 1,
+                                 "type" : "string",
+                                 "typetext" : "<string>"
+                              },
                               "start-time" : {
                                  "default" : 0,
                                  "description" : "Only include metrics with a timestamp > start-time.",
@@ -865,7 +1015,6 @@ const apiSchema = [
                               ]
                            ]
                         },
-                        "protected" : 1,
                         "returns" : {
                            "additionalProperties" : 0,
                            "properties" : {
@@ -4186,33 +4335,41 @@ const apiSchema = [
                                     "returns" : {
                                        "properties" : {
                                           "action" : {
+                                             "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                              "type" : "string"
                                           },
                                           "comment" : {
+                                             "description" : "Descriptive comment",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "dest" : {
+                                             "description" : "Restrict packet destination address",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "dport" : {
+                                             "description" : "Restrict TCP/UDP destination port",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "enable" : {
+                                             "description" : "Flag to enable/disable a rule",
                                              "optional" : 1,
                                              "type" : "integer"
                                           },
                                           "icmp-type" : {
+                                             "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "iface" : {
+                                             "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "ipversion" : {
+                                             "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                              "optional" : 1,
                                              "type" : "integer"
                                           },
@@ -4233,25 +4390,31 @@ const apiSchema = [
                                              "type" : "string"
                                           },
                                           "macro" : {
+                                             "description" : "Use predefined standard macro",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "pos" : {
+                                             "description" : "Rule position in the ruleset",
                                              "type" : "integer"
                                           },
                                           "proto" : {
+                                             "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "source" : {
+                                             "description" : "Restrict packet source address",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "sport" : {
+                                             "description" : "Restrict TCP/UDP source port",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "type" : {
+                                             "description" : "Rule type",
                                              "type" : "string"
                                           }
                                        },
@@ -4494,8 +4657,88 @@ const apiSchema = [
                               "returns" : {
                                  "items" : {
                                     "properties" : {
-                                       "pos" : {
+                                       "action" : {
+                                          "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                          "type" : "string"
+                                       },
+                                       "comment" : {
+                                          "description" : "Descriptive comment",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dest" : {
+                                          "description" : "Restrict packet destination address",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dport" : {
+                                          "description" : "Restrict TCP/UDP destination port",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "enable" : {
+                                          "description" : "Flag to enable/disable a rule",
+                                          "optional" : 1,
                                           "type" : "integer"
+                                       },
+                                       "icmp-type" : {
+                                          "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "iface" : {
+                                          "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "ipversion" : {
+                                          "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "log" : {
+                                          "description" : "Log level for firewall rule",
+                                          "enum" : [
+                                             "emerg",
+                                             "alert",
+                                             "crit",
+                                             "err",
+                                             "warning",
+                                             "notice",
+                                             "info",
+                                             "debug",
+                                             "nolog"
+                                          ],
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "macro" : {
+                                          "description" : "Use predefined standard macro",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "pos" : {
+                                          "description" : "Rule position in the ruleset",
+                                          "type" : "integer"
+                                       },
+                                       "proto" : {
+                                          "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "source" : {
+                                          "description" : "Restrict packet source address",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "sport" : {
+                                          "description" : "Restrict TCP/UDP source port",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "type" : {
+                                          "description" : "Rule type",
+                                          "type" : "string"
                                        }
                                     },
                                     "type" : "object"
@@ -4842,33 +5085,41 @@ const apiSchema = [
                               "returns" : {
                                  "properties" : {
                                     "action" : {
+                                       "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                        "type" : "string"
                                     },
                                     "comment" : {
+                                       "description" : "Descriptive comment",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "dest" : {
+                                       "description" : "Restrict packet destination address",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "dport" : {
+                                       "description" : "Restrict TCP/UDP destination port",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "enable" : {
+                                       "description" : "Flag to enable/disable a rule",
                                        "optional" : 1,
                                        "type" : "integer"
                                     },
                                     "icmp-type" : {
+                                       "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "iface" : {
+                                       "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "ipversion" : {
+                                       "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                        "optional" : 1,
                                        "type" : "integer"
                                     },
@@ -4889,25 +5140,31 @@ const apiSchema = [
                                        "type" : "string"
                                     },
                                     "macro" : {
+                                       "description" : "Use predefined standard macro",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "pos" : {
+                                       "description" : "Rule position in the ruleset",
                                        "type" : "integer"
                                     },
                                     "proto" : {
+                                       "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "source" : {
+                                       "description" : "Restrict packet source address",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "sport" : {
+                                       "description" : "Restrict TCP/UDP source port",
                                        "optional" : 1,
                                        "type" : "string"
                                     },
                                     "type" : {
+                                       "description" : "Rule type",
                                        "type" : "string"
                                     }
                                  },
@@ -5103,8 +5360,88 @@ const apiSchema = [
                         "returns" : {
                            "items" : {
                               "properties" : {
-                                 "pos" : {
+                                 "action" : {
+                                    "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                    "type" : "string"
+                                 },
+                                 "comment" : {
+                                    "description" : "Descriptive comment",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "dest" : {
+                                    "description" : "Restrict packet destination address",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "dport" : {
+                                    "description" : "Restrict TCP/UDP destination port",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "enable" : {
+                                    "description" : "Flag to enable/disable a rule",
+                                    "optional" : 1,
                                     "type" : "integer"
+                                 },
+                                 "icmp-type" : {
+                                    "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "iface" : {
+                                    "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "ipversion" : {
+                                    "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
+                                 "log" : {
+                                    "description" : "Log level for firewall rule",
+                                    "enum" : [
+                                       "emerg",
+                                       "alert",
+                                       "crit",
+                                       "err",
+                                       "warning",
+                                       "notice",
+                                       "info",
+                                       "debug",
+                                       "nolog"
+                                    ],
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "macro" : {
+                                    "description" : "Use predefined standard macro",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "pos" : {
+                                    "description" : "Rule position in the ruleset",
+                                    "type" : "integer"
+                                 },
+                                 "proto" : {
+                                    "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "source" : {
+                                    "description" : "Restrict packet source address",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "sport" : {
+                                    "description" : "Restrict TCP/UDP source port",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "type" : {
+                                    "description" : "Rule type",
+                                    "type" : "string"
                                  }
                               },
                               "type" : "object"
@@ -5931,6 +6268,7 @@ const apiSchema = [
                                  "type" : "boolean"
                               },
                               "enable" : {
+                                 "default" : 0,
                                  "description" : "Enable or disable the firewall cluster wide.",
                                  "minimum" : 0,
                                  "optional" : 1,
@@ -6027,6 +6365,7 @@ const apiSchema = [
                                  "typetext" : "<boolean>"
                               },
                               "enable" : {
+                                 "default" : 0,
                                  "description" : "Enable or disable the firewall cluster wide.",
                                  "minimum" : 0,
                                  "optional" : 1,
@@ -7382,6 +7721,13 @@ const apiSchema = [
                               "parameters" : {
                                  "additionalProperties" : 0,
                                  "properties" : {
+                                    "purge" : {
+                                       "default" : 1,
+                                       "description" : "Remove this resource from rules that reference it, deleting the rule if this resource is the only resource in the rule",
+                                       "optional" : 1,
+                                       "type" : "boolean",
+                                       "typetext" : "<boolean>"
+                                    },
                                     "sid" : {
                                        "description" : "HA resource ID. This consists of a resource type followed by a resource specific name, separated with colon (example: vm:100 / ct:100). For virtual machines and containers, you can simply use the VM or CT id as a shortcut (example: 100).",
                                        "format" : "pve-ha-resource-or-vm-id",
@@ -7833,11 +8179,11 @@ const apiSchema = [
                                     },
                                     "nodes" : {
                                        "description" : "List of cluster node names with optional priority.",
-                                       "format" : "pve-ha-group-node-list",
+                                       "format" : "pve-ha-node-list",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<node>[:<pri>]{,<node>[:<pri>]}*",
-                                       "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource bound to a group will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the services will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
+                                       "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the resources will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
                                     },
                                     "nofailback" : {
                                        "default" : 0,
@@ -7936,11 +8282,11 @@ const apiSchema = [
                               },
                               "nodes" : {
                                  "description" : "List of cluster node names with optional priority.",
-                                 "format" : "pve-ha-group-node-list",
+                                 "format" : "pve-ha-node-list",
                                  "optional" : 0,
                                  "type" : "string",
                                  "typetext" : "<node>[:<pri>]{,<node>[:<pri>]}*",
-                                 "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource bound to a group will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the services will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
+                                 "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the resources will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
                               },
                               "nofailback" : {
                                  "default" : 0,
@@ -8116,7 +8462,7 @@ const apiSchema = [
                                     },
                                     "nodes" : {
                                        "description" : "List of cluster node names with optional priority.",
-                                       "format" : "pve-ha-group-node-list",
+                                       "format" : "pve-ha-node-list",
                                        "instance-types" : [
                                           "node-affinity"
                                        ],
@@ -8124,7 +8470,7 @@ const apiSchema = [
                                        "type" : "string",
                                        "type-property" : "type",
                                        "typetext" : "<node>[:<pri>]{,<node>[:<pri>]}*",
-                                       "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource bound to a group will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the services will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
+                                       "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the resources will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
                                     },
                                     "resources" : {
                                        "description" : "List of HA resource IDs. This consists of a list of resource types followed by a resource specific name separated with a colon (example: vm:100,ct:101).",
@@ -8272,7 +8618,7 @@ const apiSchema = [
                               },
                               "nodes" : {
                                  "description" : "List of cluster node names with optional priority.",
-                                 "format" : "pve-ha-group-node-list",
+                                 "format" : "pve-ha-node-list",
                                  "instance-types" : [
                                     "node-affinity"
                                  ],
@@ -8280,7 +8626,7 @@ const apiSchema = [
                                  "type" : "string",
                                  "type-property" : "type",
                                  "typetext" : "<node>[:<pri>]{,<node>[:<pri>]}*",
-                                 "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource bound to a group will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the services will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
+                                 "verbose_description" : "List of cluster node members, where a priority can be given to each node. A resource will run on the available nodes with the highest priority. If there are more nodes in the highest priority class, the resources will get distributed to those nodes. The priorities have a relative meaning only. The higher the number, the higher the priority."
                               },
                               "resources" : {
                                  "description" : "List of HA resource IDs. This consists of a list of resource types followed by a resource specific name separated with a colon (example: vm:100,ct:101).",
@@ -8605,6 +8951,215 @@ const apiSchema = [
                               },
                               "protected" : 1,
                               "returns" : {
+                                 "properties" : {
+                                    "api" : {
+                                       "description" : "API plugin name",
+                                       "enum" : [
+                                          "1984hosting",
+                                          "acmedns",
+                                          "acmeproxy",
+                                          "active24",
+                                          "ad",
+                                          "ali",
+                                          "alviy",
+                                          "anx",
+                                          "artfiles",
+                                          "arvan",
+                                          "aurora",
+                                          "autodns",
+                                          "aws",
+                                          "azion",
+                                          "azure",
+                                          "beget",
+                                          "bookmyname",
+                                          "bunny",
+                                          "cf",
+                                          "clouddns",
+                                          "cloudns",
+                                          "cn",
+                                          "conoha",
+                                          "constellix",
+                                          "cpanel",
+                                          "curanet",
+                                          "cyon",
+                                          "da",
+                                          "ddnss",
+                                          "desec",
+                                          "df",
+                                          "dgon",
+                                          "dnsexit",
+                                          "dnshome",
+                                          "dnsimple",
+                                          "dnsservices",
+                                          "doapi",
+                                          "domeneshop",
+                                          "dp",
+                                          "dpi",
+                                          "dreamhost",
+                                          "duckdns",
+                                          "durabledns",
+                                          "dyn",
+                                          "dynu",
+                                          "dynv6",
+                                          "easydns",
+                                          "edgecenter",
+                                          "edgedns",
+                                          "euserv",
+                                          "exoscale",
+                                          "fornex",
+                                          "freedns",
+                                          "freemyip",
+                                          "gandi_livedns",
+                                          "gcloud",
+                                          "gcore",
+                                          "gd",
+                                          "geoscaling",
+                                          "googledomains",
+                                          "he",
+                                          "he_ddns",
+                                          "hetzner",
+                                          "hexonet",
+                                          "hostingde",
+                                          "huaweicloud",
+                                          "infoblox",
+                                          "infomaniak",
+                                          "internetbs",
+                                          "inwx",
+                                          "ionos",
+                                          "ionos_cloud",
+                                          "ipv64",
+                                          "ispconfig",
+                                          "jd",
+                                          "joker",
+                                          "kappernet",
+                                          "kas",
+                                          "kinghost",
+                                          "knot",
+                                          "la",
+                                          "leaseweb",
+                                          "lexicon",
+                                          "limacity",
+                                          "linode",
+                                          "linode_v4",
+                                          "loopia",
+                                          "lua",
+                                          "maradns",
+                                          "me",
+                                          "miab",
+                                          "mijnhost",
+                                          "misaka",
+                                          "myapi",
+                                          "mydevil",
+                                          "mydnsjp",
+                                          "mythic_beasts",
+                                          "namecheap",
+                                          "namecom",
+                                          "namesilo",
+                                          "nanelo",
+                                          "nederhost",
+                                          "neodigit",
+                                          "netcup",
+                                          "netlify",
+                                          "nic",
+                                          "njalla",
+                                          "nm",
+                                          "nsd",
+                                          "nsone",
+                                          "nsupdate",
+                                          "nw",
+                                          "oci",
+                                          "omglol",
+                                          "one",
+                                          "online",
+                                          "openprovider",
+                                          "openstack",
+                                          "opnsense",
+                                          "ovh",
+                                          "pdns",
+                                          "pleskxml",
+                                          "pointhq",
+                                          "porkbun",
+                                          "rackcorp",
+                                          "rackspace",
+                                          "rage4",
+                                          "rcode0",
+                                          "regru",
+                                          "scaleway",
+                                          "schlundtech",
+                                          "selectel",
+                                          "selfhost",
+                                          "servercow",
+                                          "simply",
+                                          "technitium",
+                                          "tele3",
+                                          "tencent",
+                                          "timeweb",
+                                          "transip",
+                                          "udr",
+                                          "ultra",
+                                          "unoeuro",
+                                          "variomedia",
+                                          "veesp",
+                                          "vercel",
+                                          "vscale",
+                                          "vultr",
+                                          "websupport",
+                                          "west_cn",
+                                          "world4you",
+                                          "yandex360",
+                                          "yc",
+                                          "zilore",
+                                          "zone",
+                                          "zoneedit",
+                                          "zonomi"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "data" : {
+                                       "description" : "DNS plugin data. (base64 encoded)",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "digest" : {
+                                       "description" : "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                                       "maxLength" : 64,
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "disable" : {
+                                       "description" : "Flag to disable the config.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "nodes" : {
+                                       "description" : "List of cluster node names.",
+                                       "format" : "pve-node-list",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "plugin" : {
+                                       "description" : "Unique identifier for ACME plugin instance.",
+                                       "format" : "pve-configid",
+                                       "type" : "string"
+                                    },
+                                    "type" : {
+                                       "description" : "ACME challenge type.",
+                                       "enum" : [
+                                          "dns",
+                                          "standalone"
+                                       ],
+                                       "type" : "string"
+                                    },
+                                    "validation-delay" : {
+                                       "default" : 30,
+                                       "description" : "Extra delay in seconds to wait before requesting validation. Allows to cope with a long TTL of DNS records.",
+                                       "maximum" : 172800,
+                                       "minimum" : 0,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    }
+                                 },
                                  "type" : "object"
                               }
                            },
@@ -8885,10 +9440,212 @@ const apiSchema = [
                         "returns" : {
                            "items" : {
                               "properties" : {
+                                 "api" : {
+                                    "description" : "API plugin name",
+                                    "enum" : [
+                                       "1984hosting",
+                                       "acmedns",
+                                       "acmeproxy",
+                                       "active24",
+                                       "ad",
+                                       "ali",
+                                       "alviy",
+                                       "anx",
+                                       "artfiles",
+                                       "arvan",
+                                       "aurora",
+                                       "autodns",
+                                       "aws",
+                                       "azion",
+                                       "azure",
+                                       "beget",
+                                       "bookmyname",
+                                       "bunny",
+                                       "cf",
+                                       "clouddns",
+                                       "cloudns",
+                                       "cn",
+                                       "conoha",
+                                       "constellix",
+                                       "cpanel",
+                                       "curanet",
+                                       "cyon",
+                                       "da",
+                                       "ddnss",
+                                       "desec",
+                                       "df",
+                                       "dgon",
+                                       "dnsexit",
+                                       "dnshome",
+                                       "dnsimple",
+                                       "dnsservices",
+                                       "doapi",
+                                       "domeneshop",
+                                       "dp",
+                                       "dpi",
+                                       "dreamhost",
+                                       "duckdns",
+                                       "durabledns",
+                                       "dyn",
+                                       "dynu",
+                                       "dynv6",
+                                       "easydns",
+                                       "edgecenter",
+                                       "edgedns",
+                                       "euserv",
+                                       "exoscale",
+                                       "fornex",
+                                       "freedns",
+                                       "freemyip",
+                                       "gandi_livedns",
+                                       "gcloud",
+                                       "gcore",
+                                       "gd",
+                                       "geoscaling",
+                                       "googledomains",
+                                       "he",
+                                       "he_ddns",
+                                       "hetzner",
+                                       "hexonet",
+                                       "hostingde",
+                                       "huaweicloud",
+                                       "infoblox",
+                                       "infomaniak",
+                                       "internetbs",
+                                       "inwx",
+                                       "ionos",
+                                       "ionos_cloud",
+                                       "ipv64",
+                                       "ispconfig",
+                                       "jd",
+                                       "joker",
+                                       "kappernet",
+                                       "kas",
+                                       "kinghost",
+                                       "knot",
+                                       "la",
+                                       "leaseweb",
+                                       "lexicon",
+                                       "limacity",
+                                       "linode",
+                                       "linode_v4",
+                                       "loopia",
+                                       "lua",
+                                       "maradns",
+                                       "me",
+                                       "miab",
+                                       "mijnhost",
+                                       "misaka",
+                                       "myapi",
+                                       "mydevil",
+                                       "mydnsjp",
+                                       "mythic_beasts",
+                                       "namecheap",
+                                       "namecom",
+                                       "namesilo",
+                                       "nanelo",
+                                       "nederhost",
+                                       "neodigit",
+                                       "netcup",
+                                       "netlify",
+                                       "nic",
+                                       "njalla",
+                                       "nm",
+                                       "nsd",
+                                       "nsone",
+                                       "nsupdate",
+                                       "nw",
+                                       "oci",
+                                       "omglol",
+                                       "one",
+                                       "online",
+                                       "openprovider",
+                                       "openstack",
+                                       "opnsense",
+                                       "ovh",
+                                       "pdns",
+                                       "pleskxml",
+                                       "pointhq",
+                                       "porkbun",
+                                       "rackcorp",
+                                       "rackspace",
+                                       "rage4",
+                                       "rcode0",
+                                       "regru",
+                                       "scaleway",
+                                       "schlundtech",
+                                       "selectel",
+                                       "selfhost",
+                                       "servercow",
+                                       "simply",
+                                       "technitium",
+                                       "tele3",
+                                       "tencent",
+                                       "timeweb",
+                                       "transip",
+                                       "udr",
+                                       "ultra",
+                                       "unoeuro",
+                                       "variomedia",
+                                       "veesp",
+                                       "vercel",
+                                       "vscale",
+                                       "vultr",
+                                       "websupport",
+                                       "west_cn",
+                                       "world4you",
+                                       "yandex360",
+                                       "yc",
+                                       "zilore",
+                                       "zone",
+                                       "zoneedit",
+                                       "zonomi"
+                                    ],
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "data" : {
+                                    "description" : "DNS plugin data. (base64 encoded)",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "digest" : {
+                                    "description" : "Prevent changes if current configuration file has a different digest. This can be used to prevent concurrent modifications.",
+                                    "maxLength" : 64,
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "disable" : {
+                                    "description" : "Flag to disable the config.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "nodes" : {
+                                    "description" : "List of cluster node names.",
+                                    "format" : "pve-node-list",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
                                  "plugin" : {
                                     "description" : "Unique identifier for ACME plugin instance.",
                                     "format" : "pve-configid",
                                     "type" : "string"
+                                 },
+                                 "type" : {
+                                    "description" : "ACME challenge type.",
+                                    "enum" : [
+                                       "dns",
+                                       "standalone"
+                                    ],
+                                    "type" : "string"
+                                 },
+                                 "validation-delay" : {
+                                    "default" : 30,
+                                    "description" : "Extra delay in seconds to wait before requesting validation. Allows to cope with a long TTL of DNS records.",
+                                    "maximum" : 172800,
+                                    "minimum" : 0,
+                                    "optional" : 1,
+                                    "type" : "integer"
                                  }
                               },
                               "type" : "object"
@@ -11598,6 +12355,319 @@ const apiSchema = [
                {
                   "children" : [
                      {
+                        "info" : {
+                           "POST" : {
+                              "allowtoken" : 1,
+                              "description" : "Bulk start or resume all guests on the cluster.",
+                              "expose_credentials" : 1,
+                              "method" : "POST",
+                              "name" : "start",
+                              "parameters" : {
+                                 "additionalProperties" : 0,
+                                 "properties" : {
+                                    "maxworkers" : {
+                                       "default" : 1,
+                                       "description" : "How many parallel tasks at maximum should be started.",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "timeout" : {
+                                       "description" : "Default start timeout in seconds. Only valid for VMs. (default depends on the guest configuration).",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "vms" : {
+                                       "description" : "Only consider guests from this list of VMIDs.",
+                                       "items" : {
+                                          "description" : "The (unique) ID of the VM.",
+                                          "format" : "pve-vmid",
+                                          "maximum" : 999999999,
+                                          "minimum" : 100,
+                                          "type" : "integer"
+                                       },
+                                       "optional" : 1,
+                                       "type" : "array",
+                                       "typetext" : "<array>"
+                                    }
+                                 }
+                              },
+                              "permissions" : {
+                                 "description" : "The 'VM.PowerMgmt' permission is required on '/' or on '/vms/<ID>' for each ID passed via the 'vms' parameter.",
+                                 "user" : "all"
+                              },
+                              "protected" : 1,
+                              "returns" : {
+                                 "description" : "UPID of the worker",
+                                 "type" : "string"
+                              }
+                           }
+                        },
+                        "leaf" : 1,
+                        "path" : "/cluster/bulk-action/guest/start",
+                        "text" : "start"
+                     },
+                     {
+                        "info" : {
+                           "POST" : {
+                              "allowtoken" : 1,
+                              "description" : "Bulk shutdown all guests on the cluster.",
+                              "expose_credentials" : 1,
+                              "method" : "POST",
+                              "name" : "shutdown",
+                              "parameters" : {
+                                 "additionalProperties" : 0,
+                                 "properties" : {
+                                    "force-stop" : {
+                                       "default" : 1,
+                                       "description" : "Makes sure the Guest stops after the timeout.",
+                                       "optional" : 1,
+                                       "type" : "boolean",
+                                       "typetext" : "<boolean>"
+                                    },
+                                    "maxworkers" : {
+                                       "default" : 1,
+                                       "description" : "How many parallel tasks at maximum should be started.",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "timeout" : {
+                                       "default" : 180,
+                                       "description" : "Default shutdown timeout in seconds if none is configured for the guest.",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "vms" : {
+                                       "description" : "Only consider guests from this list of VMIDs.",
+                                       "items" : {
+                                          "description" : "The (unique) ID of the VM.",
+                                          "format" : "pve-vmid",
+                                          "maximum" : 999999999,
+                                          "minimum" : 100,
+                                          "type" : "integer"
+                                       },
+                                       "optional" : 1,
+                                       "type" : "array",
+                                       "typetext" : "<array>"
+                                    }
+                                 }
+                              },
+                              "permissions" : {
+                                 "description" : "The 'VM.PowerMgmt' permission is required on '/' or on '/vms/<ID>' for each ID passed via the 'vms' parameter.",
+                                 "user" : "all"
+                              },
+                              "protected" : 1,
+                              "returns" : {
+                                 "description" : "UPID of the worker",
+                                 "type" : "string"
+                              }
+                           }
+                        },
+                        "leaf" : 1,
+                        "path" : "/cluster/bulk-action/guest/shutdown",
+                        "text" : "shutdown"
+                     },
+                     {
+                        "info" : {
+                           "POST" : {
+                              "allowtoken" : 1,
+                              "description" : "Bulk suspend all guests on the cluster.",
+                              "expose_credentials" : 1,
+                              "method" : "POST",
+                              "name" : "suspend",
+                              "parameters" : {
+                                 "additionalProperties" : 0,
+                                 "properties" : {
+                                    "maxworkers" : {
+                                       "default" : 1,
+                                       "description" : "How many parallel tasks at maximum should be started.",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "statestorage" : {
+                                       "description" : "The storage for the VM state.",
+                                       "format" : "pve-storage-id",
+                                       "format_description" : "storage ID",
+                                       "optional" : 1,
+                                       "requires" : "to-disk",
+                                       "type" : "string",
+                                       "typetext" : "<storage ID>"
+                                    },
+                                    "to-disk" : {
+                                       "default" : 0,
+                                       "description" : "If set, suspends the guests to disk. Will be resumed on next start.",
+                                       "optional" : 1,
+                                       "type" : "boolean",
+                                       "typetext" : "<boolean>"
+                                    },
+                                    "vms" : {
+                                       "description" : "Only consider guests from this list of VMIDs.",
+                                       "items" : {
+                                          "description" : "The (unique) ID of the VM.",
+                                          "format" : "pve-vmid",
+                                          "maximum" : 999999999,
+                                          "minimum" : 100,
+                                          "type" : "integer"
+                                       },
+                                       "optional" : 1,
+                                       "type" : "array",
+                                       "typetext" : "<array>"
+                                    }
+                                 }
+                              },
+                              "permissions" : {
+                                 "description" : "The 'VM.PowerMgmt' permission is required on '/' or on '/vms/<ID>' for each ID passed via the 'vms' parameter. Additionally, you need 'VM.Config.Disk' on the '/vms/{vmid}' path and 'Datastore.AllocateSpace' for the configured state-storage(s)",
+                                 "user" : "all"
+                              },
+                              "protected" : 1,
+                              "returns" : {
+                                 "description" : "UPID of the worker",
+                                 "type" : "string"
+                              }
+                           }
+                        },
+                        "leaf" : 1,
+                        "path" : "/cluster/bulk-action/guest/suspend",
+                        "text" : "suspend"
+                     },
+                     {
+                        "info" : {
+                           "POST" : {
+                              "allowtoken" : 1,
+                              "description" : "Bulk migrate all guests on the cluster.",
+                              "expose_credentials" : 1,
+                              "method" : "POST",
+                              "name" : "migrate",
+                              "parameters" : {
+                                 "additionalProperties" : 0,
+                                 "properties" : {
+                                    "maxworkers" : {
+                                       "default" : 1,
+                                       "description" : "How many parallel tasks at maximum should be started.",
+                                       "optional" : 1,
+                                       "type" : "integer",
+                                       "typetext" : "<integer>"
+                                    },
+                                    "online" : {
+                                       "description" : "Enable live migration for VMs and restart migration for CTs.",
+                                       "optional" : 1,
+                                       "type" : "boolean",
+                                       "typetext" : "<boolean>"
+                                    },
+                                    "target" : {
+                                       "description" : "Target node.",
+                                       "format" : "pve-node",
+                                       "type" : "string",
+                                       "typetext" : "<string>"
+                                    },
+                                    "vms" : {
+                                       "description" : "Only consider guests from this list of VMIDs.",
+                                       "items" : {
+                                          "description" : "The (unique) ID of the VM.",
+                                          "format" : "pve-vmid",
+                                          "maximum" : 999999999,
+                                          "minimum" : 100,
+                                          "type" : "integer"
+                                       },
+                                       "optional" : 1,
+                                       "type" : "array",
+                                       "typetext" : "<array>"
+                                    },
+                                    "with-local-disks" : {
+                                       "description" : "Enable live storage migration for local disk",
+                                       "optional" : 1,
+                                       "type" : "boolean",
+                                       "typetext" : "<boolean>"
+                                    }
+                                 }
+                              },
+                              "permissions" : {
+                                 "description" : "The 'VM.Migrate' permission is required on '/' or on '/vms/<ID>' for each ID passed via the 'vms' parameter.",
+                                 "user" : "all"
+                              },
+                              "protected" : 1,
+                              "returns" : {
+                                 "description" : "UPID of the worker",
+                                 "type" : "string"
+                              }
+                           }
+                        },
+                        "leaf" : 1,
+                        "path" : "/cluster/bulk-action/guest/migrate",
+                        "text" : "migrate"
+                     }
+                  ],
+                  "info" : {
+                     "GET" : {
+                        "allowtoken" : 1,
+                        "description" : "Bulk action index.",
+                        "method" : "GET",
+                        "name" : "index",
+                        "parameters" : {
+                           "additionalProperties" : 0
+                        },
+                        "permissions" : {
+                           "user" : "all"
+                        },
+                        "returns" : {
+                           "items" : {
+                              "properties" : {},
+                              "type" : "object"
+                           },
+                           "links" : [
+                              {
+                                 "href" : "{name}",
+                                 "rel" : "child"
+                              }
+                           ],
+                           "type" : "array"
+                        }
+                     }
+                  },
+                  "leaf" : 0,
+                  "path" : "/cluster/bulk-action/guest",
+                  "text" : "guest"
+               }
+            ],
+            "info" : {
+               "GET" : {
+                  "allowtoken" : 1,
+                  "description" : "List resource types.",
+                  "method" : "GET",
+                  "name" : "index",
+                  "parameters" : {
+                     "additionalProperties" : 0
+                  },
+                  "permissions" : {
+                     "user" : "all"
+                  },
+                  "returns" : {
+                     "items" : {
+                        "type" : "object"
+                     },
+                     "links" : [
+                        {
+                           "href" : "{name}",
+                           "rel" : "child"
+                        }
+                     ],
+                     "type" : "array"
+                  }
+               }
+            },
+            "leaf" : 0,
+            "path" : "/cluster/bulk-action",
+            "text" : "bulk-action"
+         },
+         {
+            "children" : [
+               {
+                  "children" : [
+                     {
                         "children" : [
                            {
                               "children" : [
@@ -11676,33 +12746,41 @@ const apiSchema = [
                                                 "returns" : {
                                                    "properties" : {
                                                       "action" : {
+                                                         "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                                          "type" : "string"
                                                       },
                                                       "comment" : {
+                                                         "description" : "Descriptive comment",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dest" : {
+                                                         "description" : "Restrict packet destination address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dport" : {
+                                                         "description" : "Restrict TCP/UDP destination port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "enable" : {
+                                                         "description" : "Flag to enable/disable a rule",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
                                                       "icmp-type" : {
+                                                         "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "iface" : {
+                                                         "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "ipversion" : {
+                                                         "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
@@ -11723,25 +12801,31 @@ const apiSchema = [
                                                          "type" : "string"
                                                       },
                                                       "macro" : {
+                                                         "description" : "Use predefined standard macro",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "pos" : {
+                                                         "description" : "Rule position in the ruleset",
                                                          "type" : "integer"
                                                       },
                                                       "proto" : {
+                                                         "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "source" : {
+                                                         "description" : "Restrict packet source address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "sport" : {
+                                                         "description" : "Restrict TCP/UDP source port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "type" : {
+                                                         "description" : "Rule type",
                                                          "type" : "string"
                                                       }
                                                    },
@@ -11941,8 +13025,88 @@ const apiSchema = [
                                           "returns" : {
                                              "items" : {
                                                 "properties" : {
-                                                   "pos" : {
+                                                   "action" : {
+                                                      "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                                      "type" : "string"
+                                                   },
+                                                   "comment" : {
+                                                      "description" : "Descriptive comment",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dest" : {
+                                                      "description" : "Restrict packet destination address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dport" : {
+                                                      "description" : "Restrict TCP/UDP destination port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "enable" : {
+                                                      "description" : "Flag to enable/disable a rule",
+                                                      "optional" : 1,
                                                       "type" : "integer"
+                                                   },
+                                                   "icmp-type" : {
+                                                      "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "iface" : {
+                                                      "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "ipversion" : {
+                                                      "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                                      "optional" : 1,
+                                                      "type" : "integer"
+                                                   },
+                                                   "log" : {
+                                                      "description" : "Log level for firewall rule",
+                                                      "enum" : [
+                                                         "emerg",
+                                                         "alert",
+                                                         "crit",
+                                                         "err",
+                                                         "warning",
+                                                         "notice",
+                                                         "info",
+                                                         "debug",
+                                                         "nolog"
+                                                      ],
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "macro" : {
+                                                      "description" : "Use predefined standard macro",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "pos" : {
+                                                      "description" : "Rule position in the ruleset",
+                                                      "type" : "integer"
+                                                   },
+                                                   "proto" : {
+                                                      "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "source" : {
+                                                      "description" : "Restrict packet source address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "sport" : {
+                                                      "description" : "Restrict TCP/UDP source port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "type" : {
+                                                      "description" : "Rule type",
+                                                      "type" : "string"
                                                    }
                                                 },
                                                 "type" : "object"
@@ -12828,7 +13992,101 @@ const apiSchema = [
                                  "user" : "all"
                               },
                               "returns" : {
-                                 "type" : "object"
+                                 "properties" : {
+                                    "alias" : {
+                                       "description" : "Alias name of the VNet.",
+                                       "maxLength" : 256,
+                                       "optional" : 1,
+                                       "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
+                                       "type" : "string"
+                                    },
+                                    "digest" : {
+                                       "description" : "Digest of the VNet section.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "isolate-ports" : {
+                                       "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "pending" : {
+                                       "description" : "Changes that have not yet been applied to the running configuration.",
+                                       "optional" : 1,
+                                       "properties" : {
+                                          "alias" : {
+                                             "description" : "Alias name of the VNet.",
+                                             "maxLength" : 256,
+                                             "optional" : 1,
+                                             "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
+                                             "type" : "string"
+                                          },
+                                          "isolate-ports" : {
+                                             "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "tag" : {
+                                             "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                             "maximum" : 16777215,
+                                             "minimum" : 1,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "vlanaware" : {
+                                             "description" : "Allow VLANs to pass through this VNet.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "zone" : {
+                                             "description" : "Name of the zone this VNet belongs to.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          }
+                                       },
+                                       "type" : "object"
+                                    },
+                                    "state" : {
+                                       "description" : "State of the SDN configuration object.",
+                                       "enum" : [
+                                          "new",
+                                          "changed",
+                                          "deleted"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "tag" : {
+                                       "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                       "maximum" : 16777215,
+                                       "minimum" : 1,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "type" : {
+                                       "description" : "Type of the VNet.",
+                                       "enum" : [
+                                          "vnet"
+                                       ],
+                                       "optional" : 0,
+                                       "type" : "string"
+                                    },
+                                    "vlanaware" : {
+                                       "description" : "Allow VLANs to pass through this VNet.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "vnet" : {
+                                       "description" : "Name of the VNet.",
+                                       "optional" : 0,
+                                       "type" : "string"
+                                    },
+                                    "zone" : {
+                                       "description" : "Name of the zone this VNet belongs to.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    }
+                                 }
                               }
                            },
                            "PUT" : {
@@ -12840,7 +14098,7 @@ const apiSchema = [
                                  "additionalProperties" : 0,
                                  "properties" : {
                                     "alias" : {
-                                       "description" : "alias name of the vnet",
+                                       "description" : "Alias name of the VNet.",
                                        "maxLength" : 256,
                                        "optional" : 1,
                                        "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
@@ -12862,7 +14120,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "isolate-ports" : {
-                                       "description" : "If true, sets the isolated property for all members of this VNet",
+                                       "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
@@ -12874,13 +14132,15 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "tag" : {
-                                       "description" : "vlan or vxlan id",
+                                       "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                       "maximum" : 16777215,
+                                       "minimum" : 1,
                                        "optional" : 1,
                                        "type" : "integer",
-                                       "typetext" : "<integer>"
+                                       "typetext" : "<integer> (1 - 16777215)"
                                     },
                                     "vlanaware" : {
-                                       "description" : "Allow vm VLANs to pass through this vnet.",
+                                       "description" : "Allow VLANs to pass through this vnet.",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
@@ -12892,7 +14152,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "zone" : {
-                                       "description" : "zone id",
+                                       "description" : "Name of the zone this VNet belongs to.",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
@@ -12944,7 +14204,101 @@ const apiSchema = [
                         },
                         "returns" : {
                            "items" : {
-                              "properties" : {},
+                              "properties" : {
+                                 "alias" : {
+                                    "description" : "Alias name of the VNet.",
+                                    "maxLength" : 256,
+                                    "optional" : 1,
+                                    "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
+                                    "type" : "string"
+                                 },
+                                 "digest" : {
+                                    "description" : "Digest of the VNet section.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "isolate-ports" : {
+                                    "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "pending" : {
+                                    "description" : "Changes that have not yet been applied to the running configuration.",
+                                    "optional" : 1,
+                                    "properties" : {
+                                       "alias" : {
+                                          "description" : "Alias name of the VNet.",
+                                          "maxLength" : 256,
+                                          "optional" : 1,
+                                          "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
+                                          "type" : "string"
+                                       },
+                                       "isolate-ports" : {
+                                          "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "tag" : {
+                                          "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                          "maximum" : 16777215,
+                                          "minimum" : 1,
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "vlanaware" : {
+                                          "description" : "Allow VLANs to pass through this VNet.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "zone" : {
+                                          "description" : "Name of the zone this VNet belongs to.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       }
+                                    },
+                                    "type" : "object"
+                                 },
+                                 "state" : {
+                                    "description" : "State of the SDN configuration object.",
+                                    "enum" : [
+                                       "new",
+                                       "changed",
+                                       "deleted"
+                                    ],
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "tag" : {
+                                    "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                    "maximum" : 16777215,
+                                    "minimum" : 1,
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
+                                 "type" : {
+                                    "description" : "Type of the VNet.",
+                                    "enum" : [
+                                       "vnet"
+                                    ],
+                                    "optional" : 0,
+                                    "type" : "string"
+                                 },
+                                 "vlanaware" : {
+                                    "description" : "Allow VLANs to pass through this VNet.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "vnet" : {
+                                    "description" : "Name of the VNet.",
+                                    "optional" : 0,
+                                    "type" : "string"
+                                 },
+                                 "zone" : {
+                                    "description" : "Name of the zone this VNet belongs to.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 }
+                              },
                               "type" : "object"
                            },
                            "links" : [
@@ -12965,14 +14319,14 @@ const apiSchema = [
                            "additionalProperties" : 0,
                            "properties" : {
                               "alias" : {
-                                 "description" : "alias name of the vnet",
+                                 "description" : "Alias name of the VNet.",
                                  "maxLength" : 256,
                                  "optional" : 1,
                                  "pattern" : "(?^i:[\\(\\)-_.\\w\\d\\s]{0,256})",
                                  "type" : "string"
                               },
                               "isolate-ports" : {
-                                 "description" : "If true, sets the isolated property for all members of this VNet",
+                                 "description" : "If true, sets the isolated property for all interfaces on the bridge of this VNet.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -12984,13 +14338,15 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "tag" : {
-                                 "description" : "vlan or vxlan id",
+                                 "description" : "VLAN Tag (for VLAN or QinQ zones) or VXLAN VNI (for VXLAN or EVPN zones).",
+                                 "maximum" : 16777215,
+                                 "minimum" : 1,
                                  "optional" : 1,
                                  "type" : "integer",
-                                 "typetext" : "<integer>"
+                                 "typetext" : "<integer> (1 - 16777215)"
                               },
                               "type" : {
-                                 "description" : "Type",
+                                 "description" : "Type of the VNet.",
                                  "enum" : [
                                     "vnet"
                                  ],
@@ -12998,7 +14354,7 @@ const apiSchema = [
                                  "type" : "string"
                               },
                               "vlanaware" : {
-                                 "description" : "Allow vm VLANs to pass through this vnet.",
+                                 "description" : "Allow VLANs to pass through this vnet.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -13010,7 +14366,7 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "zone" : {
-                                 "description" : "zone id",
+                                 "description" : "Name of the zone this VNet belongs to.",
                                  "optional" : 0,
                                  "type" : "string",
                                  "typetext" : "<string>"
@@ -13115,7 +14471,302 @@ const apiSchema = [
                                  ]
                               },
                               "returns" : {
-                                 "type" : "object"
+                                 "properties" : {
+                                    "advertise-subnets" : {
+                                       "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes). EVPN zone only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "bridge" : {
+                                       "description" : "the bridge for which VLANs should be managed. VLAN & QinQ zone only.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "bridge-disable-mac-learning" : {
+                                       "description" : "Disable auto mac learning. VLAN zone only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "controller" : {
+                                       "description" : "ID of the controller for this zone. EVPN zone only.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "dhcp" : {
+                                       "description" : "Name of DHCP server backend for this zone.",
+                                       "enum" : [
+                                          "dnsmasq"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "digest" : {
+                                       "description" : "Digest of the controller section.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "disable-arp-nd-suppression" : {
+                                       "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages. EVPN zone only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "dns" : {
+                                       "description" : "ID of the DNS server for this zone.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "dnszone" : {
+                                       "description" : "Domain name for this zone.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "exitnodes" : {
+                                       "description" : "List of PVE Nodes that should act as exit node for this zone. EVPN zone only.",
+                                       "format" : "pve-node-list",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "exitnodes-local-routing" : {
+                                       "description" : "Create routes on the exit nodes, so they can connect to EVPN guests. EVPN zone only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "exitnodes-primary" : {
+                                       "description" : "Force traffic through this exitnode first. EVPN zone only.",
+                                       "format" : "pve-node",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "ipam" : {
+                                       "description" : "ID of the IPAM for this zone.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "mac" : {
+                                       "description" : "MAC address of the anycast router for this zone.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "mtu" : {
+                                       "description" : "MTU of the zone, will be used for the created VNet bridges.",
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "nodes" : {
+                                       "description" : "Nodes where this zone should be created.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "peers" : {
+                                       "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes. VXLAN zone only.",
+                                       "format" : "ip-list",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "pending" : {
+                                       "description" : "Changes that have not yet been applied to the running configuration.",
+                                       "optional" : 1,
+                                       "properties" : {
+                                          "advertise-subnets" : {
+                                             "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes). EVPN zone only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "bridge" : {
+                                             "description" : "the bridge for which VLANs should be managed. VLAN & QinQ zone only.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "bridge-disable-mac-learning" : {
+                                             "description" : "Disable auto mac learning. VLAN zone only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "controller" : {
+                                             "description" : "ID of the controller for this zone. EVPN zone only.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "dhcp" : {
+                                             "description" : "Name of DHCP server backend for this zone.",
+                                             "enum" : [
+                                                "dnsmasq"
+                                             ],
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "disable-arp-nd-suppression" : {
+                                             "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages. EVPN zone only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "dns" : {
+                                             "description" : "ID of the DNS server for this zone.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "dnszone" : {
+                                             "description" : "Domain name for this zone.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "exitnodes" : {
+                                             "description" : "List of PVE Nodes that should act as exit node for this zone. EVPN zone only.",
+                                             "format" : "pve-node-list",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "exitnodes-local-routing" : {
+                                             "description" : "Create routes on the exit nodes, so they can connect to EVPN guests. EVPN zone only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "exitnodes-primary" : {
+                                             "description" : "Force traffic through this exitnode first. EVPN zone only.",
+                                             "format" : "pve-node",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "ipam" : {
+                                             "description" : "ID of the IPAM for this zone.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "mac" : {
+                                             "description" : "MAC address of the anycast router for this zone.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "mtu" : {
+                                             "description" : "MTU of the zone, will be used for the created VNet bridges.",
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "nodes" : {
+                                             "description" : "Nodes where this zone should be created.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "peers" : {
+                                             "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes. VXLAN zone only.",
+                                             "format" : "ip-list",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "reversedns" : {
+                                             "description" : "ID of the reverse DNS server for this zone.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "rt-import" : {
+                                             "description" : "Route-Targets that should be imported into the VRF of this zone via BGP. EVPN zone only.",
+                                             "format" : "pve-sdn-bgp-rt-list",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "tag" : {
+                                             "description" : "Service-VLAN Tag (outer VLAN). QinQ zone only",
+                                             "minimum" : 0,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "vlan-protocol" : {
+                                             "default" : "802.1q",
+                                             "description" : "VLAN protocol for the creation of the QinQ zone. QinQ zone only.",
+                                             "enum" : [
+                                                "802.1q",
+                                                "802.1ad"
+                                             ],
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "vrf-vxlan" : {
+                                             "description" : "VNI for the zone VRF. EVPN zone only.",
+                                             "maximum" : 16777215,
+                                             "minimum" : 1,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "vxlan-port" : {
+                                             "default" : 4789,
+                                             "description" : "UDP port that should be used for the VXLAN tunnel (default 4789). VXLAN zone only.",
+                                             "maximum" : 65536,
+                                             "minimum" : 1,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          }
+                                       },
+                                       "type" : "object"
+                                    },
+                                    "reversedns" : {
+                                       "description" : "ID of the reverse DNS server for this zone.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "rt-import" : {
+                                       "description" : "Route-Targets that should be imported into the VRF of this zone via BGP. EVPN zone only.",
+                                       "format" : "pve-sdn-bgp-rt-list",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "state" : {
+                                       "description" : "State of the SDN configuration object.",
+                                       "enum" : [
+                                          "new",
+                                          "changed",
+                                          "deleted"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "tag" : {
+                                       "description" : "Service-VLAN Tag (outer VLAN). QinQ zone only",
+                                       "minimum" : 0,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "type" : {
+                                       "description" : "Type of the zone.",
+                                       "enum" : [
+                                          "evpn",
+                                          "faucet",
+                                          "qinq",
+                                          "simple",
+                                          "vlan",
+                                          "vxlan"
+                                       ],
+                                       "type" : "string"
+                                    },
+                                    "vlan-protocol" : {
+                                       "default" : "802.1q",
+                                       "description" : "VLAN protocol for the creation of the QinQ zone. QinQ zone only.",
+                                       "enum" : [
+                                          "802.1q",
+                                          "802.1ad"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "vrf-vxlan" : {
+                                       "description" : "VNI for the zone VRF. EVPN zone only.",
+                                       "maximum" : 16777215,
+                                       "minimum" : 1,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "vxlan-port" : {
+                                       "default" : 4789,
+                                       "description" : "UDP port that should be used for the VXLAN tunnel (default 4789). VXLAN zone only.",
+                                       "maximum" : 65536,
+                                       "minimum" : 1,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "zone" : {
+                                       "description" : "Name of the zone.",
+                                       "type" : "string"
+                                    }
+                                 }
                               }
                            },
                            "PUT" : {
@@ -13127,12 +14778,13 @@ const apiSchema = [
                                  "additionalProperties" : 0,
                                  "properties" : {
                                     "advertise-subnets" : {
-                                       "description" : "Advertise evpn subnets if you have silent hosts",
+                                       "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes).",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
                                     },
                                     "bridge" : {
+                                       "description" : "The bridge for which VLANs should be managed.",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
@@ -13144,7 +14796,7 @@ const apiSchema = [
                                        "typetext" : "<boolean>"
                                     },
                                     "controller" : {
-                                       "description" : "Frr router name",
+                                       "description" : "Controller for this zone.",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
@@ -13173,7 +14825,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "disable-arp-nd-suppression" : {
-                                       "description" : "Disable ipv4 arp && ipv6 neighbour discovery suppression",
+                                       "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages.",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
@@ -13205,13 +14857,13 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "exitnodes-local-routing" : {
-                                       "description" : "Allow exitnodes to connect to evpn guests",
+                                       "description" : "Allow exitnodes to connect to EVPN guests.",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
                                     },
                                     "exitnodes-primary" : {
-                                       "description" : "Force traffic to this exitnode first.",
+                                       "description" : "Force traffic through this exitnode first.",
                                        "format" : "pve-node",
                                        "optional" : 1,
                                        "type" : "string",
@@ -13237,14 +14889,14 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "mac" : {
-                                       "description" : "Anycast logical router mac address",
+                                       "description" : "Anycast logical router mac address.",
                                        "format" : "mac-addr",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
                                     },
                                     "mtu" : {
-                                       "description" : "MTU",
+                                       "description" : "MTU of the zone, will be used for the created VNet bridges.",
                                        "optional" : 1,
                                        "type" : "integer",
                                        "typetext" : "<integer>"
@@ -13257,7 +14909,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "peers" : {
-                                       "description" : "peers address list.",
+                                       "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes.",
                                        "format" : "ip-list",
                                        "optional" : 1,
                                        "type" : "string",
@@ -13270,14 +14922,14 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "rt-import" : {
-                                       "description" : "Route-Target import",
+                                       "description" : "List of Route Targets that should be imported into the VRF of the zone.",
                                        "format" : "pve-sdn-bgp-rt-list",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
                                     },
                                     "tag" : {
-                                       "description" : "Service-VLAN Tag",
+                                       "description" : "Service-VLAN Tag (outer VLAN)",
                                        "minimum" : 0,
                                        "optional" : 1,
                                        "type" : "integer",
@@ -13285,6 +14937,7 @@ const apiSchema = [
                                     },
                                     "vlan-protocol" : {
                                        "default" : "802.1q",
+                                       "description" : "Which VLAN protocol should be used for the creation of the QinQ zone.",
                                        "enum" : [
                                           "802.1q",
                                           "802.1ad"
@@ -13293,13 +14946,16 @@ const apiSchema = [
                                        "type" : "string"
                                     },
                                     "vrf-vxlan" : {
-                                       "description" : "l3vni.",
+                                       "description" : "VNI for the zone VRF.",
+                                       "maximum" : 16777215,
+                                       "minimum" : 1,
                                        "optional" : 1,
                                        "type" : "integer",
-                                       "typetext" : "<integer>"
+                                       "typetext" : "<integer> (1 - 16777215)"
                                     },
                                     "vxlan-port" : {
-                                       "description" : "Vxlan tunnel udp port (default 4789).",
+                                       "default" : 4789,
+                                       "description" : "UDP port that should be used for the VXLAN tunnel (default 4789).",
                                        "maximum" : 65536,
                                        "minimum" : 1,
                                        "optional" : 1,
@@ -13378,46 +15034,298 @@ const apiSchema = [
                         "returns" : {
                            "items" : {
                               "properties" : {
-                                 "dhcp" : {
+                                 "advertise-subnets" : {
+                                    "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes). EVPN zone only.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "bridge" : {
+                                    "description" : "the bridge for which VLANs should be managed. VLAN & QinQ zone only.",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
+                                 "bridge-disable-mac-learning" : {
+                                    "description" : "Disable auto mac learning. VLAN zone only.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "controller" : {
+                                    "description" : "ID of the controller for this zone. EVPN zone only.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "dhcp" : {
+                                    "description" : "Name of DHCP server backend for this zone.",
+                                    "enum" : [
+                                       "dnsmasq"
+                                    ],
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "digest" : {
+                                    "description" : "Digest of the controller section.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "disable-arp-nd-suppression" : {
+                                    "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages. EVPN zone only.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
                                  "dns" : {
+                                    "description" : "ID of the DNS server for this zone.",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "dnszone" : {
+                                    "description" : "Domain name for this zone.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "exitnodes" : {
+                                    "description" : "List of PVE Nodes that should act as exit node for this zone. EVPN zone only.",
+                                    "format" : "pve-node-list",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "exitnodes-local-routing" : {
+                                    "description" : "Create routes on the exit nodes, so they can connect to EVPN guests. EVPN zone only.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "exitnodes-primary" : {
+                                    "description" : "Force traffic through this exitnode first. EVPN zone only.",
+                                    "format" : "pve-node",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "ipam" : {
+                                    "description" : "ID of the IPAM for this zone.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "mac" : {
+                                    "description" : "MAC address of the anycast router for this zone.",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "mtu" : {
+                                    "description" : "MTU of the zone, will be used for the created VNet bridges.",
                                     "optional" : 1,
                                     "type" : "integer"
                                  },
                                  "nodes" : {
+                                    "description" : "Nodes where this zone should be created.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "peers" : {
+                                    "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes. VXLAN zone only.",
+                                    "format" : "ip-list",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "pending" : {
+                                    "description" : "Changes that have not yet been applied to the running configuration.",
                                     "optional" : 1,
-                                    "type" : "boolean"
+                                    "properties" : {
+                                       "advertise-subnets" : {
+                                          "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes). EVPN zone only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "bridge" : {
+                                          "description" : "the bridge for which VLANs should be managed. VLAN & QinQ zone only.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "bridge-disable-mac-learning" : {
+                                          "description" : "Disable auto mac learning. VLAN zone only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "controller" : {
+                                          "description" : "ID of the controller for this zone. EVPN zone only.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dhcp" : {
+                                          "description" : "Name of DHCP server backend for this zone.",
+                                          "enum" : [
+                                             "dnsmasq"
+                                          ],
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "disable-arp-nd-suppression" : {
+                                          "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages. EVPN zone only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "dns" : {
+                                          "description" : "ID of the DNS server for this zone.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dnszone" : {
+                                          "description" : "Domain name for this zone.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "exitnodes" : {
+                                          "description" : "List of PVE Nodes that should act as exit node for this zone. EVPN zone only.",
+                                          "format" : "pve-node-list",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "exitnodes-local-routing" : {
+                                          "description" : "Create routes on the exit nodes, so they can connect to EVPN guests. EVPN zone only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "exitnodes-primary" : {
+                                          "description" : "Force traffic through this exitnode first. EVPN zone only.",
+                                          "format" : "pve-node",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "ipam" : {
+                                          "description" : "ID of the IPAM for this zone.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "mac" : {
+                                          "description" : "MAC address of the anycast router for this zone.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "mtu" : {
+                                          "description" : "MTU of the zone, will be used for the created VNet bridges.",
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "nodes" : {
+                                          "description" : "Nodes where this zone should be created.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "peers" : {
+                                          "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes. VXLAN zone only.",
+                                          "format" : "ip-list",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "reversedns" : {
+                                          "description" : "ID of the reverse DNS server for this zone.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "rt-import" : {
+                                          "description" : "Route-Targets that should be imported into the VRF of this zone via BGP. EVPN zone only.",
+                                          "format" : "pve-sdn-bgp-rt-list",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "tag" : {
+                                          "description" : "Service-VLAN Tag (outer VLAN). QinQ zone only",
+                                          "minimum" : 0,
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "vlan-protocol" : {
+                                          "default" : "802.1q",
+                                          "description" : "VLAN protocol for the creation of the QinQ zone. QinQ zone only.",
+                                          "enum" : [
+                                             "802.1q",
+                                             "802.1ad"
+                                          ],
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "vrf-vxlan" : {
+                                          "description" : "VNI for the zone VRF. EVPN zone only.",
+                                          "maximum" : 16777215,
+                                          "minimum" : 1,
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "vxlan-port" : {
+                                          "default" : 4789,
+                                          "description" : "UDP port that should be used for the VXLAN tunnel (default 4789). VXLAN zone only.",
+                                          "maximum" : 65536,
+                                          "minimum" : 1,
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       }
+                                    },
+                                    "type" : "object"
                                  },
                                  "reversedns" : {
+                                    "description" : "ID of the reverse DNS server for this zone.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "rt-import" : {
+                                    "description" : "Route-Targets that should be imported into the VRF of this zone via BGP. EVPN zone only.",
+                                    "format" : "pve-sdn-bgp-rt-list",
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "state" : {
+                                    "description" : "State of the SDN configuration object.",
+                                    "enum" : [
+                                       "new",
+                                       "changed",
+                                       "deleted"
+                                    ],
                                     "optional" : 1,
                                     "type" : "string"
                                  },
+                                 "tag" : {
+                                    "description" : "Service-VLAN Tag (outer VLAN). QinQ zone only",
+                                    "minimum" : 0,
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
                                  "type" : {
+                                    "description" : "Type of the zone.",
+                                    "enum" : [
+                                       "evpn",
+                                       "faucet",
+                                       "qinq",
+                                       "simple",
+                                       "vlan",
+                                       "vxlan"
+                                    ],
                                     "type" : "string"
                                  },
+                                 "vlan-protocol" : {
+                                    "default" : "802.1q",
+                                    "description" : "VLAN protocol for the creation of the QinQ zone. QinQ zone only.",
+                                    "enum" : [
+                                       "802.1q",
+                                       "802.1ad"
+                                    ],
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "vrf-vxlan" : {
+                                    "description" : "VNI for the zone VRF. EVPN zone only.",
+                                    "maximum" : 16777215,
+                                    "minimum" : 1,
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
+                                 "vxlan-port" : {
+                                    "default" : 4789,
+                                    "description" : "UDP port that should be used for the VXLAN tunnel (default 4789). VXLAN zone only.",
+                                    "maximum" : 65536,
+                                    "minimum" : 1,
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
                                  "zone" : {
+                                    "description" : "Name of the zone.",
                                     "type" : "string"
                                  }
                               },
@@ -13441,12 +15349,13 @@ const apiSchema = [
                            "additionalProperties" : 0,
                            "properties" : {
                               "advertise-subnets" : {
-                                 "description" : "Advertise evpn subnets if you have silent hosts",
+                                 "description" : "Advertise IP prefixes (Type-5 routes) instead of MAC/IP pairs (Type-2 routes).",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
                               },
                               "bridge" : {
+                                 "description" : "The bridge for which VLANs should be managed.",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
@@ -13458,7 +15367,7 @@ const apiSchema = [
                                  "typetext" : "<boolean>"
                               },
                               "controller" : {
-                                 "description" : "Frr router name",
+                                 "description" : "Controller for this zone.",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
@@ -13472,7 +15381,7 @@ const apiSchema = [
                                  "type" : "string"
                               },
                               "disable-arp-nd-suppression" : {
-                                 "description" : "Disable ipv4 arp && ipv6 neighbour discovery suppression",
+                                 "description" : "Suppress IPv4 ARP && IPv6 Neighbour Discovery messages.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -13504,13 +15413,13 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "exitnodes-local-routing" : {
-                                 "description" : "Allow exitnodes to connect to evpn guests",
+                                 "description" : "Allow exitnodes to connect to EVPN guests.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
                               },
                               "exitnodes-primary" : {
-                                 "description" : "Force traffic to this exitnode first.",
+                                 "description" : "Force traffic through this exitnode first.",
                                  "format" : "pve-node",
                                  "optional" : 1,
                                  "type" : "string",
@@ -13536,14 +15445,14 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "mac" : {
-                                 "description" : "Anycast logical router mac address",
+                                 "description" : "Anycast logical router mac address.",
                                  "format" : "mac-addr",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
                               },
                               "mtu" : {
-                                 "description" : "MTU",
+                                 "description" : "MTU of the zone, will be used for the created VNet bridges.",
                                  "optional" : 1,
                                  "type" : "integer",
                                  "typetext" : "<integer>"
@@ -13556,7 +15465,7 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "peers" : {
-                                 "description" : "peers address list.",
+                                 "description" : "Comma-separated list of peers, that are part of the VXLAN zone. Usually the IPs of the nodes.",
                                  "format" : "ip-list",
                                  "optional" : 1,
                                  "type" : "string",
@@ -13569,14 +15478,14 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "rt-import" : {
-                                 "description" : "Route-Target import",
+                                 "description" : "List of Route Targets that should be imported into the VRF of the zone.",
                                  "format" : "pve-sdn-bgp-rt-list",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
                               },
                               "tag" : {
-                                 "description" : "Service-VLAN Tag",
+                                 "description" : "Service-VLAN Tag (outer VLAN)",
                                  "minimum" : 0,
                                  "optional" : 1,
                                  "type" : "integer",
@@ -13597,6 +15506,7 @@ const apiSchema = [
                               },
                               "vlan-protocol" : {
                                  "default" : "802.1q",
+                                 "description" : "Which VLAN protocol should be used for the creation of the QinQ zone.",
                                  "enum" : [
                                     "802.1q",
                                     "802.1ad"
@@ -13605,13 +15515,16 @@ const apiSchema = [
                                  "type" : "string"
                               },
                               "vrf-vxlan" : {
-                                 "description" : "l3vni.",
+                                 "description" : "VNI for the zone VRF.",
+                                 "maximum" : 16777215,
+                                 "minimum" : 1,
                                  "optional" : 1,
                                  "type" : "integer",
-                                 "typetext" : "<integer>"
+                                 "typetext" : "<integer> (1 - 16777215)"
                               },
                               "vxlan-port" : {
-                                 "description" : "Vxlan tunnel udp port (default 4789).",
+                                 "default" : 4789,
+                                 "description" : "UDP port that should be used for the VXLAN tunnel (default 4789).",
                                  "maximum" : 65536,
                                  "minimum" : 1,
                                  "optional" : 1,
@@ -13724,7 +15637,152 @@ const apiSchema = [
                                  ]
                               },
                               "returns" : {
-                                 "type" : "object"
+                                 "properties" : {
+                                    "asn" : {
+                                       "description" : "The local ASN of the controller. BGP & EVPN only.",
+                                       "maximum" : 4294967295,
+                                       "minimum" : 0,
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "bgp-multipath-as-relax" : {
+                                       "description" : "Consider different AS paths of equal length for multipath computation. BGP only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "controller" : {
+                                       "description" : "Name of the controller.",
+                                       "type" : "string"
+                                    },
+                                    "digest" : {
+                                       "description" : "Digest of the controller section.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "ebgp" : {
+                                       "description" : "Enable eBGP (remote-as external). BGP only.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
+                                    "ebgp-multihop" : {
+                                       "description" : "Set maximum amount of hops for eBGP peers. Needs ebgp set to 1. BGP only.",
+                                       "optional" : 1,
+                                       "type" : "integer"
+                                    },
+                                    "isis-domain" : {
+                                       "description" : "Name of the IS-IS domain. IS-IS only.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "isis-ifaces" : {
+                                       "description" : "Comma-separated list of interfaces where IS-IS should be active. IS-IS only.",
+                                       "format" : "pve-iface-list",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "isis-net" : {
+                                       "description" : "Network Entity title for this node in the IS-IS network. IS-IS only.",
+                                       "format" : "pve-sdn-isis-net",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "loopback" : {
+                                       "description" : "Name of the loopback/dummy interface that provides the Router-IP. BGP only.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "node" : {
+                                       "description" : "Node(s) where this controller is active.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "peers" : {
+                                       "description" : "Comma-separated list of the peers IP addresses.",
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "pending" : {
+                                       "description" : "Changes that have not yet been applied to the running configuration.",
+                                       "optional" : 1,
+                                       "properties" : {
+                                          "asn" : {
+                                             "description" : "The local ASN of the controller. BGP & EVPN only.",
+                                             "maximum" : 4294967295,
+                                             "minimum" : 0,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "bgp-multipath-as-relax" : {
+                                             "description" : "Consider different AS paths of equal length for multipath computation. BGP only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "ebgp" : {
+                                             "description" : "Enable eBGP (remote-as external). BGP only.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "ebgp-multihop" : {
+                                             "description" : "Set maximum amount of hops for eBGP peers. Needs ebgp set to 1. BGP only.",
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
+                                          "isis-domain" : {
+                                             "description" : "Name of the IS-IS domain. IS-IS only.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "isis-ifaces" : {
+                                             "description" : "Comma-separated list of interfaces where IS-IS should be active. IS-IS only.",
+                                             "format" : "pve-iface-list",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "isis-net" : {
+                                             "description" : "Network Entity title for this node in the IS-IS network. IS-IS only.",
+                                             "format" : "pve-sdn-isis-net",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "loopback" : {
+                                             "description" : "Name of the loopback/dummy interface that provides the Router-IP. BGP only.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "node" : {
+                                             "description" : "Node(s) where this controller is active.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "peers" : {
+                                             "description" : "Comma-separated list of the peers IP addresses.",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          }
+                                       },
+                                       "type" : "object"
+                                    },
+                                    "state" : {
+                                       "description" : "State of the SDN configuration object.",
+                                       "enum" : [
+                                          "new",
+                                          "changed",
+                                          "deleted"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
+                                    "type" : {
+                                       "description" : "Type of the controller",
+                                       "enum" : [
+                                          "bgp",
+                                          "evpn",
+                                          "faucet",
+                                          "isis"
+                                       ],
+                                       "type" : "string"
+                                    }
+                                 }
                               }
                            },
                            "PUT" : {
@@ -13737,13 +15795,14 @@ const apiSchema = [
                                  "properties" : {
                                     "asn" : {
                                        "description" : "autonomous system number",
-                                       "maximum" : 4294967296,
+                                       "maximum" : 4294967295,
                                        "minimum" : 0,
                                        "optional" : 1,
                                        "type" : "integer",
-                                       "typetext" : "<integer> (0 - 4294967296)"
+                                       "typetext" : "<integer> (0 - 4294967295)"
                                     },
                                     "bgp-multipath-as-path-relax" : {
+                                       "description" : "Consider different AS paths of equal length for multipath computation.",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
@@ -13770,12 +15829,13 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "ebgp" : {
-                                       "description" : "Enable ebgp. (remote-as external)",
+                                       "description" : "Enable eBGP (remote-as external).",
                                        "optional" : 1,
                                        "type" : "boolean",
                                        "typetext" : "<boolean>"
                                     },
                                     "ebgp-multihop" : {
+                                       "description" : "Set maximum amount of hops for eBGP peers.",
                                        "optional" : 1,
                                        "type" : "integer",
                                        "typetext" : "<integer>"
@@ -13788,20 +15848,20 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "isis-domain" : {
-                                       "description" : "ISIS domain.",
+                                       "description" : "Name of the IS-IS domain.",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
                                     },
                                     "isis-ifaces" : {
-                                       "description" : "ISIS interface.",
+                                       "description" : "Comma-separated list of interfaces where IS-IS should be active.",
                                        "format" : "pve-iface-list",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
                                     },
                                     "isis-net" : {
-                                       "description" : "ISIS network entity title.",
+                                       "description" : "Network Entity title for this node in the IS-IS network.",
                                        "format" : "pve-sdn-isis-net",
                                        "optional" : 1,
                                        "type" : "string",
@@ -13814,7 +15874,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "loopback" : {
-                                       "description" : "source loopback interface.",
+                                       "description" : "Name of the loopback/dummy interface that provides the Router-IP.",
                                        "optional" : 1,
                                        "type" : "string",
                                        "typetext" : "<string>"
@@ -13897,18 +15957,148 @@ const apiSchema = [
                         "returns" : {
                            "items" : {
                               "properties" : {
-                                 "controller" : {
-                                    "type" : "string"
+                                 "asn" : {
+                                    "description" : "The local ASN of the controller. BGP & EVPN only.",
+                                    "maximum" : 4294967295,
+                                    "minimum" : 0,
+                                    "optional" : 1,
+                                    "type" : "integer"
                                  },
-                                 "pending" : {
+                                 "bgp-multipath-as-relax" : {
+                                    "description" : "Consider different AS paths of equal length for multipath computation. BGP only.",
                                     "optional" : 1,
                                     "type" : "boolean"
                                  },
+                                 "controller" : {
+                                    "description" : "Name of the controller.",
+                                    "type" : "string"
+                                 },
+                                 "digest" : {
+                                    "description" : "Digest of the controller section.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "ebgp" : {
+                                    "description" : "Enable eBGP (remote-as external). BGP only.",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "ebgp-multihop" : {
+                                    "description" : "Set maximum amount of hops for eBGP peers. Needs ebgp set to 1. BGP only.",
+                                    "optional" : 1,
+                                    "type" : "integer"
+                                 },
+                                 "isis-domain" : {
+                                    "description" : "Name of the IS-IS domain. IS-IS only.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "isis-ifaces" : {
+                                    "description" : "Comma-separated list of interfaces where IS-IS should be active. IS-IS only.",
+                                    "format" : "pve-iface-list",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "isis-net" : {
+                                    "description" : "Network Entity title for this node in the IS-IS network. IS-IS only.",
+                                    "format" : "pve-sdn-isis-net",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "loopback" : {
+                                    "description" : "Name of the loopback/dummy interface that provides the Router-IP. BGP only.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "node" : {
+                                    "description" : "Node(s) where this controller is active.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "peers" : {
+                                    "description" : "Comma-separated list of the peers IP addresses.",
+                                    "optional" : 1,
+                                    "type" : "string"
+                                 },
+                                 "pending" : {
+                                    "description" : "Changes that have not yet been applied to the running configuration.",
+                                    "optional" : 1,
+                                    "properties" : {
+                                       "asn" : {
+                                          "description" : "The local ASN of the controller. BGP & EVPN only.",
+                                          "maximum" : 4294967295,
+                                          "minimum" : 0,
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "bgp-multipath-as-relax" : {
+                                          "description" : "Consider different AS paths of equal length for multipath computation. BGP only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "ebgp" : {
+                                          "description" : "Enable eBGP (remote-as external). BGP only.",
+                                          "optional" : 1,
+                                          "type" : "boolean"
+                                       },
+                                       "ebgp-multihop" : {
+                                          "description" : "Set maximum amount of hops for eBGP peers. Needs ebgp set to 1. BGP only.",
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "isis-domain" : {
+                                          "description" : "Name of the IS-IS domain. IS-IS only.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "isis-ifaces" : {
+                                          "description" : "Comma-separated list of interfaces where IS-IS should be active. IS-IS only.",
+                                          "format" : "pve-iface-list",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "isis-net" : {
+                                          "description" : "Network Entity title for this node in the IS-IS network. IS-IS only.",
+                                          "format" : "pve-sdn-isis-net",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "loopback" : {
+                                          "description" : "Name of the loopback/dummy interface that provides the Router-IP. BGP only.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "node" : {
+                                          "description" : "Node(s) where this controller is active.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "peers" : {
+                                          "description" : "Comma-separated list of the peers IP addresses.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       }
+                                    },
+                                    "type" : "object"
+                                 },
                                  "state" : {
+                                    "description" : "State of the SDN configuration object.",
+                                    "enum" : [
+                                       "new",
+                                       "changed",
+                                       "deleted"
+                                    ],
                                     "optional" : 1,
                                     "type" : "string"
                                  },
                                  "type" : {
+                                    "description" : "Type of the controller",
+                                    "enum" : [
+                                       "bgp",
+                                       "evpn",
+                                       "faucet",
+                                       "isis"
+                                    ],
                                     "type" : "string"
                                  }
                               },
@@ -13933,13 +16123,14 @@ const apiSchema = [
                            "properties" : {
                               "asn" : {
                                  "description" : "autonomous system number",
-                                 "maximum" : 4294967296,
+                                 "maximum" : 4294967295,
                                  "minimum" : 0,
                                  "optional" : 1,
                                  "type" : "integer",
-                                 "typetext" : "<integer> (0 - 4294967296)"
+                                 "typetext" : "<integer> (0 - 4294967295)"
                               },
                               "bgp-multipath-as-path-relax" : {
+                                 "description" : "Consider different AS paths of equal length for multipath computation.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -13951,12 +16142,13 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "ebgp" : {
-                                 "description" : "Enable ebgp. (remote-as external)",
+                                 "description" : "Enable eBGP (remote-as external).",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
                               },
                               "ebgp-multihop" : {
+                                 "description" : "Set maximum amount of hops for eBGP peers.",
                                  "optional" : 1,
                                  "type" : "integer",
                                  "typetext" : "<integer>"
@@ -13969,20 +16161,20 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "isis-domain" : {
-                                 "description" : "ISIS domain.",
+                                 "description" : "Name of the IS-IS domain.",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
                               },
                               "isis-ifaces" : {
-                                 "description" : "ISIS interface.",
+                                 "description" : "Comma-separated list of interfaces where IS-IS should be active.",
                                  "format" : "pve-iface-list",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
                               },
                               "isis-net" : {
-                                 "description" : "ISIS network entity title.",
+                                 "description" : "Network Entity title for this node in the IS-IS network.",
                                  "format" : "pve-sdn-isis-net",
                                  "optional" : 1,
                                  "type" : "string",
@@ -13995,7 +16187,7 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "loopback" : {
-                                 "description" : "source loopback interface.",
+                                 "description" : "Name of the loopback/dummy interface that provides the Router-IP.",
                                  "optional" : 1,
                                  "type" : "string",
                                  "typetext" : "<string>"
@@ -16443,6 +18635,7 @@ const apiSchema = [
                      }
                   },
                   "permissions" : {
+                     "description" : "The user needs 'Sys.Syslog' on '/' in order to get all logs.",
                      "user" : "all"
                   },
                   "returns" : {
@@ -16513,13 +18706,13 @@ const apiSchema = [
                               "type" : "integer"
                            },
                            "diskread" : {
-                              "description" : "The amount of bytes the guest read from its block devices since the guest was started. This info is not available for all storage types. (for types 'qemu' and 'lxc')",
+                              "description" : "The number of bytes the guest read from its block devices since the guest was started. This info is not available for all storage types. (for types 'qemu' and 'lxc')",
                               "optional" : 1,
                               "renderer" : "bytes",
                               "type" : "integer"
                            },
                            "diskwrite" : {
-                              "description" : "The amount of bytes the guest wrote to its block devices since the guest was started. This info is not available for all storage types. (for types 'qemu' and 'lxc')",
+                              "description" : "The number of bytes the guest wrote to its block devices since the guest was started. This info is not available for all storage types. (for types 'qemu' and 'lxc')",
                               "optional" : 1,
                               "renderer" : "bytes",
                               "type" : "integer"
@@ -16593,6 +18786,20 @@ const apiSchema = [
                               "renderer" : "bytes",
                               "type" : "integer"
                            },
+                           "network" : {
+                              "description" : "The name of a Network entity (for type 'network').",
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "network-type" : {
+                              "description" : "The type of network resource (for type 'network').",
+                              "enum" : [
+                                 "fabric",
+                                 "zone"
+                              ],
+                              "optional" : 1,
+                              "type" : "string"
+                           },
                            "node" : {
                               "description" : "The cluster node name (for types 'node', 'storage', 'qemu', and 'lxc').",
                               "format" : "pve-node",
@@ -16606,6 +18813,16 @@ const apiSchema = [
                            },
                            "pool" : {
                               "description" : "The pool name (for types 'pool', 'qemu' and 'lxc').",
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "protocol" : {
+                              "description" : "The protocol of a fabric (for type 'network', network-type 'fabric').",
+                              "optional" : 1,
+                              "type" : "string"
+                           },
+                           "sdn" : {
+                              "description" : "The name of an SDN entity (for type 'sdn')",
                               "optional" : 1,
                               "type" : "string"
                            },
@@ -16641,7 +18858,8 @@ const apiSchema = [
                                  "qemu",
                                  "lxc",
                                  "openvz",
-                                 "sdn"
+                                 "sdn",
+                                 "network"
                               ],
                               "type" : "string"
                            },
@@ -16658,6 +18876,11 @@ const apiSchema = [
                               "minimum" : 100,
                               "optional" : 1,
                               "type" : "integer"
+                           },
+                           "zone-type" : {
+                              "description" : "The type of an SDN zone (for type 'sdn').",
+                              "optional" : 1,
+                              "type" : "string"
                            }
                         },
                         "type" : "object"
@@ -17510,33 +19733,41 @@ const apiSchema = [
                                                 "returns" : {
                                                    "properties" : {
                                                       "action" : {
+                                                         "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                                          "type" : "string"
                                                       },
                                                       "comment" : {
+                                                         "description" : "Descriptive comment",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dest" : {
+                                                         "description" : "Restrict packet destination address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dport" : {
+                                                         "description" : "Restrict TCP/UDP destination port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "enable" : {
+                                                         "description" : "Flag to enable/disable a rule",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
                                                       "icmp-type" : {
+                                                         "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "iface" : {
+                                                         "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "ipversion" : {
+                                                         "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
@@ -17557,25 +19788,31 @@ const apiSchema = [
                                                          "type" : "string"
                                                       },
                                                       "macro" : {
+                                                         "description" : "Use predefined standard macro",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "pos" : {
+                                                         "description" : "Rule position in the ruleset",
                                                          "type" : "integer"
                                                       },
                                                       "proto" : {
+                                                         "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "source" : {
+                                                         "description" : "Restrict packet source address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "sport" : {
+                                                         "description" : "Restrict TCP/UDP source port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "type" : {
+                                                         "description" : "Rule type",
                                                          "type" : "string"
                                                       }
                                                    },
@@ -17801,8 +20038,88 @@ const apiSchema = [
                                           "returns" : {
                                              "items" : {
                                                 "properties" : {
-                                                   "pos" : {
+                                                   "action" : {
+                                                      "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                                      "type" : "string"
+                                                   },
+                                                   "comment" : {
+                                                      "description" : "Descriptive comment",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dest" : {
+                                                      "description" : "Restrict packet destination address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dport" : {
+                                                      "description" : "Restrict TCP/UDP destination port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "enable" : {
+                                                      "description" : "Flag to enable/disable a rule",
+                                                      "optional" : 1,
                                                       "type" : "integer"
+                                                   },
+                                                   "icmp-type" : {
+                                                      "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "iface" : {
+                                                      "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "ipversion" : {
+                                                      "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                                      "optional" : 1,
+                                                      "type" : "integer"
+                                                   },
+                                                   "log" : {
+                                                      "description" : "Log level for firewall rule",
+                                                      "enum" : [
+                                                         "emerg",
+                                                         "alert",
+                                                         "crit",
+                                                         "err",
+                                                         "warning",
+                                                         "notice",
+                                                         "info",
+                                                         "debug",
+                                                         "nolog"
+                                                      ],
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "macro" : {
+                                                      "description" : "Use predefined standard macro",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "pos" : {
+                                                      "description" : "Rule position in the ruleset",
+                                                      "type" : "integer"
+                                                   },
+                                                   "proto" : {
+                                                      "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "source" : {
+                                                      "description" : "Restrict packet source address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "sport" : {
+                                                      "description" : "Restrict TCP/UDP source port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "type" : {
+                                                      "description" : "Rule type",
+                                                      "type" : "string"
                                                    }
                                                 },
                                                 "type" : "object"
@@ -18895,7 +21212,7 @@ const apiSchema = [
                                                    "type" : "boolean"
                                                 },
                                                 "ndp" : {
-                                                   "default" : 0,
+                                                   "default" : 1,
                                                    "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                                    "optional" : 1,
                                                    "type" : "boolean"
@@ -19011,7 +21328,7 @@ const apiSchema = [
                                                    "typetext" : "<boolean>"
                                                 },
                                                 "ndp" : {
-                                                   "default" : 0,
+                                                   "default" : 1,
                                                    "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                                    "optional" : 1,
                                                    "type" : "boolean",
@@ -20373,7 +22690,7 @@ const apiSchema = [
                                                    "description" : "The command as a list of program + arguments.",
                                                    "items" : {
                                                       "description" : "A single part of the program + arguments.",
-                                                      "format" : "string"
+                                                      "type" : "string"
                                                    },
                                                    "type" : "array",
                                                    "typetext" : "<array>"
@@ -21012,6 +23329,12 @@ const apiSchema = [
                                              "optional" : 1,
                                              "type" : "string"
                                           },
+                                          "allow-ksm" : {
+                                             "default" : 1,
+                                             "description" : "Allow memory pages of this guest to be merged via KSM (Kernel Samepage Merging).",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
                                           "amd-sev" : {
                                              "description" : "Secure Encrypted Virtualization (SEV) features by AMD CPUs",
                                              "format" : "pve-qemu-sev-fmt",
@@ -21207,6 +23530,16 @@ const apiSchema = [
                                                    "optional" : 1,
                                                    "type" : "string"
                                                 },
+                                                "ms-cert" : {
+                                                   "default" : "2011",
+                                                   "description" : "Informational marker indicating the version of the latest Microsof UEFI certificate that has been enrolled by Proxmox VE.",
+                                                   "enum" : [
+                                                      "2011",
+                                                      "2023"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                },
                                                 "pre-enrolled-keys" : {
                                                    "default" : 0,
                                                    "description" : "Use am EFI vars template with distribution-specific and Microsoft Standard keys enrolled, if used with 'efitype=4m'. Note that this will enable Secure Boot by default, though it can still be turned off from within the VM.",
@@ -21253,7 +23586,7 @@ const apiSchema = [
                                              "type" : "string"
                                           },
                                           "hugepages" : {
-                                             "description" : "Enable/disable hugepages memory.",
+                                             "description" : "Enables hugepages memory.\n\nSets the size of hugepages in MiB. If the value is set to 'any' then 1 GiB hugepages will be used if possible, otherwise the size will fall back to 2 MiB.",
                                              "enum" : [
                                                 "any",
                                                 "2",
@@ -21561,6 +23894,12 @@ const apiSchema = [
                                              "optional" : 1,
                                              "type" : "string"
                                           },
+                                          "intel-tdx" : {
+                                             "description" : "Trusted Domain Extension (TDX) features by Intel CPUs",
+                                             "format" : "pve-qemu-tdx-fmt",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
                                           "ipconfig[n]" : {
                                              "description" : "cloud-init: Specify IP addresses and gateways for the corresponding interface.\n\nIP addresses use CIDR notation, gateways are optional but need an IP of the same type specified.\n\nThe special string 'dhcp' can be used for IP addresses to use DHCP, in which case no explicit\ngateway should be provided.\nFor IPv6 the special string 'auto' can be used to use stateless autoconfiguration. This requires\ncloud-init 19.4 or newer.\n\nIf cloud-init is enabled and neither an IPv4 nor an IPv6 address is specified, it defaults to using\ndhcp on IPv4.\n",
                                              "format" : "pve-qm-ipconfig",
@@ -21655,6 +23994,14 @@ const apiSchema = [
                                           "machine" : {
                                              "description" : "Specify the QEMU machine.",
                                              "format" : {
+                                                "aw-bits" : {
+                                                   "description" : "Specifies the vIOMMU address space bit width.",
+                                                   "maximum" : 64,
+                                                   "minimum" : 32,
+                                                   "optional" : 1,
+                                                   "type" : "number",
+                                                   "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                                },
                                                 "enable-s3" : {
                                                    "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
                                                    "optional" : 1,
@@ -21695,6 +24042,25 @@ const apiSchema = [
                                                    "default_key" : 1,
                                                    "description" : "Current amount of online RAM for the VM in MiB. This is the maximum available memory when you use the balloon device.",
                                                    "minimum" : 16,
+                                                   "type" : "integer"
+                                                }
+                                             },
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "meta" : {
+                                             "description" : "Some (read-only) meta-information about this guest.",
+                                             "format" : {
+                                                "creation-qemu" : {
+                                                   "description" : "The QEMU (machine) version from the time this VM was created.",
+                                                   "optional" : 1,
+                                                   "pattern" : "\\d+(\\.\\d+)+",
+                                                   "type" : "string"
+                                                },
+                                                "ctime" : {
+                                                   "description" : "The guest creation timestamp as UNIX epoch time",
+                                                   "minimum" : 0,
+                                                   "optional" : 1,
                                                    "type" : "integer"
                                                 }
                                              },
@@ -21918,6 +24284,7 @@ const apiSchema = [
                                              "type" : "boolean"
                                           },
                                           "ostype" : {
+                                             "default" : "other",
                                              "description" : "Specify guest operating system.",
                                              "enum" : [
                                                 "other",
@@ -21945,6 +24312,13 @@ const apiSchema = [
                                              "type" : "string",
                                              "verbose_description" : "Map host parallel devices (n is 0 to 2).\n\nNOTE: This option allows direct access to host hardware. So it is no longer possible to migrate such\nmachines - use with special care.\n\nCAUTION: Experimental! User reported problems with this option.\n"
                                           },
+                                          "parent" : {
+                                             "description" : "Parent snapshot name. This is used internally, and should not be modified.",
+                                             "format" : "pve-configid",
+                                             "maxLength" : 40,
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
                                           "protection" : {
                                              "default" : 0,
                                              "description" : "Sets the protection flag of the VM. This will disable the remove VM and remove disk operations.",
@@ -21960,6 +24334,62 @@ const apiSchema = [
                                           "rng0" : {
                                              "description" : "Configure a VirtIO-based Random Number Generator.",
                                              "format" : "pve-qm-rng",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
+                                          "running-nets-host-mtu" : {
+                                             "description" : "List of VirtIO network devices and their effective host_mtu setting. A value of 0 means that the host_mtu parameter is to be avoided for the corresponding device. This is used internally for snapshots.",
+                                             "optional" : 1,
+                                             "pattern" : "net\\d+=\\d+(,net\\d+=\\d+)*",
+                                             "type" : "string"
+                                          },
+                                          "runningcpu" : {
+                                             "description" : "Specifies the QEMU '-cpu' parameter of the running vm. This is used internally for snapshots.",
+                                             "format_description" : "QEMU -cpu parameter",
+                                             "optional" : 1,
+                                             "pattern" : "(?^:^((?>[+-]?[\\w\\-\\._=]+,?)+)$)",
+                                             "type" : "string"
+                                          },
+                                          "runningmachine" : {
+                                             "description" : "Specifies the QEMU machine type of the running vm. This is used internally for snapshots.",
+                                             "format" : {
+                                                "aw-bits" : {
+                                                   "description" : "Specifies the vIOMMU address space bit width.",
+                                                   "maximum" : 64,
+                                                   "minimum" : 32,
+                                                   "optional" : 1,
+                                                   "type" : "number",
+                                                   "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                                },
+                                                "enable-s3" : {
+                                                   "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
+                                                   "optional" : 1,
+                                                   "type" : "boolean"
+                                                },
+                                                "enable-s4" : {
+                                                   "description" : "Enables S4 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
+                                                   "optional" : 1,
+                                                   "type" : "boolean"
+                                                },
+                                                "type" : {
+                                                   "default_key" : 1,
+                                                   "description" : "Specifies the QEMU machine type.",
+                                                   "format_description" : "machine type",
+                                                   "maxLength" : 40,
+                                                   "optional" : 1,
+                                                   "pattern" : "(pc|pc(-i440fx)?-\\d+(\\.\\d+)+(\\+pve\\d+)?(\\.pxe)?|q35|pc-q35-\\d+(\\.\\d+)+(\\+pve\\d+)?(\\.pxe)?|virt(?:-\\d+(\\.\\d+)+)?(\\+pve\\d+)?)",
+                                                   "type" : "string"
+                                                },
+                                                "viommu" : {
+                                                   "description" : "Enable and set guest vIOMMU variant (Intel vIOMMU needs q35 to be set as machine type).",
+                                                   "enum" : [
+                                                      "intel",
+                                                      "virtio"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                }
+                                             },
                                              "optional" : 1,
                                              "type" : "string"
                                           },
@@ -22629,6 +25059,12 @@ const apiSchema = [
                                              "optional" : 1,
                                              "type" : "integer"
                                           },
+                                          "snaptime" : {
+                                             "description" : "Timestamp for snapshots.",
+                                             "minimum" : 0,
+                                             "optional" : 1,
+                                             "type" : "integer"
+                                          },
                                           "sockets" : {
                                              "default" : 1,
                                              "description" : "The number of CPU sockets.",
@@ -22714,6 +25150,16 @@ const apiSchema = [
                                                    "description" : "The drive's backing volume.",
                                                    "format" : "pve-volume-id-or-qm-path",
                                                    "format_description" : "volume",
+                                                   "type" : "string"
+                                                },
+                                                "format" : {
+                                                   "description" : "Format of the image.",
+                                                   "enum" : [
+                                                      "raw",
+                                                      "qcow2",
+                                                      "vmdk"
+                                                   ],
+                                                   "optional" : 1,
                                                    "type" : "string"
                                                 },
                                                 "size" : {
@@ -23180,6 +25626,12 @@ const apiSchema = [
                                              "type" : "string",
                                              "verbose_description" : "The VM generation ID (vmgenid) device exposes a 128-bit integer value identifier to the guest OS. This allows to notify the guest operating system when the virtual machine is executed with a different configuration (e.g. snapshot execution or creation from a template). The guest operating system notices the change, and is then able to react as appropriate by marking its copies of distributed databases as dirty, re-initializing its random number generator, etc.\nNote that auto-creation only works when done through API/CLI create or update methods, but not when manually editing the config file."
                                           },
+                                          "vmstate" : {
+                                             "description" : "Reference to a volume which stores the VM state. This is used internally for snapshots.",
+                                             "format" : "pve-volume-id",
+                                             "optional" : 1,
+                                             "type" : "string"
+                                          },
                                           "vmstatestorage" : {
                                              "description" : "Default storage for VM state volumes/files.",
                                              "format" : "pve-storage-id",
@@ -23255,6 +25707,13 @@ const apiSchema = [
                                              "optional" : 1,
                                              "type" : "string",
                                              "typetext" : "[enabled=]<1|0> [,freeze-fs-on-backup=<1|0>] [,fstrim_cloned_disks=<1|0>] [,type=<virtio|isa>]"
+                                          },
+                                          "allow-ksm" : {
+                                             "default" : 1,
+                                             "description" : "Allow memory pages of this guest to be merged via KSM (Kernel Samepage Merging).",
+                                             "optional" : 1,
+                                             "type" : "boolean",
+                                             "typetext" : "<boolean>"
                                           },
                                           "amd-sev" : {
                                              "description" : "Secure Encrypted Virtualization (SEV) features by AMD CPUs",
@@ -23408,7 +25867,7 @@ const apiSchema = [
                                              "format" : "pve-vm-cpu-conf",
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
+                                             "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,guest-phys-bits=<integer>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
                                           },
                                           "cpulimit" : {
                                              "default" : 0,
@@ -23491,6 +25950,16 @@ const apiSchema = [
                                                    "optional" : 1,
                                                    "type" : "string"
                                                 },
+                                                "ms-cert" : {
+                                                   "default" : "2011",
+                                                   "description" : "Informational marker indicating the version of the latest Microsof UEFI certificate that has been enrolled by Proxmox VE.",
+                                                   "enum" : [
+                                                      "2011",
+                                                      "2023"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                },
                                                 "pre-enrolled-keys" : {
                                                    "default" : 0,
                                                    "description" : "Use am EFI vars template with distribution-specific and Microsoft Standard keys enrolled, if used with 'efitype=4m'. Note that this will enable Secure Boot by default, though it can still be turned off from within the VM.",
@@ -23510,7 +25979,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
+                                             "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,ms-cert=<2011|2023>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
                                           },
                                           "force" : {
                                              "description" : "Force physical removal. Without this, we simple remove the disk from the config file and create an additional configuration entry called 'unused[n]', which contains the volume ID. Unlink of unused[n] always cause physical removal.",
@@ -23537,7 +26006,7 @@ const apiSchema = [
                                              "format" : "pve-qm-hostpci",
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
+                                             "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,driver=<vfio|keep>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
                                              "verbose_description" : "Map host PCI devices into guest.\n\nNOTE: This option allows direct access to host hardware. So it is no longer\npossible to migrate such machines - use with special care.\n\nCAUTION: Experimental! User reported problems with this option.\n"
                                           },
                                           "hotplug" : {
@@ -23549,7 +26018,7 @@ const apiSchema = [
                                              "typetext" : "<string>"
                                           },
                                           "hugepages" : {
-                                             "description" : "Enable/disable hugepages memory.",
+                                             "description" : "Enables hugepages memory.\n\nSets the size of hugepages in MiB. If the value is set to 'any' then 1 GiB hugepages will be used if possible, otherwise the size will fall back to 2 MiB.",
                                              "enum" : [
                                                 "any",
                                                 "2",
@@ -23873,6 +26342,13 @@ const apiSchema = [
                                              "type" : "string",
                                              "typetext" : "<storage ID>"
                                           },
+                                          "intel-tdx" : {
+                                             "description" : "Trusted Domain Extension (TDX) features by Intel CPUs",
+                                             "format" : "pve-qemu-tdx-fmt",
+                                             "optional" : 1,
+                                             "type" : "string",
+                                             "typetext" : "[type=]<tdx-type> ,attestation=<1|0> [,vsock-cid=<integer>] [,vsock-port=<integer>]"
+                                          },
                                           "ipconfig[n]" : {
                                              "description" : "cloud-init: Specify IP addresses and gateways for the corresponding interface.\n\nIP addresses use CIDR notation, gateways are optional but need an IP of the same type specified.\n\nThe special string 'dhcp' can be used for IP addresses to use DHCP, in which case no explicit\ngateway should be provided.\nFor IPv6 the special string 'auto' can be used to use stateless autoconfiguration. This requires\ncloud-init 19.4 or newer.\n\nIf cloud-init is enabled and neither an IPv4 nor an IPv6 address is specified, it defaults to using\ndhcp on IPv4.\n",
                                              "format" : "pve-qm-ipconfig",
@@ -23972,6 +26448,14 @@ const apiSchema = [
                                           "machine" : {
                                              "description" : "Specify the QEMU machine.",
                                              "format" : {
+                                                "aw-bits" : {
+                                                   "description" : "Specifies the vIOMMU address space bit width.",
+                                                   "maximum" : 64,
+                                                   "minimum" : 32,
+                                                   "optional" : 1,
+                                                   "type" : "number",
+                                                   "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                                },
                                                 "enable-s3" : {
                                                    "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
                                                    "optional" : 1,
@@ -24003,7 +26487,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[type=]<machine type>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
+                                             "typetext" : "[[type=]<machine type>] [,aw-bits=<number>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
                                           },
                                           "memory" : {
                                              "description" : "Memory properties.",
@@ -24251,6 +26735,7 @@ const apiSchema = [
                                              "typetext" : "<boolean>"
                                           },
                                           "ostype" : {
+                                             "default" : "other",
                                              "description" : "Specify guest operating system.",
                                              "enum" : [
                                                 "other",
@@ -25092,6 +27577,16 @@ const apiSchema = [
                                                    "format_description" : "volume",
                                                    "type" : "string"
                                                 },
+                                                "format" : {
+                                                   "description" : "Format of the image.",
+                                                   "enum" : [
+                                                      "raw",
+                                                      "qcow2",
+                                                      "vmdk"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                },
                                                 "import-from" : {
                                                    "description" : "Create a new disk, importing from this source (volume ID or absolute path). When an absolute path is specified, it's up to you to ensure that the source is not actively used by another process during the import!",
                                                    "format" : "pve-volume-id-or-absolute-path",
@@ -25122,7 +27617,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[file=]<volume> [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
+                                             "typetext" : "[file=]<volume> [,format=<raw|qcow2|vmdk>] [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
                                           },
                                           "unused[n]" : {
                                              "description" : "Reference to unused volumes. This is used internally, and should not be modified manually.",
@@ -25686,6 +28181,13 @@ const apiSchema = [
                                              "type" : "string",
                                              "typetext" : "[enabled=]<1|0> [,freeze-fs-on-backup=<1|0>] [,fstrim_cloned_disks=<1|0>] [,type=<virtio|isa>]"
                                           },
+                                          "allow-ksm" : {
+                                             "default" : 1,
+                                             "description" : "Allow memory pages of this guest to be merged via KSM (Kernel Samepage Merging).",
+                                             "optional" : 1,
+                                             "type" : "boolean",
+                                             "typetext" : "<boolean>"
+                                          },
                                           "amd-sev" : {
                                              "description" : "Secure Encrypted Virtualization (SEV) features by AMD CPUs",
                                              "format" : "pve-qemu-sev-fmt",
@@ -25830,7 +28332,7 @@ const apiSchema = [
                                              "format" : "pve-vm-cpu-conf",
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
+                                             "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,guest-phys-bits=<integer>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
                                           },
                                           "cpulimit" : {
                                              "default" : 0,
@@ -25913,6 +28415,16 @@ const apiSchema = [
                                                    "optional" : 1,
                                                    "type" : "string"
                                                 },
+                                                "ms-cert" : {
+                                                   "default" : "2011",
+                                                   "description" : "Informational marker indicating the version of the latest Microsof UEFI certificate that has been enrolled by Proxmox VE.",
+                                                   "enum" : [
+                                                      "2011",
+                                                      "2023"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                },
                                                 "pre-enrolled-keys" : {
                                                    "default" : 0,
                                                    "description" : "Use am EFI vars template with distribution-specific and Microsoft Standard keys enrolled, if used with 'efitype=4m'. Note that this will enable Secure Boot by default, though it can still be turned off from within the VM.",
@@ -25932,7 +28444,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
+                                             "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,ms-cert=<2011|2023>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
                                           },
                                           "force" : {
                                              "description" : "Force physical removal. Without this, we simple remove the disk from the config file and create an additional configuration entry called 'unused[n]', which contains the volume ID. Unlink of unused[n] always cause physical removal.",
@@ -25959,7 +28471,7 @@ const apiSchema = [
                                              "format" : "pve-qm-hostpci",
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
+                                             "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,driver=<vfio|keep>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
                                              "verbose_description" : "Map host PCI devices into guest.\n\nNOTE: This option allows direct access to host hardware. So it is no longer\npossible to migrate such machines - use with special care.\n\nCAUTION: Experimental! User reported problems with this option.\n"
                                           },
                                           "hotplug" : {
@@ -25971,7 +28483,7 @@ const apiSchema = [
                                              "typetext" : "<string>"
                                           },
                                           "hugepages" : {
-                                             "description" : "Enable/disable hugepages memory.",
+                                             "description" : "Enables hugepages memory.\n\nSets the size of hugepages in MiB. If the value is set to 'any' then 1 GiB hugepages will be used if possible, otherwise the size will fall back to 2 MiB.",
                                              "enum" : [
                                                 "any",
                                                 "2",
@@ -26287,6 +28799,13 @@ const apiSchema = [
                                              "type" : "string",
                                              "typetext" : "[file=]<volume> [,aio=<native|threads|io_uring>] [,backup=<1|0>] [,bps=<bps>] [,bps_max_length=<seconds>] [,bps_rd=<bps>] [,bps_rd_max_length=<seconds>] [,bps_wr=<bps>] [,bps_wr_max_length=<seconds>] [,cache=<enum>] [,detect_zeroes=<1|0>] [,discard=<ignore|on>] [,format=<enum>] [,import-from=<source volume>] [,iops=<iops>] [,iops_max=<iops>] [,iops_max_length=<seconds>] [,iops_rd=<iops>] [,iops_rd_max=<iops>] [,iops_rd_max_length=<seconds>] [,iops_wr=<iops>] [,iops_wr_max=<iops>] [,iops_wr_max_length=<seconds>] [,mbps=<mbps>] [,mbps_max=<mbps>] [,mbps_rd=<mbps>] [,mbps_rd_max=<mbps>] [,mbps_wr=<mbps>] [,mbps_wr_max=<mbps>] [,media=<cdrom|disk>] [,model=<model>] [,replicate=<1|0>] [,rerror=<ignore|report|stop>] [,serial=<serial>] [,shared=<1|0>] [,size=<DiskSize>] [,snapshot=<1|0>] [,ssd=<1|0>] [,werror=<enum>] [,wwn=<wwn>]"
                                           },
+                                          "intel-tdx" : {
+                                             "description" : "Trusted Domain Extension (TDX) features by Intel CPUs",
+                                             "format" : "pve-qemu-tdx-fmt",
+                                             "optional" : 1,
+                                             "type" : "string",
+                                             "typetext" : "[type=]<tdx-type> ,attestation=<1|0> [,vsock-cid=<integer>] [,vsock-port=<integer>]"
+                                          },
                                           "ipconfig[n]" : {
                                              "description" : "cloud-init: Specify IP addresses and gateways for the corresponding interface.\n\nIP addresses use CIDR notation, gateways are optional but need an IP of the same type specified.\n\nThe special string 'dhcp' can be used for IP addresses to use DHCP, in which case no explicit\ngateway should be provided.\nFor IPv6 the special string 'auto' can be used to use stateless autoconfiguration. This requires\ncloud-init 19.4 or newer.\n\nIf cloud-init is enabled and neither an IPv4 nor an IPv6 address is specified, it defaults to using\ndhcp on IPv4.\n",
                                              "format" : "pve-qm-ipconfig",
@@ -26386,6 +28905,14 @@ const apiSchema = [
                                           "machine" : {
                                              "description" : "Specify the QEMU machine.",
                                              "format" : {
+                                                "aw-bits" : {
+                                                   "description" : "Specifies the vIOMMU address space bit width.",
+                                                   "maximum" : 64,
+                                                   "minimum" : 32,
+                                                   "optional" : 1,
+                                                   "type" : "number",
+                                                   "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                                },
                                                 "enable-s3" : {
                                                    "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
                                                    "optional" : 1,
@@ -26417,7 +28944,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[[type=]<machine type>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
+                                             "typetext" : "[[type=]<machine type>] [,aw-bits=<number>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
                                           },
                                           "memory" : {
                                              "description" : "Memory properties.",
@@ -26665,6 +29192,7 @@ const apiSchema = [
                                              "typetext" : "<boolean>"
                                           },
                                           "ostype" : {
+                                             "default" : "other",
                                              "description" : "Specify guest operating system.",
                                              "enum" : [
                                                 "other",
@@ -27506,6 +30034,16 @@ const apiSchema = [
                                                    "format_description" : "volume",
                                                    "type" : "string"
                                                 },
+                                                "format" : {
+                                                   "description" : "Format of the image.",
+                                                   "enum" : [
+                                                      "raw",
+                                                      "qcow2",
+                                                      "vmdk"
+                                                   ],
+                                                   "optional" : 1,
+                                                   "type" : "string"
+                                                },
                                                 "import-from" : {
                                                    "description" : "Create a new disk, importing from this source (volume ID or absolute path). When an absolute path is specified, it's up to you to ensure that the source is not actively used by another process during the import!",
                                                    "format" : "pve-volume-id-or-absolute-path",
@@ -27536,7 +30074,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "[file=]<volume> [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
+                                             "typetext" : "[file=]<volume> [,format=<raw|qcow2|vmdk>] [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
                                           },
                                           "unused[n]" : {
                                              "description" : "Reference to unused volumes. This is used internally, and should not be modified manually.",
@@ -28495,7 +31033,7 @@ const apiSchema = [
                               "info" : {
                                  "GET" : {
                                     "allowtoken" : 1,
-                                    "description" : "Opens a weksocket for VNC traffic.",
+                                    "description" : "Opens a websocket for VNC traffic.",
                                     "method" : "GET",
                                     "name" : "vncwebsocket",
                                     "parameters" : {
@@ -28871,6 +31409,14 @@ const apiSchema = [
                                                 "machine" : {
                                                    "description" : "Specify the QEMU machine.",
                                                    "format" : {
+                                                      "aw-bits" : {
+                                                         "description" : "Specifies the vIOMMU address space bit width.",
+                                                         "maximum" : 64,
+                                                         "minimum" : 32,
+                                                         "optional" : 1,
+                                                         "type" : "number",
+                                                         "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                                      },
                                                       "enable-s3" : {
                                                          "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
                                                          "optional" : 1,
@@ -28902,7 +31448,7 @@ const apiSchema = [
                                                    },
                                                    "optional" : 1,
                                                    "type" : "string",
-                                                   "typetext" : "[[type=]<machine type>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
+                                                   "typetext" : "[[type=]<machine type>] [,aw-bits=<number>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
                                                 },
                                                 "migratedfrom" : {
                                                    "description" : "The cluster node name.",
@@ -28925,6 +31471,12 @@ const apiSchema = [
                                                       "insecure"
                                                    ],
                                                    "optional" : 1,
+                                                   "type" : "string"
+                                                },
+                                                "nets-host-mtu" : {
+                                                   "description" : "Used for migration compat. List of VirtIO network devices and their effective host_mtu setting according to the QEMU object model on the source side of the migration. A value of 0 means that the host_mtu parameter is to be avoided for the corresponding device.",
+                                                   "optional" : 1,
+                                                   "pattern" : "net\\d+=\\d+(,net\\d+=\\d+)*",
                                                    "type" : "string"
                                                 },
                                                 "node" : {
@@ -29736,7 +32288,7 @@ const apiSchema = [
                                              "typetext" : "<boolean>"
                                           },
                                           "digest" : {
-                                             "description" : "Prevent changes if current configuration file has different SHA1\"\n\t\t    .\" digest. This can be used to prevent concurrent modifications.",
+                                             "description" : "Prevent changes if current configuration file has different SHA1 digest. This can be used to prevent concurrent modifications.",
                                              "maxLength" : 40,
                                              "optional" : 1,
                                              "type" : "string",
@@ -30088,7 +32640,7 @@ const apiSchema = [
                                              "typetext" : "<storage ID>"
                                           },
                                           "target-digest" : {
-                                             "description" : "Prevent changes if the current config file of the target VM has a\"\n\t\t    .\" different SHA1 digest. This can be used to detect concurrent modifications.",
+                                             "description" : "Prevent changes if the current config file of the target VM has a different SHA1 digest. This can be used to detect concurrent modifications.",
                                              "maxLength" : 40,
                                              "optional" : 1,
                                              "type" : "string",
@@ -31686,7 +34238,7 @@ const apiSchema = [
                               "info" : {
                                  "POST" : {
                                     "allowtoken" : 1,
-                                    "description" : "Stop the dbus-vmstate helper for the given VM if running.",
+                                    "description" : "Control the dbus-vmstate helper for a given running VM.",
                                     "method" : "POST",
                                     "name" : "dbus_vmstate",
                                     "parameters" : {
@@ -32105,6 +34657,13 @@ const apiSchema = [
                                  "type" : "string",
                                  "typetext" : "[enabled=]<1|0> [,freeze-fs-on-backup=<1|0>] [,fstrim_cloned_disks=<1|0>] [,type=<virtio|isa>]"
                               },
+                              "allow-ksm" : {
+                                 "default" : 1,
+                                 "description" : "Allow memory pages of this guest to be merged via KSM (Kernel Samepage Merging).",
+                                 "optional" : 1,
+                                 "type" : "boolean",
+                                 "typetext" : "<boolean>"
+                              },
                               "amd-sev" : {
                                  "description" : "Secure Encrypted Virtualization (SEV) features by AMD CPUs",
                                  "format" : "pve-qemu-sev-fmt",
@@ -32264,7 +34823,7 @@ const apiSchema = [
                                  "format" : "pve-vm-cpu-conf",
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
+                                 "typetext" : "[[cputype=]<string>] [,flags=<+FLAG[;-FLAG...]>] [,guest-phys-bits=<integer>] [,hidden=<1|0>] [,hv-vendor-id=<vendor-id>] [,phys-bits=<8-64|host>] [,reported-model=<enum>]"
                               },
                               "cpulimit" : {
                                  "default" : 0,
@@ -32333,6 +34892,16 @@ const apiSchema = [
                                        "optional" : 1,
                                        "type" : "string"
                                     },
+                                    "ms-cert" : {
+                                       "default" : "2011",
+                                       "description" : "Informational marker indicating the version of the latest Microsof UEFI certificate that has been enrolled by Proxmox VE.",
+                                       "enum" : [
+                                          "2011",
+                                          "2023"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
                                     "pre-enrolled-keys" : {
                                        "default" : 0,
                                        "description" : "Use am EFI vars template with distribution-specific and Microsoft Standard keys enrolled, if used with 'efitype=4m'. Note that this will enable Secure Boot by default, though it can still be turned off from within the VM.",
@@ -32352,7 +34921,7 @@ const apiSchema = [
                                  },
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
+                                 "typetext" : "[file=]<volume> [,efitype=<2m|4m>] [,format=<enum>] [,import-from=<source volume>] [,ms-cert=<2011|2023>] [,pre-enrolled-keys=<1|0>] [,size=<DiskSize>]"
                               },
                               "force" : {
                                  "description" : "Allow to overwrite existing VM.",
@@ -32363,6 +34932,13 @@ const apiSchema = [
                               },
                               "freeze" : {
                                  "description" : "Freeze CPU at startup (use 'c' monitor command to start execution).",
+                                 "optional" : 1,
+                                 "type" : "boolean",
+                                 "typetext" : "<boolean>"
+                              },
+                              "ha-managed" : {
+                                 "default" : 0,
+                                 "description" : "Add the VM as a HA resource after it was created.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -32379,7 +34955,7 @@ const apiSchema = [
                                  "format" : "pve-qm-hostpci",
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
+                                 "typetext" : "[[host=]<HOSTPCIID[;HOSTPCIID2...]>] [,device-id=<hex id>] [,driver=<vfio|keep>] [,legacy-igd=<1|0>] [,mapping=<mapping-id>] [,mdev=<string>] [,pcie=<1|0>] [,rombar=<1|0>] [,romfile=<string>] [,sub-device-id=<hex id>] [,sub-vendor-id=<hex id>] [,vendor-id=<hex id>] [,x-vga=<1|0>]",
                                  "verbose_description" : "Map host PCI devices into guest.\n\nNOTE: This option allows direct access to host hardware. So it is no longer\npossible to migrate such machines - use with special care.\n\nCAUTION: Experimental! User reported problems with this option.\n"
                               },
                               "hotplug" : {
@@ -32391,7 +34967,7 @@ const apiSchema = [
                                  "typetext" : "<string>"
                               },
                               "hugepages" : {
-                                 "description" : "Enable/disable hugepages memory.",
+                                 "description" : "Enables hugepages memory.\n\nSets the size of hugepages in MiB. If the value is set to 'any' then 1 GiB hugepages will be used if possible, otherwise the size will fall back to 2 MiB.",
                                  "enum" : [
                                     "any",
                                     "2",
@@ -32715,6 +35291,13 @@ const apiSchema = [
                                  "type" : "string",
                                  "typetext" : "<storage ID>"
                               },
+                              "intel-tdx" : {
+                                 "description" : "Trusted Domain Extension (TDX) features by Intel CPUs",
+                                 "format" : "pve-qemu-tdx-fmt",
+                                 "optional" : 1,
+                                 "type" : "string",
+                                 "typetext" : "[type=]<tdx-type> ,attestation=<1|0> [,vsock-cid=<integer>] [,vsock-port=<integer>]"
+                              },
                               "ipconfig[n]" : {
                                  "description" : "cloud-init: Specify IP addresses and gateways for the corresponding interface.\n\nIP addresses use CIDR notation, gateways are optional but need an IP of the same type specified.\n\nThe special string 'dhcp' can be used for IP addresses to use DHCP, in which case no explicit\ngateway should be provided.\nFor IPv6 the special string 'auto' can be used to use stateless autoconfiguration. This requires\ncloud-init 19.4 or newer.\n\nIf cloud-init is enabled and neither an IPv4 nor an IPv6 address is specified, it defaults to using\ndhcp on IPv4.\n",
                                  "format" : "pve-qm-ipconfig",
@@ -32820,6 +35403,14 @@ const apiSchema = [
                               "machine" : {
                                  "description" : "Specify the QEMU machine.",
                                  "format" : {
+                                    "aw-bits" : {
+                                       "description" : "Specifies the vIOMMU address space bit width.",
+                                       "maximum" : 64,
+                                       "minimum" : 32,
+                                       "optional" : 1,
+                                       "type" : "number",
+                                       "verbose_description" : "Specifies the vIOMMU address space bit width.\n\nIntel vIOMMU supports a bit width of either 39 or 48 bits and VirtIO vIOMMU supports any bit width between 32 and 64 bits."
+                                    },
                                     "enable-s3" : {
                                        "description" : "Enables S3 power state. Defaults to false beginning with machine types 9.2+pve1, true before.",
                                        "optional" : 1,
@@ -32851,7 +35442,7 @@ const apiSchema = [
                                  },
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "[[type=]<machine type>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
+                                 "typetext" : "[[type=]<machine type>] [,aw-bits=<number>] [,enable-s3=<1|0>] [,enable-s4=<1|0>] [,viommu=<intel|virtio>]"
                               },
                               "memory" : {
                                  "description" : "Memory properties.",
@@ -33099,6 +35690,7 @@ const apiSchema = [
                                  "typetext" : "<boolean>"
                               },
                               "ostype" : {
+                                 "default" : "other",
                                  "description" : "Specify guest operating system.",
                                  "enum" : [
                                     "other",
@@ -33949,6 +36541,16 @@ const apiSchema = [
                                        "format_description" : "volume",
                                        "type" : "string"
                                     },
+                                    "format" : {
+                                       "description" : "Format of the image.",
+                                       "enum" : [
+                                          "raw",
+                                          "qcow2",
+                                          "vmdk"
+                                       ],
+                                       "optional" : 1,
+                                       "type" : "string"
+                                    },
                                     "import-from" : {
                                        "description" : "Create a new disk, importing from this source (volume ID or absolute path). When an absolute path is specified, it's up to you to ensure that the source is not actively used by another process during the import!",
                                        "format" : "pve-volume-id-or-absolute-path",
@@ -33979,7 +36581,7 @@ const apiSchema = [
                                  },
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "[file=]<volume> [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
+                                 "typetext" : "[file=]<volume> [,format=<raw|qcow2|vmdk>] [,import-from=<source volume>] [,size=<DiskSize>] [,version=<v1.2|v2.0>]"
                               },
                               "unique" : {
                                  "description" : "Assign a unique random ethernet address.",
@@ -34651,6 +37253,19 @@ const apiSchema = [
                                              "description" : "SHA1 digest of configuration file. This can be used to prevent concurrent modifications.",
                                              "type" : "string"
                                           },
+                                          "entrypoint" : {
+                                             "default" : "/sbin/init",
+                                             "description" : "Command to run as init, optionally with arguments; may start with an absolute path, relative path, or a binary in $PATH.",
+                                             "optional" : 1,
+                                             "pattern" : "(?^:[^\\x00-\\x08\\x10-\\x1F\\x7F]+)",
+                                             "type" : "string"
+                                          },
+                                          "env" : {
+                                             "description" : "The container runtime environment as NUL-separated list. Replaces any lxc.environment.runtime entries in the config.",
+                                             "optional" : 1,
+                                             "pattern" : "(?^:(?:\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)(?:\\0\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)*)",
+                                             "type" : "string"
+                                          },
                                           "features" : {
                                              "description" : "Allow containers access to advanced features.",
                                              "format" : {
@@ -34687,7 +37302,7 @@ const apiSchema = [
                                                 },
                                                 "nesting" : {
                                                    "default" : 0,
-                                                   "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest.",
+                                                   "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest. This is also required by systemd to isolate services.",
                                                    "optional" : 1,
                                                    "type" : "boolean"
                                                 }
@@ -34847,6 +37462,11 @@ const apiSchema = [
                                                    "optional" : 1,
                                                    "type" : "string"
                                                 },
+                                                "host-managed" : {
+                                                   "description" : "Whether this interface's IP configuration should be managed by the host.",
+                                                   "optional" : 1,
+                                                   "type" : "boolean"
+                                                },
                                                 "hwaddr" : {
                                                    "description" : "The interface MAC address. This is dynamically allocated by default, but you can set that statically if needed, for example to always have the same link-local IPv6 address. (lxc.network.hwaddr)",
                                                    "format" : "mac-addr",
@@ -35053,7 +37673,7 @@ const apiSchema = [
                                           },
                                           "unprivileged" : {
                                              "default" : 0,
-                                             "description" : "Makes the container run as unprivileged user. (Should not be modified manually.)",
+                                             "description" : "Makes the container run as unprivileged user. For creation, the default is 1. For restore, the default is the value from the backup. (Should not be modified manually.)",
                                              "optional" : 1,
                                              "type" : "boolean"
                                           },
@@ -35212,6 +37832,19 @@ const apiSchema = [
                                              "type" : "string",
                                              "typetext" : "<string>"
                                           },
+                                          "entrypoint" : {
+                                             "default" : "/sbin/init",
+                                             "description" : "Command to run as init, optionally with arguments; may start with an absolute path, relative path, or a binary in $PATH.",
+                                             "optional" : 1,
+                                             "pattern" : "(?^:[^\\x00-\\x08\\x10-\\x1F\\x7F]+)",
+                                             "type" : "string"
+                                          },
+                                          "env" : {
+                                             "description" : "The container runtime environment as NUL-separated list. Replaces any lxc.environment.runtime entries in the config.",
+                                             "optional" : 1,
+                                             "pattern" : "(?^:(?:\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)(?:\\0\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)*)",
+                                             "type" : "string"
+                                          },
                                           "features" : {
                                              "description" : "Allow containers access to advanced features.",
                                              "format" : {
@@ -35248,7 +37881,7 @@ const apiSchema = [
                                                 },
                                                 "nesting" : {
                                                    "default" : 0,
-                                                   "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest.",
+                                                   "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest. This is also required by systemd to isolate services.",
                                                    "optional" : 1,
                                                    "type" : "boolean"
                                                 }
@@ -35403,6 +38036,11 @@ const apiSchema = [
                                                    "optional" : 1,
                                                    "type" : "string"
                                                 },
+                                                "host-managed" : {
+                                                   "description" : "Whether this interface's IP configuration should be managed by the host.",
+                                                   "optional" : 1,
+                                                   "type" : "boolean"
+                                                },
                                                 "hwaddr" : {
                                                    "description" : "The interface MAC address. This is dynamically allocated by default, but you can set that statically if needed, for example to always have the same link-local IPv6 address. (lxc.network.hwaddr)",
                                                    "format" : "mac-addr",
@@ -35474,7 +38112,7 @@ const apiSchema = [
                                              },
                                              "optional" : 1,
                                              "type" : "string",
-                                             "typetext" : "name=<string> [,bridge=<bridge>] [,firewall=<1|0>] [,gw=<GatewayIPv4>] [,gw6=<GatewayIPv6>] [,hwaddr=<XX:XX:XX:XX:XX:XX>] [,ip=<(IPv4/CIDR|dhcp|manual)>] [,ip6=<(IPv6/CIDR|auto|dhcp|manual)>] [,link_down=<1|0>] [,mtu=<integer>] [,rate=<mbps>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,type=<veth>]"
+                                             "typetext" : "name=<string> [,bridge=<bridge>] [,firewall=<1|0>] [,gw=<GatewayIPv4>] [,gw6=<GatewayIPv6>] [,host-managed=<1|0>] [,hwaddr=<XX:XX:XX:XX:XX:XX>] [,ip=<(IPv4/CIDR|dhcp|manual)>] [,ip6=<(IPv6/CIDR|auto|dhcp|manual)>] [,link_down=<1|0>] [,mtu=<integer>] [,rate=<mbps>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,type=<veth>]"
                                           },
                                           "node" : {
                                              "description" : "The cluster node name.",
@@ -35632,7 +38270,7 @@ const apiSchema = [
                                           },
                                           "unprivileged" : {
                                              "default" : 0,
-                                             "description" : "Makes the container run as unprivileged user. (Should not be modified manually.)",
+                                             "description" : "Makes the container run as unprivileged user. For creation, the default is 1. For restore, the default is the value from the backup. (Should not be modified manually.)",
                                              "optional" : 1,
                                              "type" : "boolean",
                                              "typetext" : "<boolean>"
@@ -36768,33 +39406,41 @@ const apiSchema = [
                                                 "returns" : {
                                                    "properties" : {
                                                       "action" : {
+                                                         "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                                          "type" : "string"
                                                       },
                                                       "comment" : {
+                                                         "description" : "Descriptive comment",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dest" : {
+                                                         "description" : "Restrict packet destination address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "dport" : {
+                                                         "description" : "Restrict TCP/UDP destination port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "enable" : {
+                                                         "description" : "Flag to enable/disable a rule",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
                                                       "icmp-type" : {
+                                                         "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "iface" : {
+                                                         "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "ipversion" : {
+                                                         "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                                          "optional" : 1,
                                                          "type" : "integer"
                                                       },
@@ -36815,25 +39461,31 @@ const apiSchema = [
                                                          "type" : "string"
                                                       },
                                                       "macro" : {
+                                                         "description" : "Use predefined standard macro",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "pos" : {
+                                                         "description" : "Rule position in the ruleset",
                                                          "type" : "integer"
                                                       },
                                                       "proto" : {
+                                                         "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "source" : {
+                                                         "description" : "Restrict packet source address",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "sport" : {
+                                                         "description" : "Restrict TCP/UDP source port",
                                                          "optional" : 1,
                                                          "type" : "string"
                                                       },
                                                       "type" : {
+                                                         "description" : "Rule type",
                                                          "type" : "string"
                                                       }
                                                    },
@@ -37059,8 +39711,88 @@ const apiSchema = [
                                           "returns" : {
                                              "items" : {
                                                 "properties" : {
-                                                   "pos" : {
+                                                   "action" : {
+                                                      "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                                      "type" : "string"
+                                                   },
+                                                   "comment" : {
+                                                      "description" : "Descriptive comment",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dest" : {
+                                                      "description" : "Restrict packet destination address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "dport" : {
+                                                      "description" : "Restrict TCP/UDP destination port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "enable" : {
+                                                      "description" : "Flag to enable/disable a rule",
+                                                      "optional" : 1,
                                                       "type" : "integer"
+                                                   },
+                                                   "icmp-type" : {
+                                                      "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "iface" : {
+                                                      "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "ipversion" : {
+                                                      "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                                      "optional" : 1,
+                                                      "type" : "integer"
+                                                   },
+                                                   "log" : {
+                                                      "description" : "Log level for firewall rule",
+                                                      "enum" : [
+                                                         "emerg",
+                                                         "alert",
+                                                         "crit",
+                                                         "err",
+                                                         "warning",
+                                                         "notice",
+                                                         "info",
+                                                         "debug",
+                                                         "nolog"
+                                                      ],
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "macro" : {
+                                                      "description" : "Use predefined standard macro",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "pos" : {
+                                                      "description" : "Rule position in the ruleset",
+                                                      "type" : "integer"
+                                                   },
+                                                   "proto" : {
+                                                      "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "source" : {
+                                                      "description" : "Restrict packet source address",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "sport" : {
+                                                      "description" : "Restrict TCP/UDP source port",
+                                                      "optional" : 1,
+                                                      "type" : "string"
+                                                   },
+                                                   "type" : {
+                                                      "description" : "Rule type",
+                                                      "type" : "string"
                                                    }
                                                 },
                                                 "type" : "object"
@@ -38153,7 +40885,7 @@ const apiSchema = [
                                                    "type" : "boolean"
                                                 },
                                                 "ndp" : {
-                                                   "default" : 0,
+                                                   "default" : 1,
                                                    "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                                    "optional" : 1,
                                                    "type" : "boolean"
@@ -38269,7 +41001,7 @@ const apiSchema = [
                                                    "typetext" : "<boolean>"
                                                 },
                                                 "ndp" : {
-                                                   "default" : 0,
+                                                   "default" : 1,
                                                    "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                                    "optional" : 1,
                                                    "type" : "boolean",
@@ -38840,7 +41572,7 @@ const apiSchema = [
                               "info" : {
                                  "GET" : {
                                     "allowtoken" : 1,
-                                    "description" : "Opens a weksocket for VNC traffic.",
+                                    "description" : "Opens a websocket for VNC traffic.",
                                     "method" : "GET",
                                     "name" : "vncwebsocket",
                                     "parameters" : {
@@ -41696,6 +44428,19 @@ const apiSchema = [
                                  "type" : "string",
                                  "typetext" : "[[path=]<Path>] [,deny-write=<1|0>] [,gid=<integer>] [,mode=<Octal access mode>] [,uid=<integer>]"
                               },
+                              "entrypoint" : {
+                                 "default" : "/sbin/init",
+                                 "description" : "Command to run as init, optionally with arguments; may start with an absolute path, relative path, or a binary in $PATH.",
+                                 "optional" : 1,
+                                 "pattern" : "(?^:[^\\x00-\\x08\\x10-\\x1F\\x7F]+)",
+                                 "type" : "string"
+                              },
+                              "env" : {
+                                 "description" : "The container runtime environment as NUL-separated list. Replaces any lxc.environment.runtime entries in the config.",
+                                 "optional" : 1,
+                                 "pattern" : "(?^:(?:\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)(?:\\0\\w+=[^\\x00-\\x08\\x10-\\x1F\\x7F]*)*)",
+                                 "type" : "string"
+                              },
                               "features" : {
                                  "description" : "Allow containers access to advanced features.",
                                  "format" : {
@@ -41732,7 +44477,7 @@ const apiSchema = [
                                     },
                                     "nesting" : {
                                        "default" : 0,
-                                       "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest.",
+                                       "description" : "Allow nesting. Best used with unprivileged containers with additional id mapping. Note that this will expose procfs and sysfs contents of the host to the guest. This is also required by systemd to isolate services.",
                                        "optional" : 1,
                                        "type" : "boolean"
                                     }
@@ -41743,6 +44488,13 @@ const apiSchema = [
                               },
                               "force" : {
                                  "description" : "Allow to overwrite existing container.",
+                                 "optional" : 1,
+                                 "type" : "boolean",
+                                 "typetext" : "<boolean>"
+                              },
+                              "ha-managed" : {
+                                 "default" : 0,
+                                 "description" : "Add the CT as a HA resource after it was created.",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -41899,6 +44651,11 @@ const apiSchema = [
                                        "optional" : 1,
                                        "type" : "string"
                                     },
+                                    "host-managed" : {
+                                       "description" : "Whether this interface's IP configuration should be managed by the host.",
+                                       "optional" : 1,
+                                       "type" : "boolean"
+                                    },
                                     "hwaddr" : {
                                        "description" : "The interface MAC address. This is dynamically allocated by default, but you can set that statically if needed, for example to always have the same link-local IPv6 address. (lxc.network.hwaddr)",
                                        "format" : "mac-addr",
@@ -41970,7 +44727,7 @@ const apiSchema = [
                                  },
                                  "optional" : 1,
                                  "type" : "string",
-                                 "typetext" : "name=<string> [,bridge=<bridge>] [,firewall=<1|0>] [,gw=<GatewayIPv4>] [,gw6=<GatewayIPv6>] [,hwaddr=<XX:XX:XX:XX:XX:XX>] [,ip=<(IPv4/CIDR|dhcp|manual)>] [,ip6=<(IPv6/CIDR|auto|dhcp|manual)>] [,link_down=<1|0>] [,mtu=<integer>] [,rate=<mbps>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,type=<veth>]"
+                                 "typetext" : "name=<string> [,bridge=<bridge>] [,firewall=<1|0>] [,gw=<GatewayIPv4>] [,gw6=<GatewayIPv6>] [,host-managed=<1|0>] [,hwaddr=<XX:XX:XX:XX:XX:XX>] [,ip=<(IPv4/CIDR|dhcp|manual)>] [,ip6=<(IPv6/CIDR|auto|dhcp|manual)>] [,link_down=<1|0>] [,mtu=<integer>] [,rate=<mbps>] [,tag=<integer>] [,trunks=<vlanid[;vlanid...]>] [,type=<veth>]"
                               },
                               "node" : {
                                  "description" : "The cluster node name.",
@@ -42176,7 +44933,7 @@ const apiSchema = [
                               },
                               "unprivileged" : {
                                  "default" : 0,
-                                 "description" : "Makes the container run as unprivileged user. (Should not be modified manually.)",
+                                 "description" : "Makes the container run as unprivileged user. For creation, the default is 1. For restore, the default is the value from the backup. (Should not be modified manually.)",
                                  "optional" : 1,
                                  "type" : "boolean",
                                  "typetext" : "<boolean>"
@@ -43117,7 +45874,8 @@ const apiSchema = [
                                           "type" : "string"
                                        },
                                        "name" : {
-                                          "description" : "The name (ID) for the MDS"
+                                          "description" : "The name (ID) for the MDS",
+                                          "type" : "string"
                                        },
                                        "rank" : {
                                           "optional" : 1,
@@ -43276,7 +46034,8 @@ const apiSchema = [
                                           "type" : "string"
                                        },
                                        "name" : {
-                                          "description" : "The name (ID) for the MGR"
+                                          "description" : "The name (ID) for the MGR",
+                                          "type" : "string"
                                        },
                                        "state" : {
                                           "description" : "State of the MGR",
@@ -44080,6 +46839,7 @@ const apiSchema = [
                                           "type" : "object"
                                        },
                                        "bytes_used" : {
+                                          "renderer" : "bytes",
                                           "title" : "Used",
                                           "type" : "integer"
                                        },
@@ -45534,6 +48294,89 @@ const apiSchema = [
                                     "protected" : 1,
                                     "proxyto" : "node",
                                     "returns" : {
+                                       "properties" : {
+                                          "active-state" : {
+                                             "description" : "Current state of the service process (systemd ActiveState).",
+                                             "enum" : [
+                                                "active",
+                                                "inactive",
+                                                "failed",
+                                                "activating",
+                                                "deactivating",
+                                                "maintenance",
+                                                "reloading",
+                                                "refreshing",
+                                                "unknown"
+                                             ],
+                                             "type" : "string"
+                                          },
+                                          "desc" : {
+                                             "description" : "Description of the service.",
+                                             "type" : "string"
+                                          },
+                                          "name" : {
+                                             "description" : "Short identifier for the service (e.g., \"pveproxy\").",
+                                             "type" : "string"
+                                          },
+                                          "service" : {
+                                             "description" : "Systemd unit name (e.g., pveproxy).",
+                                             "type" : "string"
+                                          },
+                                          "state" : {
+                                             "description" : "Execution status of the service (systemd SubState).",
+                                             "enum" : [
+                                                "dead",
+                                                "condition",
+                                                "start-pre",
+                                                "start",
+                                                "start-post",
+                                                "running",
+                                                "exited",
+                                                "reload",
+                                                "reload-signal",
+                                                "reload-notify",
+                                                "mounting",
+                                                "stop",
+                                                "stop-watchdog",
+                                                "stop-sigterm",
+                                                "stop-sigkill",
+                                                "stop-post",
+                                                "final-watchdog",
+                                                "final-sigterm",
+                                                "final-sigkill",
+                                                "failed",
+                                                "dead-before-auto-restart",
+                                                "failed-before-auto-restart",
+                                                "dead-resources-pinned",
+                                                "auto-restart",
+                                                "auto-restart-queued",
+                                                "cleaning",
+                                                "unknown"
+                                             ],
+                                             "type" : "string"
+                                          },
+                                          "unit-state" : {
+                                             "description" : "Whether the service is enabled (systemd UnitFileState).",
+                                             "enum" : [
+                                                "enabled",
+                                                "enabled-runtime",
+                                                "linked",
+                                                "linked-runtime",
+                                                "alias",
+                                                "masked",
+                                                "masked-runtime",
+                                                "static",
+                                                "disabled",
+                                                "indirect",
+                                                "generated",
+                                                "transient",
+                                                "bad",
+                                                "not-found",
+                                                "unknown"
+                                             ],
+                                             "type" : "string"
+                                          }
+                                       },
                                        "type" : "object"
                                     }
                                  }
@@ -45920,7 +48763,89 @@ const apiSchema = [
                         "proxyto" : "node",
                         "returns" : {
                            "items" : {
-                              "properties" : {},
+                              "properties" : {
+                                 "active-state" : {
+                                    "description" : "Current state of the service process (systemd ActiveState).",
+                                    "enum" : [
+                                       "active",
+                                       "inactive",
+                                       "failed",
+                                       "activating",
+                                       "deactivating",
+                                       "maintenance",
+                                       "reloading",
+                                       "refreshing",
+                                       "unknown"
+                                    ],
+                                    "type" : "string"
+                                 },
+                                 "desc" : {
+                                    "description" : "Description of the service.",
+                                    "type" : "string"
+                                 },
+                                 "name" : {
+                                    "description" : "Short identifier for the service (e.g., \"pveproxy\").",
+                                    "type" : "string"
+                                 },
+                                 "service" : {
+                                    "description" : "Systemd unit name (e.g., pveproxy).",
+                                    "type" : "string"
+                                 },
+                                 "state" : {
+                                    "description" : "Execution status of the service (systemd SubState).",
+                                    "enum" : [
+                                       "dead",
+                                       "condition",
+                                       "start-pre",
+                                       "start",
+                                       "start-post",
+                                       "running",
+                                       "exited",
+                                       "reload",
+                                       "reload-signal",
+                                       "reload-notify",
+                                       "mounting",
+                                       "stop",
+                                       "stop-watchdog",
+                                       "stop-sigterm",
+                                       "stop-sigkill",
+                                       "stop-post",
+                                       "final-watchdog",
+                                       "final-sigterm",
+                                       "final-sigkill",
+                                       "failed",
+                                       "dead-before-auto-restart",
+                                       "failed-before-auto-restart",
+                                       "dead-resources-pinned",
+                                       "auto-restart",
+                                       "auto-restart-queued",
+                                       "cleaning",
+                                       "unknown"
+                                    ],
+                                    "type" : "string"
+                                 },
+                                 "unit-state" : {
+                                    "description" : "Whether the service is enabled (systemd UnitFileState).",
+                                    "enum" : [
+                                       "enabled",
+                                       "enabled-runtime",
+                                       "linked",
+                                       "linked-runtime",
+                                       "alias",
+                                       "masked",
+                                       "masked-runtime",
+                                       "static",
+                                       "disabled",
+                                       "indirect",
+                                       "generated",
+                                       "transient",
+                                       "bad",
+                                       "not-found",
+                                       "unknown"
+                                    ],
+                                    "type" : "string"
+                                 }
+                              },
                               "type" : "object"
                            },
                            "links" : [
@@ -47246,7 +50171,7 @@ const apiSchema = [
                                           },
                                           "limit" : {
                                              "default" : 50,
-                                             "description" : "The amount of lines to read from the tasklog.",
+                                             "description" : "The number of lines to read from the tasklog.",
                                              "minimum" : 0,
                                              "optional" : 1,
                                              "type" : "integer",
@@ -47469,7 +50394,7 @@ const apiSchema = [
                               },
                               "limit" : {
                                  "default" : 50,
-                                 "description" : "Only list this amount of tasks.",
+                                 "description" : "Only list this number of tasks.",
                                  "minimum" : 0,
                                  "optional" : 1,
                                  "type" : "integer",
@@ -48501,6 +51426,49 @@ const apiSchema = [
                               "info" : {
                                  "GET" : {
                                     "allowtoken" : 1,
+                                    "description" : "List of available VM-specific CPU flags.",
+                                    "method" : "GET",
+                                    "name" : "index",
+                                    "parameters" : {
+                                       "additionalProperties" : 0,
+                                       "properties" : {
+                                          "node" : {
+                                             "description" : "The cluster node name.",
+                                             "format" : "pve-node",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          }
+                                       }
+                                    },
+                                    "permissions" : {
+                                       "user" : "all"
+                                    },
+                                    "returns" : {
+                                       "items" : {
+                                          "properties" : {
+                                             "description" : {
+                                                "description" : "Description of the CPU flag.",
+                                                "type" : "string"
+                                             },
+                                             "name" : {
+                                                "description" : "Name of the CPU flag.",
+                                                "type" : "string"
+                                             }
+                                          },
+                                          "type" : "object"
+                                       },
+                                       "type" : "array"
+                                    }
+                                 }
+                              },
+                              "leaf" : 1,
+                              "path" : "/nodes/{node}/capabilities/qemu/cpu-flags",
+                              "text" : "cpu-flags"
+                           },
+                           {
+                              "info" : {
+                                 "GET" : {
+                                    "allowtoken" : 1,
                                     "description" : "Get available QEMU/KVM machine types.",
                                     "method" : "GET",
                                     "name" : "types",
@@ -48586,7 +51554,7 @@ const apiSchema = [
                                     "returns" : {
                                        "additionalProperties" : 0,
                                        "properties" : {
-                                          "dbus-vmstate" : {
+                                          "has-dbus-vmstate" : {
                                              "description" : "Whether the host supports live-migrating additional VM state via the dbus-vmstate helper.",
                                              "type" : "boolean"
                                           }
@@ -49467,6 +52435,50 @@ const apiSchema = [
                                     "protected" : 1,
                                     "proxyto" : "node",
                                     "returns" : {
+                                       "properties" : {
+                                          "active" : {
+                                             "description" : "Set when storage is accessible.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "avail" : {
+                                             "description" : "Available storage space in bytes.",
+                                             "optional" : 1,
+                                             "renderer" : "bytes",
+                                             "type" : "integer"
+                                          },
+                                          "content" : {
+                                             "description" : "Allowed storage content types.",
+                                             "format" : "pve-storage-content-list",
+                                             "type" : "string"
+                                          },
+                                          "enabled" : {
+                                             "description" : "Set when storage is enabled (not disabled).",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "shared" : {
+                                             "description" : "Shared flag from storage configuration.",
+                                             "optional" : 1,
+                                             "type" : "boolean"
+                                          },
+                                          "total" : {
+                                             "description" : "Total storage space in bytes.",
+                                             "optional" : 1,
+                                             "renderer" : "bytes",
+                                             "type" : "integer"
+                                          },
+                                          "type" : {
+                                             "description" : "Storage type.",
+                                             "type" : "string"
+                                          },
+                                          "used" : {
+                                             "description" : "Used storage space in bytes.",
+                                             "optional" : 1,
+                                             "renderer" : "bytes",
+                                             "type" : "integer"
+                                          }
+                                       },
                                        "type" : "object"
                                     }
                                  }
@@ -49838,6 +52850,74 @@ const apiSchema = [
                            },
                            {
                               "info" : {
+                                 "POST" : {
+                                    "allowtoken" : 1,
+                                    "description" : "Pull an OCI image from a registry.",
+                                    "method" : "POST",
+                                    "name" : "oci_registry_pull",
+                                    "parameters" : {
+                                       "additionalProperties" : 0,
+                                       "properties" : {
+                                          "filename" : {
+                                             "description" : "Custom destination file name of the OCI image. Caution: This will be normalized!",
+                                             "maxLength" : 255,
+                                             "minLength" : 1,
+                                             "optional" : 1,
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          },
+                                          "node" : {
+                                             "description" : "The cluster node name.",
+                                             "format" : "pve-node",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          },
+                                          "reference" : {
+                                             "description" : "The reference to the OCI image to download.",
+                                             "pattern" : "^(?:(?:[a-zA-Z\\d]|[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d])(?:\\.(?:[a-zA-Z\\d]|[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]))*(?::\\d+)?/)?[a-z\\d]+(?:(?:[._]|__|[-]*)[a-z\\d]+)*(?:/[a-z\\d]+(?:(?:[._]|__|[-]*)[a-z\\d]+)*)*:\\w[\\w.-]{0,127}$",
+                                             "type" : "string"
+                                          },
+                                          "storage" : {
+                                             "description" : "The storage identifier.",
+                                             "format" : "pve-storage-id",
+                                             "format_description" : "storage ID",
+                                             "type" : "string",
+                                             "typetext" : "<storage ID>"
+                                          }
+                                       }
+                                    },
+                                    "permissions" : {
+                                       "check" : [
+                                          "and",
+                                          [
+                                             "perm",
+                                             "/storage/{storage}",
+                                             [
+                                                "Datastore.AllocateTemplate"
+                                             ]
+                                          ],
+                                          [
+                                             "perm",
+                                             "/nodes/{node}",
+                                             [
+                                                "Sys.AccessNetwork"
+                                             ]
+                                          ]
+                                       ]
+                                    },
+                                    "protected" : 1,
+                                    "proxyto" : "node",
+                                    "returns" : {
+                                       "type" : "string"
+                                    }
+                                 }
+                              },
+                              "leaf" : 1,
+                              "path" : "/nodes/{node}/storage/{storage}/oci-registry-pull",
+                              "text" : "oci-registry-pull"
+                           },
+                           {
+                              "info" : {
                                  "GET" : {
                                     "allowtoken" : 1,
                                     "description" : "Get the base parameters for creating a guest which imports data from a foreign importable guest, like an ESXi VM",
@@ -50091,6 +53171,41 @@ const apiSchema = [
                                  },
                                  "enabled" : {
                                     "description" : "Set when storage is enabled (not disabled).",
+                                    "optional" : 1,
+                                    "type" : "boolean"
+                                 },
+                                 "formats" : {
+                                    "description" : "Lists the supported and default format. Use 'formats' instead. Only included if 'format' parameter is set.",
+                                    "optional" : 1,
+                                    "properties" : {
+                                       "default" : {
+                                          "description" : "The default format of the storage.",
+                                          "enum" : [
+                                             "qcow2",
+                                             "raw",
+                                             "subvol",
+                                             "vmdk"
+                                          ],
+                                          "type" : "string"
+                                       },
+                                       "supported" : {
+                                          "description" : "The list of supported formats",
+                                          "items" : {
+                                             "enum" : [
+                                                "qcow2",
+                                                "raw",
+                                                "subvol",
+                                                "vmdk"
+                                             ],
+                                             "type" : "string"
+                                          },
+                                          "type" : "array"
+                                       }
+                                    },
+                                    "type" : "object"
+                                 },
+                                 "select_existing" : {
+                                    "description" : "Instead of creating new volumes, one must select one that is already existing. Only included if 'format' parameter is set.",
                                     "optional" : 1,
                                     "type" : "boolean"
                                  },
@@ -51422,7 +54537,59 @@ const apiSchema = [
                               "proxyto" : "node",
                               "returns" : {
                                  "items" : {
-                                    "properties" : {},
+                                    "properties" : {
+                                       "Arch" : {
+                                          "description" : "Package Architecture.",
+                                          "enum" : [
+                                             "armhf",
+                                             "arm64",
+                                             "amd64",
+                                             "ppc64el",
+                                             "risc64",
+                                             "s390x",
+                                             "all"
+                                          ],
+                                          "type" : "string"
+                                       },
+                                       "Description" : {
+                                          "description" : "Package description.",
+                                          "type" : "string"
+                                       },
+                                       "NotifyStatus" : {
+                                          "description" : "Version for which PVE has already sent an update notification for.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "OldVersion" : {
+                                          "description" : "Old version currently installed.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "Origin" : {
+                                          "description" : "Package origin, e.g., 'Proxmox' or 'Debian'.",
+                                          "type" : "string"
+                                       },
+                                       "Package" : {
+                                          "description" : "Package name.",
+                                          "type" : "string"
+                                       },
+                                       "Priority" : {
+                                          "description" : "Package priority.",
+                                          "type" : "string"
+                                       },
+                                       "Section" : {
+                                          "description" : "Package section.",
+                                          "type" : "string"
+                                       },
+                                       "Title" : {
+                                          "description" : "Package title.",
+                                          "type" : "string"
+                                       },
+                                       "Version" : {
+                                          "description" : "New version to be updated to.",
+                                          "type" : "string"
+                                       }
+                                    },
                                     "type" : "object"
                                  },
                                  "type" : "array"
@@ -51872,7 +55039,81 @@ const apiSchema = [
                               "proxyto" : "node",
                               "returns" : {
                                  "items" : {
-                                    "properties" : {},
+                                    "properties" : {
+                                       "Arch" : {
+                                          "description" : "Package Architecture.",
+                                          "enum" : [
+                                             "armhf",
+                                             "arm64",
+                                             "amd64",
+                                             "ppc64el",
+                                             "risc64",
+                                             "s390x",
+                                             "all"
+                                          ],
+                                          "type" : "string"
+                                       },
+                                       "CurrentState" : {
+                                          "description" : "Current state of the package installed on the system.",
+                                          "enum" : [
+                                             "Installed",
+                                             "NotInstalled",
+                                             "UnPacked",
+                                             "HalfConfigured",
+                                             "HalfInstalled",
+                                             "ConfigFiles"
+                                          ],
+                                          "type" : "string"
+                                       },
+                                       "Description" : {
+                                          "description" : "Package description.",
+                                          "type" : "string"
+                                       },
+                                       "ManagerVersion" : {
+                                          "description" : "Version of the currently running pve-manager API server.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "NotifyStatus" : {
+                                          "description" : "Version for which PVE has already sent an update notification for.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "OldVersion" : {
+                                          "description" : "Old version currently installed.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "Origin" : {
+                                          "description" : "Package origin, e.g., 'Proxmox' or 'Debian'.",
+                                          "type" : "string"
+                                       },
+                                       "Package" : {
+                                          "description" : "Package name.",
+                                          "type" : "string"
+                                       },
+                                       "Priority" : {
+                                          "description" : "Package priority.",
+                                          "type" : "string"
+                                       },
+                                       "RunningKernel" : {
+                                          "description" : "Kernel release, only for package 'proxmox-ve'.",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "Section" : {
+                                          "description" : "Package section.",
+                                          "type" : "string"
+                                       },
+                                       "Title" : {
+                                          "description" : "Package title.",
+                                          "type" : "string"
+                                       },
+                                       "Version" : {
+                                          "description" : "New version to be updated to.",
+                                          "type" : "string"
+                                       }
+                                    },
                                     "type" : "object"
                                  },
                                  "type" : "array"
@@ -52014,33 +55255,41 @@ const apiSchema = [
                                     "returns" : {
                                        "properties" : {
                                           "action" : {
+                                             "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
                                              "type" : "string"
                                           },
                                           "comment" : {
+                                             "description" : "Descriptive comment",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "dest" : {
+                                             "description" : "Restrict packet destination address",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "dport" : {
+                                             "description" : "Restrict TCP/UDP destination port",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "enable" : {
+                                             "description" : "Flag to enable/disable a rule",
                                              "optional" : 1,
                                              "type" : "integer"
                                           },
                                           "icmp-type" : {
+                                             "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "iface" : {
+                                             "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "ipversion" : {
+                                             "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
                                              "optional" : 1,
                                              "type" : "integer"
                                           },
@@ -52061,25 +55310,31 @@ const apiSchema = [
                                              "type" : "string"
                                           },
                                           "macro" : {
+                                             "description" : "Use predefined standard macro",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "pos" : {
+                                             "description" : "Rule position in the ruleset",
                                              "type" : "integer"
                                           },
                                           "proto" : {
+                                             "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "source" : {
+                                             "description" : "Restrict packet source address",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "sport" : {
+                                             "description" : "Restrict TCP/UDP source port",
                                              "optional" : 1,
                                              "type" : "string"
                                           },
                                           "type" : {
+                                             "description" : "Rule type",
                                              "type" : "string"
                                           }
                                        },
@@ -52289,8 +55544,88 @@ const apiSchema = [
                               "returns" : {
                                  "items" : {
                                     "properties" : {
-                                       "pos" : {
+                                       "action" : {
+                                          "description" : "Rule action ('ACCEPT', 'DROP', 'REJECT') or security group name",
+                                          "type" : "string"
+                                       },
+                                       "comment" : {
+                                          "description" : "Descriptive comment",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dest" : {
+                                          "description" : "Restrict packet destination address",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "dport" : {
+                                          "description" : "Restrict TCP/UDP destination port",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "enable" : {
+                                          "description" : "Flag to enable/disable a rule",
+                                          "optional" : 1,
                                           "type" : "integer"
+                                       },
+                                       "icmp-type" : {
+                                          "description" : "Specify icmp-type. Only valid if proto equals 'icmp' or 'icmpv6'/'ipv6-icmp'",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "iface" : {
+                                          "description" : "Network interface name. You have to use network configuration key names for VMs and containers",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "ipversion" : {
+                                          "description" : "IP version (4 or 6) - automatically determined from source/dest addresses",
+                                          "optional" : 1,
+                                          "type" : "integer"
+                                       },
+                                       "log" : {
+                                          "description" : "Log level for firewall rule",
+                                          "enum" : [
+                                             "emerg",
+                                             "alert",
+                                             "crit",
+                                             "err",
+                                             "warning",
+                                             "notice",
+                                             "info",
+                                             "debug",
+                                             "nolog"
+                                          ],
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "macro" : {
+                                          "description" : "Use predefined standard macro",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "pos" : {
+                                          "description" : "Rule position in the ruleset",
+                                          "type" : "integer"
+                                       },
+                                       "proto" : {
+                                          "description" : "IP protocol. You can use protocol names ('tcp'/'udp') or simple numbers, as defined in '/etc/protocols'",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "source" : {
+                                          "description" : "Restrict packet source address",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "sport" : {
+                                          "description" : "Restrict TCP/UDP source port",
+                                          "optional" : 1,
+                                          "type" : "string"
+                                       },
+                                       "type" : {
+                                          "description" : "Rule type",
+                                          "type" : "string"
                                        }
                                     },
                                     "type" : "object"
@@ -52493,6 +55828,7 @@ const apiSchema = [
                               "returns" : {
                                  "properties" : {
                                     "enable" : {
+                                       "default" : 1,
                                        "description" : "Enable host firewall rules.",
                                        "optional" : 1,
                                        "type" : "boolean"
@@ -52552,7 +55888,7 @@ const apiSchema = [
                                        "type" : "boolean"
                                     },
                                     "ndp" : {
-                                       "default" : 0,
+                                       "default" : 1,
                                        "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                        "optional" : 1,
                                        "type" : "boolean"
@@ -52686,6 +56022,7 @@ const apiSchema = [
                                        "typetext" : "<string>"
                                     },
                                     "enable" : {
+                                       "default" : 1,
                                        "description" : "Enable host firewall rules.",
                                        "optional" : 1,
                                        "type" : "boolean",
@@ -52747,7 +56084,7 @@ const apiSchema = [
                                        "typetext" : "<boolean>"
                                     },
                                     "ndp" : {
-                                       "default" : 0,
+                                       "default" : 1,
                                        "description" : "Enable NDP (Neighbor Discovery Protocol).",
                                        "optional" : 1,
                                        "type" : "boolean",
@@ -54043,6 +57380,254 @@ const apiSchema = [
                                     "info" : {
                                        "GET" : {
                                           "allowtoken" : 1,
+                                          "description" : "Get all routes for a fabric.",
+                                          "method" : "GET",
+                                          "name" : "routes",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "fabric" : {
+                                                   "description" : "Identifier for SDN fabrics",
+                                                   "format" : "pve-sdn-fabric-id",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "check" : [
+                                                "perm",
+                                                "/sdn/fabrics/{fabric}",
+                                                [
+                                                   "SDN.Audit"
+                                                ]
+                                             ]
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "items" : {
+                                                "properties" : {
+                                                   "route" : {
+                                                      "description" : "The CIDR block for this routing table entry.",
+                                                      "type" : "string"
+                                                   },
+                                                   "via" : {
+                                                      "description" : "A list of nexthops for that route.",
+                                                      "items" : {
+                                                         "description" : "The IP address of the nexthop.",
+                                                         "type" : "string"
+                                                      },
+                                                      "type" : "array"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/fabrics/{fabric}/routes",
+                                    "text" : "routes"
+                                 },
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
+                                          "description" : "Get all neighbors for a fabric.",
+                                          "method" : "GET",
+                                          "name" : "neighbors",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "fabric" : {
+                                                   "description" : "Identifier for SDN fabrics",
+                                                   "format" : "pve-sdn-fabric-id",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "check" : [
+                                                "perm",
+                                                "/sdn/fabrics/{fabric}",
+                                                [
+                                                   "SDN.Audit"
+                                                ]
+                                             ]
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "items" : {
+                                                "properties" : {
+                                                   "neighbor" : {
+                                                      "description" : "The IP or hostname of the neighbor.",
+                                                      "type" : "string"
+                                                   },
+                                                   "status" : {
+                                                      "description" : "The status of the neighbor, as returned by FRR.",
+                                                      "type" : "string"
+                                                   },
+                                                   "uptime" : {
+                                                      "description" : "The uptime of this neighbor, as returned by FRR (e.g. 8h24m12s).",
+                                                      "type" : "string"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/fabrics/{fabric}/neighbors",
+                                    "text" : "neighbors"
+                                 },
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
+                                          "description" : "Get all interfaces for a fabric.",
+                                          "method" : "GET",
+                                          "name" : "interfaces",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "fabric" : {
+                                                   "description" : "Identifier for SDN fabrics",
+                                                   "format" : "pve-sdn-fabric-id",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "check" : [
+                                                "perm",
+                                                "/sdn/fabrics/{fabric}",
+                                                [
+                                                   "SDN.Audit"
+                                                ]
+                                             ]
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "items" : {
+                                                "properties" : {
+                                                   "name" : {
+                                                      "description" : "The name of the network interface.",
+                                                      "type" : "string"
+                                                   },
+                                                   "state" : {
+                                                      "description" : "The current state of the interface.",
+                                                      "type" : "string"
+                                                   },
+                                                   "type" : {
+                                                      "description" : "The type of this interface in the fabric (e.g. Point-to-Point, Broadcast, ..).",
+                                                      "type" : "string"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/fabrics/{fabric}/interfaces",
+                                    "text" : "interfaces"
+                                 }
+                              ],
+                              "info" : {
+                                 "GET" : {
+                                    "allowtoken" : 1,
+                                    "description" : "Directory index for SDN fabric status.",
+                                    "method" : "GET",
+                                    "name" : "diridx",
+                                    "parameters" : {
+                                       "additionalProperties" : 0,
+                                       "properties" : {
+                                          "fabric" : {
+                                             "description" : "Identifier for SDN fabrics",
+                                             "format" : "pve-sdn-fabric-id",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          },
+                                          "node" : {
+                                             "description" : "The cluster node name.",
+                                             "format" : "pve-node",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          }
+                                       }
+                                    },
+                                    "permissions" : {
+                                       "check" : [
+                                          "perm",
+                                          "/sdn/fabrics/{fabric}",
+                                          [
+                                             "SDN.Audit"
+                                          ]
+                                       ]
+                                    },
+                                    "returns" : {
+                                       "items" : {
+                                          "properties" : {
+                                             "subdir" : {
+                                                "type" : "string"
+                                             }
+                                          },
+                                          "type" : "object"
+                                       },
+                                       "links" : [
+                                          {
+                                             "href" : "{subdir}",
+                                             "rel" : "child"
+                                          }
+                                       ],
+                                       "type" : "array"
+                                    }
+                                 }
+                              },
+                              "leaf" : 0,
+                              "path" : "/nodes/{node}/sdn/fabrics/{fabric}",
+                              "text" : "{fabric}"
+                           }
+                        ],
+                        "leaf" : 0,
+                        "path" : "/nodes/{node}/sdn/fabrics",
+                        "text" : "fabrics"
+                     },
+                     {
+                        "children" : [
+                           {
+                              "children" : [
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
                                           "description" : "List zone content.",
                                           "method" : "GET",
                                           "name" : "index",
@@ -54069,9 +57654,7 @@ const apiSchema = [
                                                 "/sdn/zones/{zone}",
                                                 [
                                                    "SDN.Audit"
-                                                ],
-                                                "any",
-                                                1
+                                                ]
                                              ]
                                           },
                                           "protected" : 1,
@@ -54109,12 +57692,177 @@ const apiSchema = [
                                     "leaf" : 1,
                                     "path" : "/nodes/{node}/sdn/zones/{zone}/content",
                                     "text" : "content"
+                                 },
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
+                                          "description" : "Get a list of all bridges (vnets) that are part of a zone, as well as the ports that are members of that bridge.",
+                                          "method" : "GET",
+                                          "name" : "bridges",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "zone" : {
+                                                   "description" : "zone name or \"localnetwork\"",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "check" : [
+                                                "perm",
+                                                "/sdn/zones/{zone}",
+                                                [
+                                                   "SDN.Audit"
+                                                ]
+                                             ]
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "items" : {
+                                                "description" : "List of bridges contained in the SDN zone.",
+                                                "properties" : {
+                                                   "name" : {
+                                                      "description" : "Name of the bridge.",
+                                                      "type" : "string"
+                                                   },
+                                                   "ports" : {
+                                                      "description" : "All ports that are members of the bridge",
+                                                      "items" : {
+                                                         "description" : "Information about bridge ports.",
+                                                         "properties" : {
+                                                            "index" : {
+                                                               "description" : "The index of the guests network device that this interface belongs to.",
+                                                               "optional" : 1,
+                                                               "type" : "string"
+                                                            },
+                                                            "name" : {
+                                                               "description" : "The name of the bridge port.",
+                                                               "type" : "string"
+                                                            },
+                                                            "primary_vlan" : {
+                                                               "description" : "The primary VLAN configured for the port of this bridge (= PVID). Only for VLAN-aware bridges.",
+                                                               "optional" : 1,
+                                                               "type" : "number"
+                                                            },
+                                                            "vlans" : {
+                                                               "description" : "A list of VLANs and VLAN ranges that are allowed for this bridge port in addition to the primary VLAN. Only for VLAN-aware bridges.",
+                                                               "items" : {
+                                                                  "description" : "A single VLAN (123) or a VLAN range (234-435).",
+                                                                  "type" : "string"
+                                                               },
+                                                               "optional" : 1,
+                                                               "type" : "array"
+                                                            },
+                                                            "vmid" : {
+                                                               "description" : "The ID of the guest that this interface belongs to.",
+                                                               "optional" : 1,
+                                                               "type" : "number"
+                                                            }
+                                                         },
+                                                         "type" : "object"
+                                                      },
+                                                      "type" : "array"
+                                                   },
+                                                   "vlan_filtering" : {
+                                                      "description" : "Whether VLAN filtering is enabled for this bridge (= VLAN-aware).",
+                                                      "type" : "string"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/zones/{zone}/bridges",
+                                    "text" : "bridges"
+                                 },
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
+                                          "description" : "Get the IP VRF of an EVPN zone.",
+                                          "method" : "GET",
+                                          "name" : "ip-vrf",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "zone" : {
+                                                   "description" : "Name of an EVPN zone.",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "check" : [
+                                                "perm",
+                                                "/sdn/zones/{zone}",
+                                                [
+                                                   "SDN.Audit"
+                                                ]
+                                             ]
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "description" : "All entries in the VRF table of zone {zone} of the node.This does not include /32 routes for guests on this host,since they are handled via the respective vnet bridge directly.",
+                                             "items" : {
+                                                "properties" : {
+                                                   "ip" : {
+                                                      "description" : "The CIDR of the route table entry.",
+                                                      "format" : "CIDR",
+                                                      "type" : "string"
+                                                   },
+                                                   "metric" : {
+                                                      "description" : "This route's metric.",
+                                                      "type" : "integer"
+                                                   },
+                                                   "nexthops" : {
+                                                      "description" : "A list of nexthops for the route table entry.",
+                                                      "items" : {
+                                                         "description" : "the interface name or ip address of the next hop",
+                                                         "type" : "string"
+                                                      },
+                                                      "type" : "array"
+                                                   },
+                                                   "protocol" : {
+                                                      "description" : "The protocol where this route was learned from (e.g. BGP).",
+                                                      "type" : "string"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/zones/{zone}/ip-vrf",
+                                    "text" : "ip-vrf"
                                  }
                               ],
                               "info" : {
                                  "GET" : {
                                     "allowtoken" : 1,
-                                    "description" : "",
+                                    "description" : "Directory index for SDN zone status.",
                                     "method" : "GET",
                                     "name" : "diridx",
                                     "parameters" : {
@@ -54140,9 +57888,7 @@ const apiSchema = [
                                           "/sdn/zones/{zone}",
                                           [
                                              "SDN.Audit"
-                                          ],
-                                          "any",
-                                          1
+                                          ]
                                        ]
                                     },
                                     "returns" : {
@@ -54225,6 +57971,126 @@ const apiSchema = [
                         "leaf" : 0,
                         "path" : "/nodes/{node}/sdn/zones",
                         "text" : "zones"
+                     },
+                     {
+                        "children" : [
+                           {
+                              "children" : [
+                                 {
+                                    "info" : {
+                                       "GET" : {
+                                          "allowtoken" : 1,
+                                          "description" : "Get the MAC VRF for a VNet in an EVPN zone.",
+                                          "method" : "GET",
+                                          "name" : "mac-vrf",
+                                          "parameters" : {
+                                             "additionalProperties" : 0,
+                                             "properties" : {
+                                                "node" : {
+                                                   "description" : "The cluster node name.",
+                                                   "format" : "pve-node",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                },
+                                                "vnet" : {
+                                                   "description" : "The SDN vnet object identifier.",
+                                                   "format" : "pve-sdn-vnet-id",
+                                                   "type" : "string",
+                                                   "typetext" : "<string>"
+                                                }
+                                             }
+                                          },
+                                          "permissions" : {
+                                             "description" : "Require 'SDN.Audit' permissions on '/sdn/zones/<zone>/<vnet>'",
+                                             "user" : "all"
+                                          },
+                                          "protected" : 1,
+                                          "proxyto" : "node",
+                                          "returns" : {
+                                             "description" : "All routes from the MAC VRF that this node self-originates or has learned via BGP.",
+                                             "items" : {
+                                                "properties" : {
+                                                   "ip" : {
+                                                      "description" : "The IP address of the MAC VRF entry.",
+                                                      "format" : "ip",
+                                                      "type" : "string"
+                                                   },
+                                                   "mac" : {
+                                                      "description" : "The MAC address of the MAC VRF entry.",
+                                                      "format" : "mac-addr",
+                                                      "type" : "string"
+                                                   },
+                                                   "nexthop" : {
+                                                      "description" : "The IP address of the nexthop.",
+                                                      "format" : "ip",
+                                                      "type" : "string"
+                                                   }
+                                                },
+                                                "type" : "object"
+                                             },
+                                             "type" : "array"
+                                          }
+                                       }
+                                    },
+                                    "leaf" : 1,
+                                    "path" : "/nodes/{node}/sdn/vnets/{vnet}/mac-vrf",
+                                    "text" : "mac-vrf"
+                                 }
+                              ],
+                              "info" : {
+                                 "GET" : {
+                                    "allowtoken" : 1,
+                                    "description" : "",
+                                    "method" : "GET",
+                                    "name" : "diridx",
+                                    "parameters" : {
+                                       "additionalProperties" : 0,
+                                       "properties" : {
+                                          "node" : {
+                                             "description" : "The cluster node name.",
+                                             "format" : "pve-node",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          },
+                                          "vnet" : {
+                                             "description" : "The SDN vnet object identifier.",
+                                             "format" : "pve-sdn-vnet-id",
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          }
+                                       }
+                                    },
+                                    "permissions" : {
+                                       "description" : "Require 'SDN.Audit' permissions on '/sdn/zones/<zone>/<vnet>'",
+                                       "user" : "all"
+                                    },
+                                    "returns" : {
+                                       "items" : {
+                                          "properties" : {
+                                             "subdir" : {
+                                                "type" : "string"
+                                             }
+                                          },
+                                          "type" : "object"
+                                       },
+                                       "links" : [
+                                          {
+                                             "href" : "{subdir}",
+                                             "rel" : "child"
+                                          }
+                                       ],
+                                       "type" : "array"
+                                    }
+                                 }
+                              },
+                              "leaf" : 0,
+                              "path" : "/nodes/{node}/sdn/vnets/{vnet}",
+                              "text" : "{vnet}"
+                           }
+                        ],
+                        "leaf" : 0,
+                        "path" : "/nodes/{node}/sdn/vnets",
+                        "text" : "vnets"
                      }
                   ],
                   "info" : {
@@ -54247,6 +58113,7 @@ const apiSchema = [
                         "permissions" : {
                            "user" : "all"
                         },
+                        "proxyto" : "node",
                         "returns" : {
                            "items" : {
                               "properties" : {},
@@ -54932,9 +58799,9 @@ const apiSchema = [
                                  "default" : "login",
                                  "description" : "Run specific command or default to login (requires 'root@pam')",
                                  "enum" : [
-                                    "upgrade",
                                     "ceph_install",
-                                    "login"
+                                    "login",
+                                    "upgrade"
                                  ],
                                  "optional" : 1,
                                  "type" : "string"
@@ -55027,9 +58894,9 @@ const apiSchema = [
                                  "default" : "login",
                                  "description" : "Run specific command or default to login (requires 'root@pam')",
                                  "enum" : [
-                                    "upgrade",
                                     "ceph_install",
-                                    "login"
+                                    "login",
+                                    "upgrade"
                                  ],
                                  "optional" : 1,
                                  "type" : "string"
@@ -55064,15 +58931,19 @@ const apiSchema = [
                            "additionalProperties" : 0,
                            "properties" : {
                               "port" : {
+                                 "description" : "port used to bind termproxy to.",
                                  "type" : "integer"
                               },
                               "ticket" : {
+                                 "description" : "VNC ticket used to verify websocket connection.",
                                  "type" : "string"
                               },
                               "upid" : {
+                                 "description" : "UPID for termproxy worker task.",
                                  "type" : "string"
                               },
                               "user" : {
+                                 "description" : "user/token that generated the VNC ticket in `ticket`.",
                                  "type" : "string"
                               }
                            }
@@ -55152,9 +59023,9 @@ const apiSchema = [
                                  "default" : "login",
                                  "description" : "Run specific command or default to login (requires 'root@pam')",
                                  "enum" : [
-                                    "upgrade",
                                     "ceph_install",
-                                    "login"
+                                    "login",
+                                    "upgrade"
                                  ],
                                  "optional" : 1,
                                  "type" : "string"
@@ -55507,6 +59378,51 @@ const apiSchema = [
                   "leaf" : 1,
                   "path" : "/nodes/{node}/aplinfo",
                   "text" : "aplinfo"
+               },
+               {
+                  "info" : {
+                     "GET" : {
+                        "allowtoken" : 1,
+                        "description" : "List all tags for an OCI repository reference.",
+                        "method" : "GET",
+                        "name" : "query_oci_repo_tags",
+                        "parameters" : {
+                           "additionalProperties" : 0,
+                           "properties" : {
+                              "node" : {
+                                 "description" : "The cluster node name.",
+                                 "format" : "pve-node",
+                                 "type" : "string",
+                                 "typetext" : "<string>"
+                              },
+                              "reference" : {
+                                 "description" : "The reference to the repository to query tags from.",
+                                 "pattern" : "^(?:(?:[a-zA-Z\\d]|[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d])(?:\\.(?:[a-zA-Z\\d]|[a-zA-Z\\d][a-zA-Z\\d-]*[a-zA-Z\\d]))*(?::\\d+)?/)?[a-z\\d]+(?:(?:[._]|__|[-]*)[a-z\\d]+)*(?:/[a-z\\d]+(?:(?:[._]|__|[-]*)[a-z\\d]+)*)*$",
+                                 "type" : "string"
+                              }
+                           }
+                        },
+                        "permissions" : {
+                           "check" : [
+                              "perm",
+                              "/nodes/{node}",
+                              [
+                                 "Sys.AccessNetwork"
+                              ]
+                           ]
+                        },
+                        "proxyto" : "node",
+                        "returns" : {
+                           "items" : {
+                              "type" : "string"
+                           },
+                           "type" : "array"
+                        }
+                     }
+                  },
+                  "leaf" : 1,
+                  "path" : "/nodes/{node}/query-oci-repo-tags",
+                  "text" : "query-oci-repo-tags"
                },
                {
                   "info" : {
@@ -56414,6 +60330,20 @@ const apiSchema = [
                            "type" : "boolean",
                            "typetext" : "<boolean>"
                         },
+                        "saferemove-stepsize" : {
+                           "default" : 32,
+                           "description" : "Wipe step size in MiB. It will be capped to the maximum supported by the storage.",
+                           "enum" : [
+                              "1",
+                              "2",
+                              "4",
+                              "8",
+                              "16",
+                              "32"
+                           ],
+                           "optional" : 1,
+                           "type" : "integer"
+                        },
                         "saferemove_throughput" : {
                            "description" : "Wipe throughput (cstream -t parameter value).",
                            "optional" : 1,
@@ -56517,11 +60447,11 @@ const apiSchema = [
                      "properties" : {
                         "config" : {
                            "additionalProperties" : 1,
-                           "description" : "Partial, possible server generated, configuration properties.",
+                           "description" : "Partial, possibly server generated, configuration properties.",
                            "optional" : 1,
                            "properties" : {
                               "encryption-key" : {
-                                 "description" : "The, possible auto-generated, encryption-key.",
+                                 "description" : "The, possibly auto-generated, encryption-key.",
                                  "optional" : 1,
                                  "type" : "string"
                               }
@@ -56954,6 +60884,20 @@ const apiSchema = [
                      "type" : "boolean",
                      "typetext" : "<boolean>"
                   },
+                  "saferemove-stepsize" : {
+                     "default" : 32,
+                     "description" : "Wipe step size in MiB. It will be capped to the maximum supported by the storage.",
+                     "enum" : [
+                        "1",
+                        "2",
+                        "4",
+                        "8",
+                        "16",
+                        "32"
+                     ],
+                     "optional" : 1,
+                     "type" : "integer"
+                  },
                   "saferemove_throughput" : {
                      "description" : "Wipe throughput (cstream -t parameter value).",
                      "optional" : 1,
@@ -57103,11 +61047,11 @@ const apiSchema = [
                "properties" : {
                   "config" : {
                      "additionalProperties" : 1,
-                     "description" : "Partial, possible server generated, configuration properties.",
+                     "description" : "Partial, possibly server generated, configuration properties.",
                      "optional" : 1,
                      "properties" : {
                         "encryption-key" : {
-                           "description" : "The, possible auto-generated, encryption-key.",
+                           "description" : "The, possibly auto-generated, encryption-key.",
                            "optional" : 1,
                            "type" : "string"
                         }
@@ -57490,6 +61434,13 @@ const apiSchema = [
                                        "additionalProperties" : 0,
                                        "properties" : {
                                           "comment" : {
+                                             "optional" : 1,
+                                             "type" : "string",
+                                             "typetext" : "<string>"
+                                          },
+                                          "delete" : {
+                                             "description" : "A list of settings you want to delete.",
+                                             "format" : "pve-configid-list",
                                              "optional" : 1,
                                              "type" : "string",
                                              "typetext" : "<string>"
@@ -60427,6 +64378,56 @@ const apiSchema = [
          },
          {
             "info" : {
+               "POST" : {
+                  "allowtoken" : 1,
+                  "description" : "verify VNC authentication ticket.",
+                  "method" : "POST",
+                  "name" : "verify_vnc_ticket",
+                  "parameters" : {
+                     "additionalProperties" : 0,
+                     "properties" : {
+                        "authid" : {
+                           "description" : "UserId or token",
+                           "maxLength" : 64,
+                           "type" : "string",
+                           "typetext" : "<string>"
+                        },
+                        "path" : {
+                           "description" : "Verify ticket, and check if user have access 'privs' on 'path'",
+                           "maxLength" : 64,
+                           "type" : "string",
+                           "typetext" : "<string>"
+                        },
+                        "privs" : {
+                           "description" : "Verify ticket, and check if user have access 'privs' on 'path'",
+                           "format" : "pve-priv-list",
+                           "maxLength" : 64,
+                           "type" : "string",
+                           "typetext" : "<string>"
+                        },
+                        "vncticket" : {
+                           "description" : "The VNC ticket.",
+                           "type" : "string",
+                           "typetext" : "<string>"
+                        }
+                     }
+                  },
+                  "permissions" : {
+                     "description" : "You need to pass valid credientials.",
+                     "user" : "world"
+                  },
+                  "protected" : 1,
+                  "returns" : {
+                     "type" : "null"
+                  }
+               }
+            },
+            "leaf" : 1,
+            "path" : "/access/vncticket",
+            "text" : "vncticket"
+         },
+         {
+            "info" : {
                "PUT" : {
                   "allowtoken" : 0,
                   "description" : "Change user password.",
@@ -61416,55 +65417,64 @@ Ext.onReady(function () {
                     });
 
                     sections.push({
-                        xtype: 'gridpanel',
+                        xtype: 'panel',
                         title: 'Returns: ' + rtype,
-                        features: [groupingFeature],
-                        store: rpstore,
-                        viewConfig: {
-                            trackOver: false,
-                            stripeRows: true,
-                            enableTextSelection: true,
-                        },
-                        columns: [
+                        items: [
+                            info.returns.description ? {
+                                html: Ext.htmlEncode(info.returns.description),
+                                bodyPadding: '5px 10px 5px 10px',
+                            } : {},
                             {
-                                header: 'Name',
-                                dataIndex: 'name',
-                                flex: 1,
-                            },
-                            {
-                                header: 'Type',
-                                dataIndex: 'type',
-                                renderer: render_type,
-                                flex: 1,
-                            },
-                            {
-                                header: 'Default',
-                                dataIndex: 'default',
-                                flex: 1,
-                            },
-                            {
-                                header: 'Format',
-                                dataIndex: 'type',
-                                renderer: render_format,
-                                flex: 2,
-                            },
-                            {
-                                header: 'Description',
-                                dataIndex: 'description',
-                                renderer: render_description,
-                                flex: 6,
-                            },
-                        ],
-                        bbar: [
-                            {
-                                xtype: 'button',
-                                text: 'Show RAW',
-                                handler: function (btn) {
-                                    rawSection.setVisible(!rawSection.isVisible());
-                                    btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                xtype: 'gridpanel',
+                                features: [groupingFeature],
+                                store: rpstore,
+                                viewConfig: {
+                                    trackOver: false,
+                                    stripeRows: true,
+                                    enableTextSelection: true,
                                 },
-                            },
-                        ],
+                                columns: [
+                                    {
+                                        header: 'Name',
+                                        dataIndex: 'name',
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Type',
+                                        dataIndex: 'type',
+                                        renderer: render_type,
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Default',
+                                        dataIndex: 'default',
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Format',
+                                        dataIndex: 'type',
+                                        renderer: render_format,
+                                        flex: 2,
+                                    },
+                                    {
+                                        header: 'Description',
+                                        dataIndex: 'description',
+                                        renderer: render_description,
+                                        flex: 6,
+                                    },
+                                ],
+                                bbar: [
+                                    {
+                                        xtype: 'button',
+                                        text: 'Show RAW',
+                                        handler: function (btn) {
+                                            rawSection.setVisible(!rawSection.isVisible());
+                                            btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                        },
+                                    },
+                                ],
+                            }
+                        ]
                     });
 
                     sections.push(rawSection);

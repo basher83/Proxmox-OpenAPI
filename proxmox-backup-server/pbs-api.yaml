@@ -740,8 +740,8 @@ paths:
         ProxmoxCSRFToken: []
   //access/access/openid/access/openid/login:
     post:
-      summary: Verify OpenID authorization code and create a ticket
-      description: Verify OpenID authorization code and create a ticket
+      summary: Get a new ticket as an HttpOnly cookie. Supports tickets via cookies.
+      description: Get a new ticket as an HttpOnly cookie. Supports tickets via cookies.
       operationId: post_access_access_openid_access_openid_login
       tags:
       - Access Control
@@ -755,6 +755,11 @@ paths:
                 code:
                   type: string
                   description: OpenId authorization code.
+                http-only:
+                  type: boolean
+                  description: Whether the HttpOnly authentication flow should be
+                    used.
+                  default: false
                 redirect-url:
                   type: string
                   description: Redirection Url. The client should set this to used
@@ -779,7 +784,12 @@ paths:
                     description: Cross Site Request Forgery Prevention Token.
                   ticket:
                     type: string
-                    description: Auth ticket.
+                    description: Auth ticket, present if http-only was not provided
+                      or is false.
+                  ticket-info:
+                    type: string
+                    description: Informational ticket, can only be used to check if
+                      the ticket is expired. Present if http-only was true.
                   username:
                     type: string
                     description: User name.
@@ -2910,6 +2920,103 @@ paths:
                 type: boolean
                 description: Whether the user was previously locked out of any 2nd
                   factor.
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //access/access/vncticket:
+    post:
+      summary: Verify that a VNC ticket is valid for a given Authid, path and privilege(s).
+      description: Verify that a VNC ticket is valid for a given Authid, path and
+        privilege(s).
+      operationId: post_access_access_vncticket
+      tags:
+      - Access Control
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                authid:
+                  type: string
+                  description: Authentication ID
+                  minLength: 3
+                  maxLength: 64
+                  pattern: ^(?:(?:[^\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)|(?:[^\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)!(?:[A-Za-z0-9_][A-Za-z0-9._\-]*))$
+                path:
+                  type: string
+                  description: Verify ticket, and check if user have access 'privs'
+                    on 'path'.
+                port:
+                  type: integer
+                  description: Port for verifying terminal tickets.
+                  minimum: 0
+                  maximum: 65535
+                privs:
+                  type: string
+                  description: Verify ticket, and check if user have access 'privs'
+                    on 'path'.
+                vncticket:
+                  type: string
+                  description: The VNC ticket
+              required:
+              - authid
+              - path
+              - privs
+              - vncticket
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -6335,14 +6442,14 @@ paths:
       summary: 'Verify backups.
 
 
-        This function can verify a single backup snapshot, all backup from a backup
+        This function can verify a single backup snapshot, all backups from a backup
         group,
 
         or all backups in the datastore.'
       description: 'Verify backups.
 
 
-        This function can verify a single backup snapshot, all backup from a backup
+        This function can verify a single backup snapshot, all backups from a backup
         group,
 
         or all backups in the datastore.'
@@ -6393,6 +6500,20 @@ paths:
                   description: Days after that a verification becomes outdated. (0
                     is deprecated)'
                   minimum: 0
+                read-threads:
+                  type: integer
+                  description: The number of threads to use for reading chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
+                verify-threads:
+                  type: integer
+                  description: The number of threads to use for verifying chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 4
       parameters:
       - name: store
         in: path
@@ -7370,6 +7491,10 @@ paths:
                       type: integer
                       description: Limit transfer to last N snapshots (per group),
                         skipping others
+                    unmount-on-done:
+                      type: boolean
+                      description: Unmount involved removable datastore after the
+                        sync job finishes. Requires 'run-on-mount' to be enabled.
                     verified-only:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
@@ -7620,6 +7745,13 @@ paths:
                         type: string
                         description: Timeframe to specify when the rule is active.
                       description: Enable the rule at specific times
+                    users:
+                      type: array
+                      items:
+                        type: string
+                        description: User ID
+                      description: Rule applies to authenticated API requests of any
+                        of these users (overrides IP-only rules)
                   description: Traffic control rule config with current rates
                 description: Show current traffic control rates.
         '400':
@@ -7729,12 +7861,20 @@ paths:
                       type: integer
                       description: Days after that a verification becomes outdated.
                         (0 is deprecated)'
+                    read-threads:
+                      type: integer
+                      description: The number of threads to use for reading chunks
+                        in verify job.
                     schedule:
                       type: string
                       description: Run verify job at specified schedule.
                     store:
                       type: string
                       description: Datastore name.
+                    verify-threads:
+                      type: integer
+                      description: The number of threads to use for verifying chunks
+                        in verify job.
                   description: Status of Verification Job
                 description: List configured jobs and their status (filtered by access)
         '400':
@@ -19727,6 +19867,14 @@ paths:
                     access-key:
                       type: string
                       description: Access key for S3 object store.
+                    burst-in:
+                      type: string
+                      description: Byte size with optional unit (B, KB (base 10),
+                        MB, GB, ..., KiB (base 2), MiB, Gib, ...).
+                    burst-out:
+                      type: string
+                      description: Byte size with optional unit (B, KB (base 10),
+                        MB, GB, ..., KiB (base 2), MiB, Gib, ...).
                     endpoint:
                       type: string
                       description: Endpoint to access S3 object store.
@@ -19751,7 +19899,15 @@ paths:
                         quirks.
                     put-rate-limit:
                       type: integer
-                      description: 'Rate limit for put requests given as #reqest/s.'
+                      description: 'Rate limit for put requests given as #request/s.'
+                    rate-in:
+                      type: string
+                      description: Byte size with optional unit (B, KB (base 10),
+                        MB, GB, ..., KiB (base 2), MiB, Gib, ...).
+                    rate-out:
+                      type: string
+                      description: Byte size with optional unit (B, KB (base 10),
+                        MB, GB, ..., KiB (base 2), MiB, Gib, ...).
                     region:
                       type: string
                       description: Region to access S3 object store.
@@ -19819,6 +19975,18 @@ paths:
                 access-key:
                   type: string
                   description: Access key for S3 object store.
+                burst-in:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
+                burst-out:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
                 endpoint:
                   type: string
                   description: Endpoint to access S3 object store.
@@ -19847,11 +20015,22 @@ paths:
                     type: string
                 put-rate-limit:
                   type: integer
-                  description: 'Rate limit for put requests given as #reqest/s.'
+                  description: 'Rate limit for put requests given as #request/s.'
+                rate-in:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
+                rate-out:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
                 region:
                   type: string
                   description: Region to access S3 object store.
-                  minLength: 3
                   maxLength: 32
                   pattern: ^[_a-z\d][-_a-z\d]+$
                 secret-key:
@@ -20022,6 +20201,14 @@ paths:
                   access-key:
                     type: string
                     description: Access key for S3 object store.
+                  burst-in:
+                    type: string
+                    description: Byte size with optional unit (B, KB (base 10), MB,
+                      GB, ..., KiB (base 2), MiB, Gib, ...).
+                  burst-out:
+                    type: string
+                    description: Byte size with optional unit (B, KB (base 10), MB,
+                      GB, ..., KiB (base 2), MiB, Gib, ...).
                   endpoint:
                     type: string
                     description: Endpoint to access S3 object store.
@@ -20046,7 +20233,15 @@ paths:
                       quirks.
                   put-rate-limit:
                     type: integer
-                    description: 'Rate limit for put requests given as #reqest/s.'
+                    description: 'Rate limit for put requests given as #request/s.'
+                  rate-in:
+                    type: string
+                    description: Byte size with optional unit (B, KB (base 10), MB,
+                      GB, ..., KiB (base 2), MiB, Gib, ...).
+                  rate-out:
+                    type: string
+                    description: Byte size with optional unit (B, KB (base 10), MB,
+                      GB, ..., KiB (base 2), MiB, Gib, ...).
                   region:
                     type: string
                     description: Region to access S3 object store.
@@ -20113,6 +20308,18 @@ paths:
                 access-key:
                   type: string
                   description: Access key for S3 object store.
+                burst-in:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
+                burst-out:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
                 delete:
                   type: array
                   description: List of properties to delete.
@@ -20145,11 +20352,22 @@ paths:
                     type: string
                 put-rate-limit:
                   type: integer
-                  description: 'Rate limit for put requests given as #reqest/s.'
+                  description: 'Rate limit for put requests given as #request/s.'
+                rate-in:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
+                rate-out:
+                  type: string
+                  description: Byte size with optional unit (B, KB (base 10), MB,
+                    GB, ..., KiB (base 2), MiB, Gib, ...).
+                  minLength: 1
+                  maxLength: 64
                 region:
                   type: string
                   description: Region to access S3 object store.
-                  minLength: 3
                   maxLength: 32
                   pattern: ^[_a-z\d][-_a-z\d]+$
                 secret-key:
@@ -20396,6 +20614,10 @@ paths:
                       type: integer
                       description: Limit transfer to last N snapshots (per group),
                         skipping others
+                    unmount-on-done:
+                      type: boolean
+                      description: Unmount involved removable datastore after the
+                        sync job finishes. Requires 'run-on-mount' to be enabled.
                     verified-only:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
@@ -20573,6 +20795,10 @@ paths:
                   description: Limit transfer to last N snapshots (per group), skipping
                     others
                   minimum: 1
+                unmount-on-done:
+                  type: boolean
+                  description: Unmount involved removable datastore after the sync
+                    job finishes. Requires 'run-on-mount' to be enabled.
                 verified-only:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
@@ -20816,6 +21042,10 @@ paths:
                     type: integer
                     description: Limit transfer to last N snapshots (per group), skipping
                       others
+                  unmount-on-done:
+                    type: boolean
+                    description: Unmount involved removable datastore after the sync
+                      job finishes. Requires 'run-on-mount' to be enabled.
                   verified-only:
                     type: boolean
                     description: Only synchronize verified backup snapshots, exclude
@@ -20996,6 +21226,10 @@ paths:
                   description: Limit transfer to last N snapshots (per group), skipping
                     others
                   minimum: 1
+                unmount-on-done:
+                  type: boolean
+                  description: Unmount involved removable datastore after the sync
+                    job finishes. Requires 'run-on-mount' to be enabled.
                 verified-only:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
@@ -21140,8 +21374,8 @@ paths:
                       description: Datastore name.
                     worker-threads:
                       type: integer
-                      description: Set the number of worker threads to use for the
-                        job
+                      description: The number of threads to use for the tape backup
+                        job.
                   description: Tape Backup Job
                 description: List configured jobs.
         '400':
@@ -21285,7 +21519,7 @@ paths:
                   pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
                 worker-threads:
                   type: integer
-                  description: Set the number of worker threads to use for the job
+                  description: The number of threads to use for the tape backup job.
                   minimum: 1
                   maximum: 32
                   default: 1
@@ -21511,7 +21745,8 @@ paths:
                     description: Datastore name.
                   worker-threads:
                     type: integer
-                    description: Set the number of worker threads to use for the job
+                    description: The number of threads to use for the tape backup
+                      job.
                 description: Tape Backup Job
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -21658,7 +21893,7 @@ paths:
                   pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
                 worker-threads:
                   type: integer
-                  description: Set the number of worker threads to use for the job
+                  description: The number of threads to use for the tape backup job.
                   minimum: 1
                   maximum: 32
                   default: 1
@@ -22240,6 +22475,13 @@ paths:
                         type: string
                         description: Timeframe to specify when the rule is active.
                       description: Enable the rule at specific times
+                    users:
+                      type: array
+                      items:
+                        type: string
+                        description: User ID
+                      description: Rule applies to authenticated API requests of any
+                        of these users (overrides IP-only rules)
                   description: Traffic control rule
                 description: The list of configured traffic control rules (with config
                   digest).
@@ -22345,6 +22587,12 @@ paths:
                 timeframe:
                   type: array
                   description: Enable the rule at specific times
+                  items:
+                    type: string
+                users:
+                  type: array
+                  description: Rule applies to authenticated API requests of any of
+                    these users (overrides IP-only rules)
                   items:
                     type: string
               required:
@@ -22541,6 +22789,13 @@ paths:
                       type: string
                       description: Timeframe to specify when the rule is active.
                     description: Enable the rule at specific times
+                  users:
+                    type: array
+                    items:
+                      type: string
+                      description: User ID
+                    description: Rule applies to authenticated API requests of any
+                      of these users (overrides IP-only rules)
                 description: Traffic control rule
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -22650,6 +22905,12 @@ paths:
                   description: Enable the rule at specific times
                   items:
                     type: string
+                users:
+                  type: array
+                  description: Rule applies to authenticated API requests of any of
+                    these users (overrides IP-only rules)
+                  items:
+                    type: string
       parameters:
       - name: name
         in: path
@@ -22751,12 +23012,20 @@ paths:
                       type: integer
                       description: Days after that a verification becomes outdated.
                         (0 is deprecated)'
+                    read-threads:
+                      type: integer
+                      description: The number of threads to use for reading chunks
+                        in verify job.
                     schedule:
                       type: string
                       description: Run verify job at specified schedule.
                     store:
                       type: string
                       description: Datastore name.
+                    verify-threads:
+                      type: integer
+                      description: The number of threads to use for verifying chunks
+                        in verify job.
                   description: Verification Job
                 description: List configured jobs.
         '400':
@@ -22851,6 +23120,13 @@ paths:
                   description: Days after that a verification becomes outdated. (0
                     is deprecated)'
                   minimum: 0
+                read-threads:
+                  type: integer
+                  description: The number of threads to use for reading chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
                 schedule:
                   type: string
                   description: Run verify job at specified schedule.
@@ -22860,6 +23136,13 @@ paths:
                   minLength: 3
                   maxLength: 32
                   pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                verify-threads:
+                  type: integer
+                  description: The number of threads to use for verifying chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 4
               required:
               - id
               - store
@@ -23041,12 +23324,20 @@ paths:
                     type: integer
                     description: Days after that a verification becomes outdated.
                       (0 is deprecated)'
+                  read-threads:
+                    type: integer
+                    description: The number of threads to use for reading chunks in
+                      verify job.
                   schedule:
                     type: string
                     description: Run verify job at specified schedule.
                   store:
                     type: string
                     description: Datastore name.
+                  verify-threads:
+                    type: integer
+                    description: The number of threads to use for verifying chunks
+                      in verify job.
                 description: Verification Job
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -23144,6 +23435,13 @@ paths:
                   description: Days after that a verification becomes outdated. (0
                     is deprecated)'
                   minimum: 0
+                read-threads:
+                  type: integer
+                  description: The number of threads to use for reading chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
                 schedule:
                   type: string
                   description: Run verify job at specified schedule.
@@ -23153,6 +23451,13 @@ paths:
                   minLength: 3
                   maxLength: 32
                   pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                verify-threads:
+                  type: integer
+                  description: The number of threads to use for verifying chunks in
+                    verify job.
+                  minimum: 1
+                  maximum: 32
+                  default: 4
       parameters:
       - name: id
         in: path
@@ -29412,25 +29717,26 @@ paths:
         description: The node parameter
       responses:
         '200':
-          description: Object with the user, ticket, port and upid
+          description: Ticket used for authenticating a VNC websocket upgrade request.
           content:
             application/json:
               schema:
                 type: object
                 properties:
                   port:
-                    type: string
-                    description: ''
+                    type: integer
+                    description: port used to bind termproxy to
                   ticket:
                     type: string
-                    description: ''
+                    description: ticket used to verifiy websocket connection
                   upid:
                     type: string
-                    description: ''
+                    description: UPID for termproxy worker task
                   user:
                     type: string
-                    description: ''
-                description: Object with the user, ticket, port and upid
+                    description: user or authid encoded in the ticket
+                description: Ticket used for authenticating a VNC websocket upgrade
+                  request.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -30676,8 +30982,8 @@ paths:
                       description: Datastore name.
                     worker-threads:
                       type: integer
-                      description: Set the number of worker threads to use for the
-                        job
+                      description: The number of threads to use for the tape backup
+                        job.
                   description: Status of Tape Backup Job
                 description: List configured thape backup jobs and their status
         '400':
@@ -30811,7 +31117,7 @@ paths:
                   pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
                 worker-threads:
                   type: integer
-                  description: Set the number of worker threads to use for the job
+                  description: The number of threads to use for the tape backup job.
                   minimum: 1
                   maximum: 32
                   default: 1
@@ -32579,7 +32885,7 @@ paths:
                     description: MediaSet Creation time stamp
                   media-set-uuid:
                     type: string
-                    description: MediaSet Uuid (We use the all-zero Uuid to reseve
+                    description: MediaSet Uuid (We use the all-zero Uuid to reserve
                       an empty media for a specific pool).
                   pool:
                     type: string
@@ -33269,10 +33575,10 @@ paths:
         required: false
         schema:
           type: string
-          description: MediaSet Uuid (We use the all-zero Uuid to reseve an empty
+          description: MediaSet Uuid (We use the all-zero Uuid to reserve an empty
             media for a specific pool).
           pattern: ^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$
-        description: MediaSet Uuid (We use the all-zero Uuid to reseve an empty media
+        description: MediaSet Uuid (We use the all-zero Uuid to reserve an empty media
           for a specific pool).
       - name: pool
         in: query
@@ -33308,7 +33614,7 @@ paths:
                       description: Media set name
                     media-set-uuid:
                       type: string
-                      description: MediaSet Uuid (We use the all-zero Uuid to reseve
+                      description: MediaSet Uuid (We use the all-zero Uuid to reserve
                         an empty media for a specific pool).
                     pool:
                       type: string
@@ -33534,7 +33840,7 @@ paths:
                       description: Media set name
                     media-set-uuid:
                       type: string
-                      description: MediaSet Uuid (We use the all-zero Uuid to reseve
+                      description: MediaSet Uuid (We use the all-zero Uuid to reserve
                         an empty media for a specific pool).
                     pool:
                       type: string
@@ -33860,7 +34166,7 @@ paths:
                       description: Media set name
                     media-set-uuid:
                       type: string
-                      description: MediaSet Uuid (We use the all-zero Uuid to reseve
+                      description: MediaSet Uuid (We use the all-zero Uuid to reserve
                         an empty media for a specific pool).
                     pool:
                       type: string

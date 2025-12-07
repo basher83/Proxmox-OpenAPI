@@ -207,7 +207,7 @@ var apiSchema = [
                             "realm": {
                               "description": "Authentication domain ID",
                               "maxLength": 32,
-                              "minLength": 3,
+                              "minLength": 2,
                               "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                               "type": "string"
                             },
@@ -367,15 +367,21 @@ var apiSchema = [
               {
                 "info": {
                   "POST": {
-                    "description": "Verify OpenID authorization code and create a ticket",
+                    "description": "Get a new ticket as an HttpOnly cookie. Supports tickets via cookies.",
                     "method": "POST",
                     "parameters": {
                       "additionalProperties": false,
-                      "description": "Verify OpenID authorization code and create a ticket",
+                      "description": "Get a new ticket as an HttpOnly cookie. Supports tickets via cookies.",
                       "properties": {
                         "code": {
                           "description": "OpenId authorization code.",
                           "type": "string"
+                        },
+                        "http-only": {
+                          "default": false,
+                          "description": "Whether the HttpOnly authentication flow should be used.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "redirect-url": {
                           "description": "Redirection Url. The client should set this to used server url.",
@@ -399,7 +405,13 @@ var apiSchema = [
                           "type": "string"
                         },
                         "ticket": {
-                          "description": "Auth ticket.",
+                          "description": "Auth ticket, present if http-only was not provided or is false.",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "ticket-info": {
+                          "description": "Informational ticket, can only be used to check if the ticket is expired. Present if http-only was true.",
+                          "optional": 1,
                           "type": "string"
                         },
                         "username": {
@@ -2054,6 +2066,55 @@ var apiSchema = [
             "leaf": 0,
             "path": "/access/users",
             "text": "users"
+          },
+          {
+            "info": {
+              "POST": {
+                "description": "Verify that a VNC ticket is valid for a given Authid, path and privilege(s).",
+                "method": "POST",
+                "parameters": {
+                  "additionalProperties": false,
+                  "description": "Verify that a VNC ticket is valid for a given Authid, path and privilege(s).",
+                  "properties": {
+                    "authid": {
+                      "description": "Authentication ID",
+                      "maxLength": 64,
+                      "minLength": 3,
+                      "pattern": "/^(?:(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)|(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)!(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*))$/",
+                      "type": "string"
+                    },
+                    "path": {
+                      "description": "Verify ticket, and check if user have access 'privs' on 'path'.",
+                      "type": "string"
+                    },
+                    "port": {
+                      "description": "Port for verifying terminal tickets.",
+                      "maximum": 65535,
+                      "minimum": 0,
+                      "optional": 1,
+                      "type": "integer"
+                    },
+                    "privs": {
+                      "description": "Verify ticket, and check if user have access 'privs' on 'path'.",
+                      "type": "string"
+                    },
+                    "vncticket": {
+                      "description": "The VNC ticket",
+                      "type": "string"
+                    }
+                  }
+                },
+                "permissions": {
+                  "user": "world"
+                },
+                "returns": {
+                  "type": "null"
+                }
+              }
+            },
+            "leaf": 1,
+            "path": "/access/vncticket",
+            "text": "vncticket"
           }
         ],
         "info": {
@@ -4254,11 +4315,11 @@ var apiSchema = [
                   {
                     "info": {
                       "POST": {
-                        "description": "Verify backups.\n\nThis function can verify a single backup snapshot, all backup from a backup group,\nor all backups in the datastore.",
+                        "description": "Verify backups.\n\nThis function can verify a single backup snapshot, all backups from a backup group,\nor all backups in the datastore.",
                         "method": "POST",
                         "parameters": {
                           "additionalProperties": false,
-                          "description": "Verify backups.\n\nThis function can verify a single backup snapshot, all backup from a backup group,\nor all backups in the datastore.",
+                          "description": "Verify backups.\n\nThis function can verify a single backup snapshot, all backups from a backup group,\nor all backups in the datastore.",
                           "properties": {
                             "backup-id": {
                               "description": "Backup ID.",
@@ -4309,12 +4370,28 @@ var apiSchema = [
                               "optional": 1,
                               "type": "integer"
                             },
+                            "read-threads": {
+                              "default": 1,
+                              "description": "The number of threads to use for reading chunks in verify job.",
+                              "maximum": 32,
+                              "minimum": 1,
+                              "optional": 1,
+                              "type": "integer"
+                            },
                             "store": {
                               "description": "Datastore name.",
                               "maxLength": 32,
                               "minLength": 3,
                               "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                               "type": "string"
+                            },
+                            "verify-threads": {
+                              "default": 4,
+                              "description": "The number of threads to use for verifying chunks in verify job.",
+                              "maximum": 32,
+                              "minimum": 1,
+                              "optional": 1,
+                              "type": "integer"
                             }
                           }
                         },
@@ -5340,6 +5417,11 @@ var apiSchema = [
                         "optional": 1,
                         "type": "integer"
                       },
+                      "unmount-on-done": {
+                        "description": "Unmount involved removable datastore after the sync job finishes. Requires 'run-on-mount' to be enabled.",
+                        "optional": 1,
+                        "type": "boolean"
+                      },
                       "verified-only": {
                         "description": "Only synchronize verified backup snapshots, exclude others.",
                         "optional": 1,
@@ -5447,6 +5529,18 @@ var apiSchema = [
                         "description": "Enable the rule at specific times",
                         "items": {
                           "description": "Timeframe to specify when the rule is active.",
+                          "type": "string"
+                        },
+                        "optional": 1,
+                        "type": "array"
+                      },
+                      "users": {
+                        "description": "Rule applies to authenticated API requests of any of these users (overrides IP-only rules)",
+                        "items": {
+                          "description": "User ID",
+                          "maxLength": 64,
+                          "minLength": 3,
+                          "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                           "type": "string"
                         },
                         "optional": 1,
@@ -5610,6 +5704,14 @@ var apiSchema = [
                         "optional": 1,
                         "type": "integer"
                       },
+                      "read-threads": {
+                        "default": 1,
+                        "description": "The number of threads to use for reading chunks in verify job.",
+                        "maximum": 32,
+                        "minimum": 1,
+                        "optional": 1,
+                        "type": "integer"
+                      },
                       "schedule": {
                         "description": "Run verify job at specified schedule.",
                         "optional": 1,
@@ -5622,6 +5724,14 @@ var apiSchema = [
                         "minLength": 3,
                         "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                         "type": "string"
+                      },
+                      "verify-threads": {
+                        "default": 4,
+                        "description": "The number of threads to use for verifying chunks in verify job.",
+                        "maximum": 32,
+                        "minimum": 1,
+                        "optional": 1,
+                        "type": "integer"
                       }
                     },
                     "type": "object"
@@ -10102,6 +10212,22 @@ var apiSchema = [
                                 "optional": 1,
                                 "type": "string"
                               },
+                              "default-verification-readers": {
+                                "default": 1,
+                                "description": "The number of threads to use for reading chunks in verify job.",
+                                "maximum": 32,
+                                "minimum": 1,
+                                "optional": 1,
+                                "type": "integer"
+                              },
+                              "default-verification-workers": {
+                                "default": 4,
+                                "description": "The number of threads to use for verifying chunks in verify job.",
+                                "maximum": 32,
+                                "minimum": 1,
+                                "optional": 1,
+                                "type": "integer"
+                              },
                               "gc-atime-cutoff": {
                                 "default": 1445,
                                 "description": "Cutoff (in minutes) for chunk cleanup atime check in garbage collection phase 2 (default 24h 5m)",
@@ -10140,7 +10266,7 @@ var apiSchema = [
                           },
                           "optional": 1,
                           "type": "string",
-                          "typetext": "[[chunk-order=<enum>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
+                          "typetext": "[[chunk-order=<enum>] [,default-verification-readers=<integer>] [,default-verification-workers=<integer>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
                         },
                         "verify-new": {
                           "description": "If enabled, all new backups will be verified right after completion.",
@@ -10371,6 +10497,22 @@ var apiSchema = [
                                 "optional": 1,
                                 "type": "string"
                               },
+                              "default-verification-readers": {
+                                "default": 1,
+                                "description": "The number of threads to use for reading chunks in verify job.",
+                                "maximum": 32,
+                                "minimum": 1,
+                                "optional": 1,
+                                "type": "integer"
+                              },
+                              "default-verification-workers": {
+                                "default": 4,
+                                "description": "The number of threads to use for verifying chunks in verify job.",
+                                "maximum": 32,
+                                "minimum": 1,
+                                "optional": 1,
+                                "type": "integer"
+                              },
                               "gc-atime-cutoff": {
                                 "default": 1445,
                                 "description": "Cutoff (in minutes) for chunk cleanup atime check in garbage collection phase 2 (default 24h 5m)",
@@ -10409,7 +10551,7 @@ var apiSchema = [
                           },
                           "optional": 1,
                           "type": "string",
-                          "typetext": "[[chunk-order=<enum>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
+                          "typetext": "[[chunk-order=<enum>] [,default-verification-readers=<integer>] [,default-verification-workers=<integer>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
                         },
                         "verify-new": {
                           "description": "If enabled, all new backups will be verified right after completion.",
@@ -10657,6 +10799,22 @@ var apiSchema = [
                               "optional": 1,
                               "type": "string"
                             },
+                            "default-verification-readers": {
+                              "default": 1,
+                              "description": "The number of threads to use for reading chunks in verify job.",
+                              "maximum": 32,
+                              "minimum": 1,
+                              "optional": 1,
+                              "type": "integer"
+                            },
+                            "default-verification-workers": {
+                              "default": 4,
+                              "description": "The number of threads to use for verifying chunks in verify job.",
+                              "maximum": 32,
+                              "minimum": 1,
+                              "optional": 1,
+                              "type": "integer"
+                            },
                             "gc-atime-cutoff": {
                               "default": 1445,
                               "description": "Cutoff (in minutes) for chunk cleanup atime check in garbage collection phase 2 (default 24h 5m)",
@@ -10695,7 +10853,7 @@ var apiSchema = [
                         },
                         "optional": 1,
                         "type": "string",
-                        "typetext": "[[chunk-order=<enum>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
+                        "typetext": "[[chunk-order=<enum>] [,default-verification-readers=<integer>] [,default-verification-workers=<integer>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
                       },
                       "verify-new": {
                         "description": "If enabled, all new backups will be verified right after completion.",
@@ -10926,6 +11084,22 @@ var apiSchema = [
                             "optional": 1,
                             "type": "string"
                           },
+                          "default-verification-readers": {
+                            "default": 1,
+                            "description": "The number of threads to use for reading chunks in verify job.",
+                            "maximum": 32,
+                            "minimum": 1,
+                            "optional": 1,
+                            "type": "integer"
+                          },
+                          "default-verification-workers": {
+                            "default": 4,
+                            "description": "The number of threads to use for verifying chunks in verify job.",
+                            "maximum": 32,
+                            "minimum": 1,
+                            "optional": 1,
+                            "type": "integer"
+                          },
                           "gc-atime-cutoff": {
                             "default": 1445,
                             "description": "Cutoff (in minutes) for chunk cleanup atime check in garbage collection phase 2 (default 24h 5m)",
@@ -10964,7 +11138,7 @@ var apiSchema = [
                       },
                       "optional": 1,
                       "type": "string",
-                      "typetext": "[[chunk-order=<enum>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
+                      "typetext": "[[chunk-order=<enum>] [,default-verification-readers=<integer>] [,default-verification-workers=<integer>] [,gc-atime-cutoff=<integer>] [,gc-atime-safety-check=<1|0>] [,gc-cache-capacity=<integer>] [,sync-level=<enum>]]"
                     },
                     "verify-new": {
                       "description": "If enabled, all new backups will be verified right after completion.",
@@ -16313,6 +16487,20 @@ var apiSchema = [
                           "description": "Access key for S3 object store.",
                           "type": "string"
                         },
+                        "burst-in": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "burst-out": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
                         "endpoint": {
                           "description": "Endpoint to access S3 object store.",
                           "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
@@ -16355,14 +16543,27 @@ var apiSchema = [
                           "type": "array"
                         },
                         "put-rate-limit": {
-                          "description": "Rate limit for put requests given as #reqest/s.",
+                          "description": "Rate limit for put requests given as #request/s.",
                           "optional": 1,
                           "type": "integer"
+                        },
+                        "rate-in": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "rate-out": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
                         },
                         "region": {
                           "description": "Region to access S3 object store.",
                           "maxLength": 32,
-                          "minLength": 3,
                           "optional": 1,
                           "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                           "type": "string"
@@ -16383,6 +16584,20 @@ var apiSchema = [
                           "optional": 1,
                           "type": "string"
                         },
+                        "burst-in": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "burst-out": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
                         "delete": {
                           "description": "List of properties to delete.",
                           "items": {
@@ -16392,6 +16607,10 @@ var apiSchema = [
                               "region",
                               "fingerprint",
                               "path-style",
+                              "rate-in",
+                              "burst-in",
+                              "rate-out",
+                              "burst-out",
                               "provider-quirks"
                             ],
                             "type": "string"
@@ -16448,14 +16667,27 @@ var apiSchema = [
                           "type": "array"
                         },
                         "put-rate-limit": {
-                          "description": "Rate limit for put requests given as #reqest/s.",
+                          "description": "Rate limit for put requests given as #request/s.",
                           "optional": 1,
                           "type": "integer"
+                        },
+                        "rate-in": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "rate-out": {
+                          "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                          "maxLength": 64,
+                          "minLength": 1,
+                          "optional": 1,
+                          "type": "string"
                         },
                         "region": {
                           "description": "Region to access S3 object store.",
                           "maxLength": 32,
-                          "minLength": 3,
                           "optional": 1,
                           "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                           "type": "string"
@@ -16513,6 +16745,20 @@ var apiSchema = [
                         "description": "Access key for S3 object store.",
                         "type": "string"
                       },
+                      "burst-in": {
+                        "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "optional": 1,
+                        "type": "string"
+                      },
+                      "burst-out": {
+                        "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "optional": 1,
+                        "type": "string"
+                      },
                       "endpoint": {
                         "description": "Endpoint to access S3 object store.",
                         "pattern": "/^(?:(^\\{\\{bucket\\}\\}\\.)*(?:(?:((?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)|\\{\\{region\\}\\})\\.)*(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?))|(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){6})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:::(?:(?:[0-9a-fA-F]{1,4}):){5})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){4})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,1}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){3})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,2}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){2})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,3}(?:[0-9a-fA-F]{1,4}))?::(?:(?:[0-9a-fA-F]{1,4}):){1})(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,4}(?:[0-9a-fA-F]{1,4}))?::)(?:(?:(?:(?:(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9])\\.){3}(?:25[0-5]|(?:2[0-4]|1[0-9]|[1-9])?[0-9]))|(?:[0-9a-fA-F]{1,4}):(?:[0-9a-fA-F]{1,4}))))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,5}(?:[0-9a-fA-F]{1,4}))?::)(?:[0-9a-fA-F]{1,4}))|(?:(?:(?:(?:(?:[0-9a-fA-F]{1,4}):){0,6}(?:[0-9a-fA-F]{1,4}))?::)))))$/",
@@ -16555,14 +16801,27 @@ var apiSchema = [
                         "type": "array"
                       },
                       "put-rate-limit": {
-                        "description": "Rate limit for put requests given as #reqest/s.",
+                        "description": "Rate limit for put requests given as #request/s.",
                         "optional": 1,
                         "type": "integer"
+                      },
+                      "rate-in": {
+                        "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "optional": 1,
+                        "type": "string"
+                      },
+                      "rate-out": {
+                        "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                        "maxLength": 64,
+                        "minLength": 1,
+                        "optional": 1,
+                        "type": "string"
                       },
                       "region": {
                         "description": "Region to access S3 object store.",
                         "maxLength": 32,
-                        "minLength": 3,
                         "optional": 1,
                         "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                         "type": "string"
@@ -16582,6 +16841,20 @@ var apiSchema = [
                   "properties": {
                     "access-key": {
                       "description": "Access key for S3 object store.",
+                      "type": "string"
+                    },
+                    "burst-in": {
+                      "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "optional": 1,
+                      "type": "string"
+                    },
+                    "burst-out": {
+                      "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "optional": 1,
                       "type": "string"
                     },
                     "endpoint": {
@@ -16626,14 +16899,27 @@ var apiSchema = [
                       "type": "array"
                     },
                     "put-rate-limit": {
-                      "description": "Rate limit for put requests given as #reqest/s.",
+                      "description": "Rate limit for put requests given as #request/s.",
                       "optional": 1,
                       "type": "integer"
+                    },
+                    "rate-in": {
+                      "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "optional": 1,
+                      "type": "string"
+                    },
+                    "rate-out": {
+                      "description": "Byte size with optional unit (B, KB (base 10), MB, GB, ..., KiB (base 2), MiB, Gib, ...).",
+                      "maxLength": 64,
+                      "minLength": 1,
+                      "optional": 1,
+                      "type": "string"
                     },
                     "region": {
                       "description": "Region to access S3 object store.",
                       "maxLength": 32,
-                      "minLength": 3,
                       "optional": 1,
                       "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                       "type": "string"
@@ -16869,6 +17155,11 @@ var apiSchema = [
                           "optional": 1,
                           "type": "integer"
                         },
+                        "unmount-on-done": {
+                          "description": "Unmount involved removable datastore after the sync job finishes. Requires 'run-on-mount' to be enabled.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
                         "verified-only": {
                           "description": "Only synchronize verified backup snapshots, exclude others.",
                           "optional": 1,
@@ -16928,6 +17219,7 @@ var apiSchema = [
                               "encrypted-only",
                               "verified-only",
                               "run-on-mount",
+                              "unmount-on-done",
                               "sync-direction"
                             ],
                             "type": "string"
@@ -17067,6 +17359,11 @@ var apiSchema = [
                           "minimum": 1,
                           "optional": 1,
                           "type": "integer"
+                        },
+                        "unmount-on-done": {
+                          "description": "Unmount involved removable datastore after the sync job finishes. Requires 'run-on-mount' to be enabled.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "verified-only": {
                           "description": "Only synchronize verified backup snapshots, exclude others.",
@@ -17266,6 +17563,11 @@ var apiSchema = [
                         "optional": 1,
                         "type": "integer"
                       },
+                      "unmount-on-done": {
+                        "description": "Unmount involved removable datastore after the sync job finishes. Requires 'run-on-mount' to be enabled.",
+                        "optional": 1,
+                        "type": "boolean"
+                      },
                       "verified-only": {
                         "description": "Only synchronize verified backup snapshots, exclude others.",
                         "optional": 1,
@@ -17429,6 +17731,11 @@ var apiSchema = [
                       "minimum": 1,
                       "optional": 1,
                       "type": "integer"
+                    },
+                    "unmount-on-done": {
+                      "description": "Unmount involved removable datastore after the sync job finishes. Requires 'run-on-mount' to be enabled.",
+                      "optional": 1,
+                      "type": "boolean"
                     },
                     "verified-only": {
                       "description": "Only synchronize verified backup snapshots, exclude others.",
@@ -17627,7 +17934,7 @@ var apiSchema = [
                         },
                         "worker-threads": {
                           "default": 1,
-                          "description": "Set the number of worker threads to use for the job",
+                          "description": "The number of threads to use for the tape backup job.",
                           "maximum": 32,
                           "minimum": 1,
                           "optional": 1,
@@ -17776,7 +18083,7 @@ var apiSchema = [
                         },
                         "worker-threads": {
                           "default": 1,
-                          "description": "Set the number of worker threads to use for the job",
+                          "description": "The number of threads to use for the tape backup job.",
                           "maximum": 32,
                           "minimum": 1,
                           "optional": 1,
@@ -17927,7 +18234,7 @@ var apiSchema = [
                       },
                       "worker-threads": {
                         "default": 1,
-                        "description": "Set the number of worker threads to use for the job",
+                        "description": "The number of threads to use for the tape backup job.",
                         "maximum": 32,
                         "minimum": 1,
                         "optional": 1,
@@ -18047,7 +18354,7 @@ var apiSchema = [
                     },
                     "worker-threads": {
                       "default": 1,
-                      "description": "Set the number of worker threads to use for the job",
+                      "description": "The number of threads to use for the tape backup job.",
                       "maximum": 32,
                       "minimum": 1,
                       "optional": 1,
@@ -18519,6 +18826,18 @@ var apiSchema = [
                           },
                           "optional": 1,
                           "type": "array"
+                        },
+                        "users": {
+                          "description": "Rule applies to authenticated API requests of any of these users (overrides IP-only rules)",
+                          "items": {
+                            "description": "User ID",
+                            "maxLength": 64,
+                            "minLength": 3,
+                            "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                            "type": "string"
+                          },
+                          "optional": 1,
+                          "type": "array"
                         }
                       },
                       "type": "object"
@@ -18562,7 +18881,8 @@ var apiSchema = [
                               "rate-out",
                               "burst-out",
                               "comment",
-                              "timeframe"
+                              "timeframe",
+                              "users"
                             ],
                             "type": "string"
                           },
@@ -18611,6 +18931,18 @@ var apiSchema = [
                           "description": "Enable the rule at specific times",
                           "items": {
                             "description": "Timeframe to specify when the rule is active.",
+                            "type": "string"
+                          },
+                          "optional": 1,
+                          "type": "array"
+                        },
+                        "users": {
+                          "description": "Rule applies to authenticated API requests of any of these users (overrides IP-only rules)",
+                          "items": {
+                            "description": "User ID",
+                            "maxLength": 64,
+                            "minLength": 3,
+                            "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                             "type": "string"
                           },
                           "optional": 1,
@@ -18721,6 +19053,18 @@ var apiSchema = [
                         },
                         "optional": 1,
                         "type": "array"
+                      },
+                      "users": {
+                        "description": "Rule applies to authenticated API requests of any of these users (overrides IP-only rules)",
+                        "items": {
+                          "description": "User ID",
+                          "maxLength": 64,
+                          "minLength": 3,
+                          "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                          "type": "string"
+                        },
+                        "optional": 1,
+                        "type": "array"
                       }
                     },
                     "type": "object"
@@ -18791,6 +19135,18 @@ var apiSchema = [
                       "description": "Enable the rule at specific times",
                       "items": {
                         "description": "Timeframe to specify when the rule is active.",
+                        "type": "string"
+                      },
+                      "optional": 1,
+                      "type": "array"
+                    },
+                    "users": {
+                      "description": "Rule applies to authenticated API requests of any of these users (overrides IP-only rules)",
+                      "items": {
+                        "description": "User ID",
+                        "maxLength": 64,
+                        "minLength": 3,
+                        "pattern": "/^(?:[^\\s:/[:cntrl:]]+)@(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                         "type": "string"
                       },
                       "optional": 1,
@@ -18915,6 +19271,14 @@ var apiSchema = [
                           "optional": 1,
                           "type": "integer"
                         },
+                        "read-threads": {
+                          "default": 1,
+                          "description": "The number of threads to use for reading chunks in verify job.",
+                          "maximum": 32,
+                          "minimum": 1,
+                          "optional": 1,
+                          "type": "integer"
+                        },
                         "schedule": {
                           "description": "Run verify job at specified schedule.",
                           "optional": 1,
@@ -18927,6 +19291,14 @@ var apiSchema = [
                           "minLength": 3,
                           "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                           "type": "string"
+                        },
+                        "verify-threads": {
+                          "default": 4,
+                          "description": "The number of threads to use for verifying chunks in verify job.",
+                          "maximum": 32,
+                          "minimum": 1,
+                          "optional": 1,
+                          "type": "integer"
                         }
                       },
                       "type": "object"
@@ -18956,7 +19328,9 @@ var apiSchema = [
                               "schedule",
                               "outdated-after",
                               "ns",
-                              "max-depth"
+                              "max-depth",
+                              "read-threads",
+                              "verify-threads"
                             ],
                             "type": "string"
                           },
@@ -19003,6 +19377,14 @@ var apiSchema = [
                           "optional": 1,
                           "type": "integer"
                         },
+                        "read-threads": {
+                          "default": 1,
+                          "description": "The number of threads to use for reading chunks in verify job.",
+                          "maximum": 32,
+                          "minimum": 1,
+                          "optional": 1,
+                          "type": "integer"
+                        },
                         "schedule": {
                           "description": "Run verify job at specified schedule.",
                           "optional": 1,
@@ -19016,6 +19398,14 @@ var apiSchema = [
                           "optional": 1,
                           "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                           "type": "string"
+                        },
+                        "verify-threads": {
+                          "default": 4,
+                          "description": "The number of threads to use for verifying chunks in verify job.",
+                          "maximum": 32,
+                          "minimum": 1,
+                          "optional": 1,
+                          "type": "integer"
                         }
                       }
                     },
@@ -19093,6 +19483,14 @@ var apiSchema = [
                         "optional": 1,
                         "type": "integer"
                       },
+                      "read-threads": {
+                        "default": 1,
+                        "description": "The number of threads to use for reading chunks in verify job.",
+                        "maximum": 32,
+                        "minimum": 1,
+                        "optional": 1,
+                        "type": "integer"
+                      },
                       "schedule": {
                         "description": "Run verify job at specified schedule.",
                         "optional": 1,
@@ -19105,6 +19503,14 @@ var apiSchema = [
                         "minLength": 3,
                         "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                         "type": "string"
+                      },
+                      "verify-threads": {
+                        "default": 4,
+                        "description": "The number of threads to use for verifying chunks in verify job.",
+                        "maximum": 32,
+                        "minimum": 1,
+                        "optional": 1,
+                        "type": "integer"
                       }
                     },
                     "type": "object"
@@ -19160,6 +19566,14 @@ var apiSchema = [
                       "optional": 1,
                       "type": "integer"
                     },
+                    "read-threads": {
+                      "default": 1,
+                      "description": "The number of threads to use for reading chunks in verify job.",
+                      "maximum": 32,
+                      "minimum": 1,
+                      "optional": 1,
+                      "type": "integer"
+                    },
                     "schedule": {
                       "description": "Run verify job at specified schedule.",
                       "optional": 1,
@@ -19172,6 +19586,14 @@ var apiSchema = [
                       "minLength": 3,
                       "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                       "type": "string"
+                    },
+                    "verify-threads": {
+                      "default": 4,
+                      "description": "The number of threads to use for verifying chunks in verify job.",
+                      "maximum": 32,
+                      "minimum": 1,
+                      "optional": 1,
+                      "type": "integer"
                     }
                   }
                 },
@@ -19645,6 +20067,7 @@ var apiSchema = [
                               },
                               "OldVersion": {
                                 "description": "Old version currently installed",
+                                "optional": 1,
                                 "type": "string"
                               },
                               "Origin": {
@@ -19770,6 +20193,7 @@ var apiSchema = [
                               },
                               "OldVersion": {
                                 "description": "Old version currently installed",
+                                "optional": 1,
                                 "type": "string"
                               },
                               "Origin": {
@@ -24237,26 +24661,26 @@ var apiSchema = [
                           "Sys.Console"
                         ]
                       },
-                      "description": "Restricted to users on realm 'pam'"
+                      "description": "The user needs Sys.Console on /system."
                     },
                     "returns": {
                       "additionalProperties": false,
-                      "description": "Object with the user, ticket, port and upid",
+                      "description": "Ticket used for authenticating a VNC websocket upgrade request.",
                       "properties": {
                         "port": {
-                          "description": "",
-                          "type": "string"
+                          "description": "port used to bind termproxy to",
+                          "type": "integer"
                         },
                         "ticket": {
-                          "description": "",
+                          "description": "ticket used to verifiy websocket connection",
                           "type": "string"
                         },
                         "upid": {
-                          "description": "",
+                          "description": "UPID for termproxy worker task",
                           "type": "string"
                         },
                         "user": {
-                          "description": "",
+                          "description": "user or authid encoded in the ticket",
                           "type": "string"
                         }
                       },
@@ -25211,7 +25635,7 @@ var apiSchema = [
                       },
                       "worker-threads": {
                         "default": 1,
-                        "description": "Set the number of worker threads to use for the job",
+                        "description": "The number of threads to use for the tape backup job.",
                         "maximum": 32,
                         "minimum": 1,
                         "optional": 1,
@@ -25317,7 +25741,7 @@ var apiSchema = [
                     },
                     "worker-threads": {
                       "default": 1,
-                      "description": "Set the number of worker threads to use for the job",
+                      "description": "The number of threads to use for the tape backup job.",
                       "maximum": 32,
                       "minimum": 1,
                       "optional": 1,
@@ -26267,7 +26691,7 @@ var apiSchema = [
                               "type": "integer"
                             },
                             "media-set-uuid": {
-                              "description": "MediaSet Uuid (We use the all-zero Uuid to reseve an empty media for a specific pool).",
+                              "description": "MediaSet Uuid (We use the all-zero Uuid to reserve an empty media for a specific pool).",
                               "optional": 1,
                               "pattern": "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/",
                               "type": "string"
@@ -26953,7 +27377,7 @@ var apiSchema = [
                           "type": "string"
                         },
                         "media-set": {
-                          "description": "MediaSet Uuid (We use the all-zero Uuid to reseve an empty media for a specific pool).",
+                          "description": "MediaSet Uuid (We use the all-zero Uuid to reserve an empty media for a specific pool).",
                           "optional": 1,
                           "pattern": "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/",
                           "type": "string"
@@ -26995,7 +27419,7 @@ var apiSchema = [
                             "type": "string"
                           },
                           "media-set-uuid": {
-                            "description": "MediaSet Uuid (We use the all-zero Uuid to reseve an empty media for a specific pool).",
+                            "description": "MediaSet Uuid (We use the all-zero Uuid to reserve an empty media for a specific pool).",
                             "pattern": "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/",
                             "type": "string"
                           },
@@ -27254,7 +27678,7 @@ var apiSchema = [
                             "type": "string"
                           },
                           "media-set-uuid": {
-                            "description": "MediaSet Uuid (We use the all-zero Uuid to reseve an empty media for a specific pool).",
+                            "description": "MediaSet Uuid (We use the all-zero Uuid to reserve an empty media for a specific pool).",
                             "optional": 1,
                             "pattern": "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/",
                             "type": "string"
@@ -27326,7 +27750,7 @@ var apiSchema = [
                             "type": "string"
                           },
                           "media-set-uuid": {
-                            "description": "MediaSet Uuid (We use the all-zero Uuid to reseve an empty media for a specific pool).",
+                            "description": "MediaSet Uuid (We use the all-zero Uuid to reserve an empty media for a specific pool).",
                             "pattern": "/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/",
                             "type": "string"
                           },
@@ -28690,55 +29114,64 @@ Ext.onReady(function () {
                     });
 
                     sections.push({
-                        xtype: 'gridpanel',
+                        xtype: 'panel',
                         title: 'Returns: ' + rtype,
-                        features: [groupingFeature],
-                        store: rpstore,
-                        viewConfig: {
-                            trackOver: false,
-                            stripeRows: true,
-                            enableTextSelection: true,
-                        },
-                        columns: [
+                        items: [
+                            info.returns.description ? {
+                                html: Ext.htmlEncode(info.returns.description),
+                                bodyPadding: '5px 10px 5px 10px',
+                            } : {},
                             {
-                                header: 'Name',
-                                dataIndex: 'name',
-                                flex: 1,
-                            },
-                            {
-                                header: 'Type',
-                                dataIndex: 'type',
-                                renderer: render_type,
-                                flex: 1,
-                            },
-                            {
-                                header: 'Default',
-                                dataIndex: 'default',
-                                flex: 1,
-                            },
-                            {
-                                header: 'Format',
-                                dataIndex: 'type',
-                                renderer: render_format,
-                                flex: 2,
-                            },
-                            {
-                                header: 'Description',
-                                dataIndex: 'description',
-                                renderer: render_description,
-                                flex: 6,
-                            },
-                        ],
-                        bbar: [
-                            {
-                                xtype: 'button',
-                                text: 'Show RAW',
-                                handler: function (btn) {
-                                    rawSection.setVisible(!rawSection.isVisible());
-                                    btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                xtype: 'gridpanel',
+                                features: [groupingFeature],
+                                store: rpstore,
+                                viewConfig: {
+                                    trackOver: false,
+                                    stripeRows: true,
+                                    enableTextSelection: true,
                                 },
-                            },
-                        ],
+                                columns: [
+                                    {
+                                        header: 'Name',
+                                        dataIndex: 'name',
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Type',
+                                        dataIndex: 'type',
+                                        renderer: render_type,
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Default',
+                                        dataIndex: 'default',
+                                        flex: 1,
+                                    },
+                                    {
+                                        header: 'Format',
+                                        dataIndex: 'type',
+                                        renderer: render_format,
+                                        flex: 2,
+                                    },
+                                    {
+                                        header: 'Description',
+                                        dataIndex: 'description',
+                                        renderer: render_description,
+                                        flex: 6,
+                                    },
+                                ],
+                                bbar: [
+                                    {
+                                        xtype: 'button',
+                                        text: 'Show RAW',
+                                        handler: function (btn) {
+                                            rawSection.setVisible(!rawSection.isVisible());
+                                            btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                        },
+                                    },
+                                ],
+                            }
+                        ]
                     });
 
                     sections.push(rawSection);
