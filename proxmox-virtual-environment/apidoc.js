@@ -65237,7 +65237,21 @@ Ext.onReady(function () {
                     usage += cliUsageRenderer(method, endpoint);
                 }
 
-                let sections = [
+                let sections = [];
+
+                if (info.unstable) {
+                    sections.push({
+                        title: 'Unstable',
+                        html: `<div class="proxmox-warning-row" style="padding: 10px;">
+                                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+                                This API endpoint is marked as unstable. All information on this
+                                page is subject to change, including input parameters, return values
+                                and permissions.
+                            </div>`,
+                    });
+                }
+
+                sections.push(
                     {
                         title: 'Description',
                         html: Ext.htmlEncode(info.description),
@@ -65248,7 +65262,7 @@ Ext.onReady(function () {
                         html: usage,
                         bodyPadding: 10,
                     },
-                ];
+                );
 
                 if (info.parameters && info.parameters.properties) {
                     let pstore = Ext.create('Ext.data.Store', {
@@ -65420,10 +65434,12 @@ Ext.onReady(function () {
                         xtype: 'panel',
                         title: 'Returns: ' + rtype,
                         items: [
-                            info.returns.description ? {
-                                html: Ext.htmlEncode(info.returns.description),
-                                bodyPadding: '5px 10px 5px 10px',
-                            } : {},
+                            info.returns.description
+                                ? {
+                                      html: Ext.htmlEncode(info.returns.description),
+                                      bodyPadding: '5px 10px 5px 10px',
+                                  }
+                                : {},
                             {
                                 xtype: 'gridpanel',
                                 features: [groupingFeature],
@@ -65469,12 +65485,14 @@ Ext.onReady(function () {
                                         text: 'Show RAW',
                                         handler: function (btn) {
                                             rawSection.setVisible(!rawSection.isVisible());
-                                            btn.setText(rawSection.isVisible() ? 'Hide RAW' : 'Show RAW');
+                                            btn.setText(
+                                                rawSection.isVisible() ? 'Hide RAW' : 'Show RAW',
+                                            );
                                         },
                                     },
                                 ],
-                            }
-                        ]
+                            },
+                        ],
                     });
 
                     sections.push(rawSection);
