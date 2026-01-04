@@ -23741,6 +23741,7 @@ paths:
         schema:
           type: string
           description: Package name to get changelog of.
+          pattern: ^[a-z0-9][-+.a-z0-9:]+$
         description: Package name to get changelog of.
       - name: version
         in: query
