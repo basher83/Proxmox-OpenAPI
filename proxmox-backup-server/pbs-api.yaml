@@ -11329,7 +11329,53 @@ paths:
                 properties:
                   account:
                     type: object
-                    description: Raw account data.
+                    properties:
+                      contact:
+                        type: array
+                        items:
+                          type: string
+                          description: Contact Info.
+                        description: 'The account''s contact info.
+
+
+                          This usually contains a `"mailto:<email address>"` entry
+                          but may also contain some other
+
+                          data if the server accepts it.'
+                      externalAccountBinding:
+                        type: object
+                        properties:
+                          payload:
+                            type: string
+                            description: Payload
+                          protected:
+                            type: string
+                            description: JOSE Header (see RFC 7515)
+                          signature:
+                            type: string
+                            description: HMAC signature
+                        description: External Account Bindings
+                      onlyReturnExisting:
+                        type: boolean
+                        description: This is only used by the client when querying
+                          an account.
+                      orders:
+                        type: string
+                        description: URLs to currently pending orders.
+                      status:
+                        type: string
+                        description: Status of an ACME account.
+                      termsOfServiceAgreed:
+                        type: boolean
+                        description: Indicated whether the user agreed to the ACME
+                          provider's terms of service.
+                    description: 'ACME Account data. This is the part of the account
+                      returned from and possibly sent to the ACME
+
+                      provider. Some fields may be uptdated by the user via a request
+                      to the account location, others
+
+                      may not be changed.'
                   directory:
                     type: string
                     description: The ACME directory URL the account was created at.
@@ -11655,7 +11701,8 @@ paths:
 
 
                         Allows to cope with long TTL of DNS records.'
-                  description: 'The API''s format is inherited from PVE/PMG:'
+                  description: 'ACME plugin config. The API''s format is inherited
+                    from PVE/PMG:'
                 description: List of ACME plugin configurations.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -11890,7 +11937,7 @@ paths:
         description: The id parameter
       responses:
         '200':
-          description: 'The API''s format is inherited from PVE/PMG:'
+          description: 'ACME plugin config. The API''s format is inherited from PVE/PMG:'
           content:
             application/json:
               schema:
@@ -11918,7 +11965,8 @@ paths:
 
 
                       Allows to cope with long TTL of DNS records.'
-                description: 'The API''s format is inherited from PVE/PMG:'
+                description: 'ACME plugin config. The API''s format is inherited from
+                  PVE/PMG:'
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -11991,7 +12039,9 @@ paths:
                     type: string
                 digest:
                   type: string
-                  description: Digest to protect against concurrent updates
+                  description: Prevent changes if current configuration file has different
+                    SHA256 digest. This can be used to prevent concurrent modifications.
+                  pattern: ^[a-f0-9]{64}$
                 disable:
                   type: boolean
                   description: Flag to disable the config.
