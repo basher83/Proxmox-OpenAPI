@@ -9008,8 +9008,61 @@ var apiSchema = [
                           "properties": {
                             "account": {
                               "additionalProperties": true,
-                              "description": "Raw account data.",
-                              "properties": {},
+                              "description": "ACME Account data. This is the part of the account returned from and possibly sent to the ACME\nprovider. Some fields may be uptdated by the user via a request to the account location, others\nmay not be changed.",
+                              "properties": {
+                                "contact": {
+                                  "description": "The account's contact info.\n\nThis usually contains a `\"mailto:<email address>\"` entry but may also contain some other\ndata if the server accepts it.",
+                                  "items": {
+                                    "description": "Contact Info.",
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "externalAccountBinding": {
+                                  "additionalProperties": false,
+                                  "description": "External Account Bindings",
+                                  "optional": 1,
+                                  "properties": {
+                                    "payload": {
+                                      "description": "Payload",
+                                      "type": "string"
+                                    },
+                                    "protected": {
+                                      "description": "JOSE Header (see RFC 7515)",
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "description": "HMAC signature",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                },
+                                "onlyReturnExisting": {
+                                  "description": "This is only used by the client when querying an account.",
+                                  "type": "boolean"
+                                },
+                                "orders": {
+                                  "description": "URLs to currently pending orders.",
+                                  "optional": 1,
+                                  "type": "string"
+                                },
+                                "status": {
+                                  "description": "Status of an ACME account.",
+                                  "enum": [
+                                    "<invalid>",
+                                    "valid",
+                                    "deactivated",
+                                    "revoked"
+                                  ],
+                                  "type": "string"
+                                },
+                                "termsOfServiceAgreed": {
+                                  "description": "Indicated whether the user agreed to the ACME provider's terms of service.",
+                                  "optional": 1,
+                                  "type": "boolean"
+                                }
+                              },
                               "type": "object"
                             },
                             "directory": {
@@ -9320,7 +9373,7 @@ var apiSchema = [
                         },
                         "returns": {
                           "additionalProperties": false,
-                          "description": "The API's format is inherited from PVE/PMG:",
+                          "description": "ACME plugin config. The API's format is inherited from PVE/PMG:",
                           "properties": {
                             "api": {
                               "description": "DNS Api name.",
@@ -9376,7 +9429,7 @@ var apiSchema = [
                             "delete": {
                               "description": "List of properties to delete.",
                               "items": {
-                                "description": "Deletable property name",
+                                "description": "Deletable plugin property names.",
                                 "enum": [
                                   "disable",
                                   "validation-delay"
@@ -9387,8 +9440,9 @@ var apiSchema = [
                               "type": "array"
                             },
                             "digest": {
-                              "description": "Digest to protect against concurrent updates",
+                              "description": "Prevent changes if current configuration file has different SHA256 digest. This can be used to prevent concurrent modifications.",
                               "optional": 1,
+                              "pattern": "/^[a-f0-9]{64}$/",
                               "type": "string"
                             },
                             "disable": {
@@ -9461,7 +9515,7 @@ var apiSchema = [
                       "description": "List of ACME plugin configurations.",
                       "items": {
                         "additionalProperties": false,
-                        "description": "The API's format is inherited from PVE/PMG:",
+                        "description": "ACME plugin config. The API's format is inherited from PVE/PMG:",
                         "properties": {
                           "api": {
                             "description": "DNS Api name.",
@@ -20668,8 +20722,7 @@ var apiSchema = [
                             "description": "The ACME configuration.\n\nCurrently only contains the name of the account use.",
                             "properties": {
                               "account": {
-                                "description": "ACME account name.",
-                                "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                                "description": "Account to use to acquire ACME certificates.",
                                 "type": "string"
                               }
                             },
@@ -20931,8 +20984,7 @@ var apiSchema = [
                             "description": "The ACME configuration.\n\nCurrently only contains the name of the account use.",
                             "properties": {
                               "account": {
-                                "description": "ACME account name.",
-                                "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                                "description": "Account to use to acquire ACME certificates.",
                                 "type": "string"
                               }
                             },
