@@ -91,7 +91,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "PUT": {
                 "description": "Update Access Control List (ACLs).",
@@ -173,7 +174,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -251,7 +253,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -319,7 +322,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -357,7 +361,8 @@ var apiSchema = [
                     "returns": {
                       "description": "Redirection URL.",
                       "type": "string"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -420,7 +425,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -442,7 +448,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -488,7 +495,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -531,7 +539,8 @@ var apiSchema = [
                   "description": "Map of ACL path to Map of privilege to propagate bit",
                   "properties": {},
                   "type": "object"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -601,7 +610,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -663,7 +673,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Get a single TFA entry.",
@@ -706,7 +717,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update user's TFA entry description.",
@@ -768,7 +780,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -849,7 +862,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Add a TFA entry to the user.",
@@ -950,7 +964,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -1032,7 +1047,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -1054,7 +1070,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Either create a new HttpOnly ticket or a regular ticket.",
@@ -1136,7 +1153,8 @@ var apiSchema = [
                     }
                   },
                   "type": "object"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -1199,7 +1217,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "GET": {
                             "description": "Read user's API token metadata",
@@ -1274,7 +1293,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "POST": {
                             "description": "Generate a new API token with given metadata",
@@ -1356,7 +1376,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Update user's API token metadata",
@@ -1453,7 +1474,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -1539,7 +1561,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -1579,7 +1602,8 @@ var apiSchema = [
                         "returns": {
                           "description": "Whether the user was previously locked out of any 2nd factor.",
                           "type": "boolean"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -1631,7 +1655,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read user configuration data.",
@@ -1725,7 +1750,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update user configuration. To change a user's password use the 'PUT /access/password' endpoint.",
@@ -1837,7 +1863,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -1976,7 +2003,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create new user.",
@@ -2060,7 +2088,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -2109,7 +2138,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -2131,7 +2161,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -2176,7 +2207,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2243,7 +2275,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2302,7 +2335,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2364,7 +2398,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2426,7 +2461,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2513,7 +2549,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2660,7 +2697,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Start garbage collection.",
@@ -2695,7 +2733,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2747,7 +2786,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Set \"notes\" for a backup group",
@@ -2796,7 +2836,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -2873,7 +2914,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "List backup groups.",
@@ -2957,7 +2999,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3015,7 +3058,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3063,7 +3107,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "List the namespaces of a datastore.",
@@ -3121,7 +3166,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Create a new datastore namespace.",
@@ -3162,7 +3208,8 @@ var apiSchema = [
                           "maxLength": 256,
                           "pattern": "/^(?:(?:(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)/){0,7}(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*))?$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3219,7 +3266,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Set \"notes\" for a specific backup",
@@ -3273,7 +3321,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3330,7 +3379,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "En- or disable protection for a specific backup",
@@ -3384,7 +3434,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3515,7 +3566,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3605,7 +3657,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3677,7 +3730,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3737,7 +3791,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3779,7 +3834,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -3836,7 +3892,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "List backup snapshots.",
@@ -3971,7 +4028,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4014,6 +4072,15 @@ var apiSchema = [
                               "description": "Available space (bytes).",
                               "minimum": 0,
                               "type": "integer"
+                            },
+                            "backend-type": {
+                              "default": "filesystem",
+                              "description": "Datastore backend type",
+                              "enum": [
+                                "filesystem",
+                                "s3"
+                              ],
+                              "type": "string"
                             },
                             "counts": {
                               "additionalProperties": false,
@@ -4190,7 +4257,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4248,7 +4316,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4305,7 +4374,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4404,7 +4474,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4426,7 +4497,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -4512,7 +4584,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -4658,7 +4731,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -4802,7 +4876,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -4869,7 +4944,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -4904,7 +4980,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -4926,7 +5003,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -5068,7 +5146,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -5119,7 +5198,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -5141,7 +5221,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -5182,7 +5263,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -5204,7 +5286,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -5431,7 +5514,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -5550,7 +5634,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -5585,7 +5670,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -5607,7 +5693,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -5737,7 +5824,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -5759,7 +5847,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -5831,7 +5920,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -5882,7 +5972,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read the AD realm configuration",
@@ -6075,7 +6166,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an AD realm configuration",
@@ -6453,7 +6545,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -6649,7 +6742,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create a new AD realm",
@@ -6836,7 +6930,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -6883,7 +6978,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read the LDAP realm configuration",
@@ -7079,7 +7175,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an LDAP realm configuration",
@@ -7465,7 +7562,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -7664,7 +7762,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create a new LDAP realm",
@@ -7854,7 +7953,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -7901,7 +8001,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read the OpenID realm configuration",
@@ -8021,7 +8122,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an OpenID realm configuration",
@@ -8236,7 +8338,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -8359,7 +8462,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create a new OpenId realm",
@@ -8468,7 +8572,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -8534,7 +8639,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update the PAM realm configuration",
@@ -8626,7 +8732,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -8692,7 +8799,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update the Proxmox Backup authentication server realm configuration",
@@ -8784,7 +8892,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -8831,7 +8940,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update the TFA configuration.",
@@ -8883,7 +8993,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -8905,7 +9016,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -8927,7 +9039,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -8974,7 +9087,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Return existing ACME account information.",
@@ -9008,8 +9122,61 @@ var apiSchema = [
                           "properties": {
                             "account": {
                               "additionalProperties": true,
-                              "description": "Raw account data.",
-                              "properties": {},
+                              "description": "ACME Account data. This is the part of the account returned from and possibly sent to the ACME\nprovider. Some fields may be uptdated by the user via a request to the account location, others\nmay not be changed.",
+                              "properties": {
+                                "contact": {
+                                  "description": "The account's contact info.\n\nThis usually contains a `\"mailto:<email address>\"` entry but may also contain some other\ndata if the server accepts it.",
+                                  "items": {
+                                    "description": "Contact Info.",
+                                    "type": "string"
+                                  },
+                                  "type": "array"
+                                },
+                                "externalAccountBinding": {
+                                  "additionalProperties": false,
+                                  "description": "External Account Bindings",
+                                  "optional": 1,
+                                  "properties": {
+                                    "payload": {
+                                      "description": "Payload",
+                                      "type": "string"
+                                    },
+                                    "protected": {
+                                      "description": "JOSE Header (see RFC 7515)",
+                                      "type": "string"
+                                    },
+                                    "signature": {
+                                      "description": "HMAC signature",
+                                      "type": "string"
+                                    }
+                                  },
+                                  "type": "object"
+                                },
+                                "onlyReturnExisting": {
+                                  "description": "This is only used by the client when querying an account.",
+                                  "type": "boolean"
+                                },
+                                "orders": {
+                                  "description": "URLs to currently pending orders.",
+                                  "optional": 1,
+                                  "type": "string"
+                                },
+                                "status": {
+                                  "description": "Status of an ACME account.",
+                                  "enum": [
+                                    "<invalid>",
+                                    "valid",
+                                    "deactivated",
+                                    "revoked"
+                                  ],
+                                  "type": "string"
+                                },
+                                "termsOfServiceAgreed": {
+                                  "description": "Indicated whether the user agreed to the ACME provider's terms of service.",
+                                  "optional": 1,
+                                  "type": "boolean"
+                                }
+                              },
                               "type": "object"
                             },
                             "directory": {
@@ -9027,7 +9194,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an ACME account.",
@@ -9062,7 +9230,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -9106,7 +9275,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Register an ACME account.",
@@ -9161,7 +9331,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -9209,7 +9380,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -9247,7 +9419,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -9288,7 +9461,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "List ACME challenge plugins.",
@@ -9320,7 +9494,7 @@ var apiSchema = [
                         },
                         "returns": {
                           "additionalProperties": false,
-                          "description": "The API's format is inherited from PVE/PMG:",
+                          "description": "ACME plugin config. The API's format is inherited from PVE/PMG:",
                           "properties": {
                             "api": {
                               "description": "DNS Api name.",
@@ -9354,7 +9528,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an ACME plugin configuration.",
@@ -9376,7 +9551,7 @@ var apiSchema = [
                             "delete": {
                               "description": "List of properties to delete.",
                               "items": {
-                                "description": "Deletable property name",
+                                "description": "Deletable plugin property names.",
                                 "enum": [
                                   "disable",
                                   "validation-delay"
@@ -9387,8 +9562,9 @@ var apiSchema = [
                               "type": "array"
                             },
                             "digest": {
-                              "description": "Digest to protect against concurrent updates",
+                              "description": "Prevent changes if current configuration file has different SHA256 digest. This can be used to prevent concurrent modifications.",
                               "optional": 1,
+                              "pattern": "/^[a-f0-9]{64}$/",
                               "type": "string"
                             },
                             "disable": {
@@ -9428,7 +9604,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -9461,7 +9638,7 @@ var apiSchema = [
                       "description": "List of ACME plugin configurations.",
                       "items": {
                         "additionalProperties": false,
-                        "description": "The API's format is inherited from PVE/PMG:",
+                        "description": "ACME plugin config. The API's format is inherited from PVE/PMG:",
                         "properties": {
                           "api": {
                             "description": "DNS Api name.",
@@ -9497,7 +9674,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Add ACME plugin configuration.",
@@ -9555,7 +9733,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -9585,7 +9764,8 @@ var apiSchema = [
                       "description": "The ACME Directory's ToS URL, if any.",
                       "optional": 1,
                       "type": "string"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -9607,7 +9787,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -9649,7 +9830,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Get tape changer configuration",
@@ -9718,7 +9900,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update a tape changer configuration",
@@ -9796,7 +9979,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -9859,7 +10043,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new changer device",
@@ -9916,7 +10101,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -9979,7 +10165,8 @@ var apiSchema = [
                       "minLength": 36,
                       "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                       "type": "string"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read a datastore configuration.",
@@ -10275,7 +10462,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update datastore config.",
@@ -10574,7 +10762,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -10864,7 +11053,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create new datastore config.",
@@ -11161,7 +11351,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -11203,7 +11394,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Get drive configuration",
@@ -11267,7 +11459,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update a drive configuration",
@@ -11340,7 +11533,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -11398,7 +11592,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new drive",
@@ -11450,7 +11645,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -11492,7 +11688,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Get media pool configuration",
@@ -11567,7 +11764,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update media pool settings",
@@ -11647,7 +11845,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -11716,7 +11915,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new media pool",
@@ -11779,7 +11979,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -11825,7 +12026,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read the InfluxDB http server configuration",
@@ -11916,7 +12118,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an InfluxDB http server configuration",
@@ -12021,7 +12224,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -12115,7 +12319,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create a new InfluxDB http server configuration",
@@ -12195,7 +12400,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -12239,7 +12445,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read the InfluxDB udp server configuration",
@@ -12303,7 +12510,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update an InfluxDB udp server configuration",
@@ -12377,7 +12585,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -12444,7 +12653,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create a new InfluxDB udp server configuration",
@@ -12497,7 +12707,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -12519,7 +12730,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -12564,7 +12776,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "GET": {
                             "description": "Get a gotify endpoint.",
@@ -12638,7 +12851,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Update gotify endpoint.",
@@ -12711,7 +12925,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -12788,7 +13003,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Add a new gotify endpoint.",
@@ -12855,7 +13071,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -12896,7 +13113,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "GET": {
                             "description": "Get a sendmail endpoint.",
@@ -13000,7 +13218,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Update sendmail endpoint.",
@@ -13101,7 +13320,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -13208,7 +13428,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Add a new sendmail endpoint.",
@@ -13301,7 +13522,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -13342,7 +13564,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "GET": {
                             "description": "Get a smtp endpoint.",
@@ -13467,7 +13690,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Update smtp endpoint.",
@@ -13603,7 +13827,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -13731,7 +13956,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Add a new smtp endpoint.",
@@ -13850,7 +14076,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -13891,7 +14118,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "GET": {
                             "description": "Get a webhook endpoint.",
@@ -14028,7 +14256,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Update webhook endpoint.",
@@ -14168,7 +14397,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -14308,7 +14538,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Add a new webhook endpoint.",
@@ -14434,7 +14665,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -14456,7 +14688,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -14508,7 +14741,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -14551,7 +14785,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -14592,7 +14827,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Get a notification matcher.",
@@ -14711,7 +14947,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update notification matcher.",
@@ -14834,7 +15071,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -14956,7 +15194,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Add a new notification matcher.",
@@ -15064,7 +15303,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -15107,7 +15347,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -15129,7 +15370,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -15201,7 +15443,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -15223,7 +15466,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -15262,7 +15506,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read a prune job configuration.",
@@ -15372,7 +15617,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update prune job config.",
@@ -15500,7 +15746,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -15613,7 +15860,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new prune job.",
@@ -15712,7 +15960,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -15826,7 +16075,8 @@ var apiSchema = [
                                     "type": "object"
                                   },
                                   "type": "array"
-                                }
+                                },
+                                "unstable": false
                               }
                             },
                             "leaf": 1,
@@ -15891,7 +16141,8 @@ var apiSchema = [
                                     "type": "object"
                                   },
                                   "type": "array"
-                                }
+                                },
+                                "unstable": false
                               }
                             },
                             "leaf": 1,
@@ -15913,7 +16164,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 0,
@@ -16016,7 +16268,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -16061,7 +16314,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read remote configuration data.",
@@ -16131,10 +16385,17 @@ var apiSchema = [
                           "description": "The (optional) port",
                           "optional": 1,
                           "type": "integer"
+                        },
+                        "use-node-proxy": {
+                          "default": false,
+                          "description": "Use the http proxy configuration of the node for remote connections.",
+                          "optional": 1,
+                          "type": "boolean"
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update remote configuration.",
@@ -16165,7 +16426,8 @@ var apiSchema = [
                             "enum": [
                               "comment",
                               "fingerprint",
-                              "port"
+                              "port",
+                              "use-node-proxy"
                             ],
                             "type": "string"
                           },
@@ -16209,6 +16471,12 @@ var apiSchema = [
                           "description": "The (optional) port",
                           "optional": 1,
                           "type": "integer"
+                        },
+                        "use-node-proxy": {
+                          "default": false,
+                          "description": "Use the http proxy configuration of the node for remote connections.",
+                          "optional": 1,
+                          "type": "boolean"
                         }
                       }
                     },
@@ -16226,7 +16494,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -16289,12 +16558,19 @@ var apiSchema = [
                         "description": "The (optional) port",
                         "optional": 1,
                         "type": "integer"
+                      },
+                      "use-node-proxy": {
+                        "default": false,
+                        "description": "Use the http proxy configuration of the node for remote connections.",
+                        "optional": 1,
+                        "type": "boolean"
                       }
                     },
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create new remote.",
@@ -16346,6 +16622,12 @@ var apiSchema = [
                       "description": "The (optional) port",
                       "optional": 1,
                       "type": "integer"
+                    },
+                    "use-node-proxy": {
+                      "default": false,
+                      "description": "Use the http proxy configuration of the node for remote connections.",
+                      "optional": 1,
+                      "type": "boolean"
                     }
                   }
                 },
@@ -16362,7 +16644,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -16402,7 +16685,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -16448,7 +16732,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read an s3 client configuration.",
@@ -16535,7 +16820,8 @@ var apiSchema = [
                           "items": {
                             "description": "Provider specific feature implementation quirks.",
                             "enum": [
-                              "skip-if-none-match-header"
+                              "skip-if-none-match-header",
+                              "delete-objects-via-delete-object"
                             ],
                             "type": "string"
                           },
@@ -16570,7 +16856,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update an s3 client configuration.",
@@ -16659,7 +16946,8 @@ var apiSchema = [
                           "items": {
                             "description": "Provider specific feature implementation quirks.",
                             "enum": [
-                              "skip-if-none-match-header"
+                              "skip-if-none-match-header",
+                              "delete-objects-via-delete-object"
                             ],
                             "type": "string"
                           },
@@ -16714,7 +17002,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -16793,7 +17082,8 @@ var apiSchema = [
                         "items": {
                           "description": "Provider specific feature implementation quirks.",
                           "enum": [
-                            "skip-if-none-match-header"
+                            "skip-if-none-match-header",
+                            "delete-objects-via-delete-object"
                           ],
                           "type": "string"
                         },
@@ -16830,7 +17120,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new s3 client configuration.",
@@ -16891,7 +17182,8 @@ var apiSchema = [
                       "items": {
                         "description": "Provider specific feature implementation quirks.",
                         "enum": [
-                          "skip-if-none-match-header"
+                          "skip-if-none-match-header",
+                          "delete-objects-via-delete-object"
                         ],
                         "type": "string"
                       },
@@ -16944,7 +17236,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -16983,7 +17276,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read a sync job configuration.",
@@ -17167,7 +17461,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update sync job config.",
@@ -17378,7 +17673,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -17577,7 +17873,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new sync job.",
@@ -17750,7 +18047,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -17798,7 +18096,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read a tape backup job configuration.",
@@ -17942,7 +18241,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update the tape backup job",
@@ -18106,7 +18406,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -18244,7 +18545,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new tape backup job.",
@@ -18376,7 +18678,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -18421,7 +18724,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Get key config (public key part)",
@@ -18489,7 +18793,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Change the encryption key's password (and password hint).",
@@ -18560,7 +18865,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -18633,7 +18939,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new encryption key",
@@ -18691,7 +18998,8 @@ var apiSchema = [
                   "description": "Tape encryption key fingerprint (sha256).",
                   "pattern": "/^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$/",
                   "type": "string"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -18735,7 +19043,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read traffic control configuration data.",
@@ -18841,7 +19150,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update traffic control configuration.",
@@ -18961,7 +19271,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -19070,7 +19381,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create new traffic control rule.",
@@ -19165,7 +19477,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -19204,7 +19517,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read a verification job configuration.",
@@ -19302,7 +19616,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update verification job config.",
@@ -19415,7 +19730,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -19516,7 +19832,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Create a new verification job.",
@@ -19603,7 +19920,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -19625,7 +19943,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -19678,7 +19997,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -19924,7 +20244,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Change the properties of the specified repository.\n\nThe `digest` parameter asserts that the configuration has not been modified.",
@@ -19970,7 +20291,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Add the repository identified by the `handle`.\nIf the repository is already configured, it will be set to enabled.\n\nThe `digest` parameter asserts that the configuration has not been modified.",
@@ -20015,7 +20337,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -20099,7 +20422,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Update the APT database",
@@ -20141,7 +20465,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -20225,7 +20550,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -20247,7 +20573,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -20294,7 +20621,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "PUT": {
                             "description": "Renew the current ACME certificate if it expires within 30 days (or always if the `force`\nparameter is set).",
@@ -20330,7 +20658,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -20352,7 +20681,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -20395,7 +20725,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Upload a custom certificate.",
@@ -20505,7 +20836,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -20601,7 +20933,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -20623,7 +20956,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -20668,8 +21002,7 @@ var apiSchema = [
                             "description": "The ACME configuration.\n\nCurrently only contains the name of the account use.",
                             "properties": {
                               "account": {
-                                "description": "ACME account name.",
-                                "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                                "description": "Account to use to acquire ACME certificates.",
                                 "type": "string"
                               }
                             },
@@ -20915,7 +21248,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update the node configuration",
@@ -20931,8 +21265,7 @@ var apiSchema = [
                             "description": "The ACME configuration.\n\nCurrently only contains the name of the account use.",
                             "properties": {
                               "account": {
-                                "description": "ACME account name.",
-                                "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
+                                "description": "Account to use to acquire ACME certificates.",
                                 "type": "string"
                               }
                             },
@@ -21226,7 +21559,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -21274,7 +21608,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -21353,7 +21688,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Create a Filesystem on an unused disk. Will be mounted under `/mnt/datastore/<name>`.",
@@ -21421,7 +21757,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -21474,7 +21811,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -21684,7 +22022,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -21800,7 +22139,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -21847,7 +22187,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -21894,7 +22235,8 @@ var apiSchema = [
                               "description": "zpool vdev tree with status",
                               "properties": {},
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -21971,7 +22313,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "POST": {
                         "description": "Create a new ZFS pool. Will be mounted under `/mnt/datastore/<name>`.",
@@ -22067,7 +22410,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -22089,7 +22433,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -22159,7 +22504,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Update DNS settings.",
@@ -22233,7 +22579,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -22303,7 +22650,8 @@ var apiSchema = [
                         "type": "string"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -22357,7 +22705,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Read a network interface configuration.",
@@ -22592,7 +22941,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update network interface config.",
@@ -22834,7 +23184,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -22872,7 +23223,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "List all datastores",
@@ -23103,7 +23455,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Create network interface configuration.",
@@ -23313,7 +23666,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Reload network configuration (requires ifupdown2).",
@@ -23344,7 +23698,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -23382,7 +23737,8 @@ var apiSchema = [
                     "returns": {
                       "description": "Returns report of the node",
                       "type": "string"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -23439,7 +23795,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -23486,7 +23843,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -23529,7 +23887,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -23572,7 +23931,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -23615,7 +23975,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -23658,7 +24019,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -23680,7 +24042,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -23746,7 +24109,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -23952,7 +24316,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Reboot or shutdown the node.",
@@ -23990,7 +24355,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24026,7 +24392,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "GET": {
                     "description": "Read subscription info.",
@@ -24109,7 +24476,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "POST": {
                     "description": "Check and update subscription status.",
@@ -24144,7 +24512,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Set a subscription key and check it.",
@@ -24180,7 +24549,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24263,7 +24633,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24327,7 +24698,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -24420,7 +24792,8 @@ var apiSchema = [
                                 }
                               },
                               "type": "object"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -24455,7 +24828,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       },
                       "GET": {
                         "description": "Directory index.",
@@ -24470,7 +24844,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -24620,7 +24995,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -24686,7 +25062,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24735,7 +25112,8 @@ var apiSchema = [
                         }
                       },
                       "type": "object"
-                    }
+                    },
+                    "unstable": false
                   },
                   "PUT": {
                     "description": "Set time zone",
@@ -24772,7 +25150,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24817,7 +25196,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -24839,7 +25219,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -24858,7 +25239,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -24889,7 +25271,8 @@ var apiSchema = [
                 }
               },
               "type": "object"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -25021,7 +25404,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -25147,7 +25531,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -25209,7 +25594,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -25242,6 +25628,15 @@ var apiSchema = [
                         "minimum": 0,
                         "optional": 1,
                         "type": "integer"
+                      },
+                      "backend-type": {
+                        "default": "filesystem",
+                        "description": "Datastore backend type",
+                        "enum": [
+                          "filesystem",
+                          "s3"
+                        ],
+                        "type": "string"
                       },
                       "error": {
                         "description": "An error description, for example, when the datastore could not be looked up",
@@ -25390,7 +25785,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -25426,7 +25822,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -25448,7 +25845,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -25483,7 +25881,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -25646,7 +26045,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               },
               "POST": {
                 "description": "Backup datastore to tape media pool",
@@ -25759,7 +26159,8 @@ var apiSchema = [
                   "minLength": 36,
                   "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                   "type": "string"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -25850,7 +26251,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -25900,7 +26302,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -25922,7 +26325,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -26000,7 +26404,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -26055,7 +26460,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26117,7 +26523,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26175,7 +26582,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26218,7 +26626,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26261,7 +26670,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26310,7 +26720,8 @@ var apiSchema = [
                           "description": "The import-export slot number the media was transferred to.",
                           "minimum": 1,
                           "type": "integer"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26367,7 +26778,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26425,7 +26837,8 @@ var apiSchema = [
                             "type": "object"
                           },
                           "type": "array"
-                        }
+                        },
+                        "unstable": false
                       },
                       "PUT": {
                         "description": "Update inventory\n\nNote: Only useful for drives with associated changer device.\n\nThis method queries the changer to get a list of media labels. It\nthen loads any unknown media into the drive, reads the label, and\nstore the result to the media database.\n\nIf `catalog` is true, also tries to restore the catalog from tape.\n\nNote: This updates the media online status.",
@@ -26473,7 +26886,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26531,7 +26945,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26581,7 +26996,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26626,7 +27042,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26715,7 +27132,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26759,7 +27177,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26802,7 +27221,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -26971,7 +27391,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -27020,7 +27441,8 @@ var apiSchema = [
                           "minLength": 36,
                           "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                           "type": "string"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -27191,7 +27613,8 @@ var apiSchema = [
                             }
                           },
                           "type": "object"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 1,
@@ -27213,7 +27636,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -27329,7 +27753,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -27450,7 +27875,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -27500,7 +27926,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -27529,7 +27956,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           },
                           "POST": {
                             "description": "Update media status (None, 'full', 'damaged' or 'retired')\n\nIt is not allowed to set status to 'writable' or 'unknown' (those\nare internally managed states).",
@@ -27570,7 +27998,8 @@ var apiSchema = [
                             },
                             "returns": {
                               "type": "null"
-                            }
+                            },
+                            "unstable": false
                           }
                         },
                         "leaf": 1,
@@ -27592,7 +28021,8 @@ var apiSchema = [
                         },
                         "returns": {
                           "type": "null"
-                        }
+                        },
+                        "unstable": false
                       }
                     },
                     "leaf": 0,
@@ -27715,7 +28145,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 0,
@@ -27763,7 +28194,8 @@ var apiSchema = [
                         "type": "object"
                       },
                       "type": "array"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -27816,7 +28248,8 @@ var apiSchema = [
                     },
                     "returns": {
                       "type": "null"
-                    }
+                    },
+                    "unstable": false
                   }
                 },
                 "leaf": 1,
@@ -27838,7 +28271,8 @@ var apiSchema = [
                 },
                 "returns": {
                   "type": "null"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 0,
@@ -27976,7 +28410,8 @@ var apiSchema = [
                   "minLength": 36,
                   "pattern": "/^UPID:(?P<node>[a-zA-Z0-9]([a-zA-Z0-9\\-]*[a-zA-Z0-9])?):(?P<pid>[0-9A-Fa-f]{8}):(?P<pstart>[0-9A-Fa-f]{8,9}):(?P<task_id>[0-9A-Fa-f]{8,16}):(?P<starttime>[0-9A-Fa-f]{8}):(?P<wtype>[^:\\s]+):(?P<wid>[^:\\s]*):(?P<authid>[^:\\s]+):$/",
                   "type": "string"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -28039,7 +28474,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -28102,7 +28538,8 @@ var apiSchema = [
                     "type": "object"
                   },
                   "type": "array"
-                }
+                },
+                "unstable": false
               }
             },
             "leaf": 1,
@@ -28124,7 +28561,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 0,
@@ -28162,7 +28600,8 @@ var apiSchema = [
                 }
               },
               "type": "object"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28185,7 +28624,8 @@ var apiSchema = [
         },
         "returns": {
           "type": "null"
-        }
+        },
+        "unstable": false
       }
     },
     "leaf": 0,
@@ -28218,7 +28658,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28261,7 +28702,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28301,7 +28743,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28326,7 +28769,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           },
           "PUT": {
             "description": "Append chunk to dynamic index writer.",
@@ -28363,7 +28807,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28382,7 +28827,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28425,7 +28871,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28442,7 +28889,7 @@ var apiSchema = [
               "description": "Close fixed index writer.",
               "properties": {
                 "chunk-count": {
-                  "description": "Chunk count. This is used to verify that the server got all chunks. Ignored for incremental backups.",
+                  "description": "Number of new and re-indexed chunks. Used to verify that the server got all chunk digests.",
                   "minimum": 0,
                   "type": "integer"
                 },
@@ -28465,7 +28912,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28494,13 +28942,15 @@ var apiSchema = [
                 "size": {
                   "description": "File size.",
                   "minimum": 1,
+                  "optional": 1,
                   "type": "integer"
                 }
               }
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           },
           "PUT": {
             "description": "Append chunk to fixed index writer.",
@@ -28537,7 +28987,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28562,7 +29013,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28581,7 +29033,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28600,7 +29053,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28608,6 +29062,7 @@ var apiSchema = [
         "text": "speedtest"
       }
     ],
+    "expanded": false,
     "info": {
       "GET": {
         "description": "Directory index.",
@@ -28622,7 +29077,8 @@ var apiSchema = [
         },
         "returns": {
           "type": "null"
-        }
+        },
+        "unstable": false
       }
     },
     "leaf": 0,
@@ -28649,7 +29105,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28674,7 +29131,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28693,7 +29151,8 @@ var apiSchema = [
             },
             "returns": {
               "type": "null"
-            }
+            },
+            "unstable": false
           }
         },
         "leaf": 1,
@@ -28701,6 +29160,7 @@ var apiSchema = [
         "text": "speedtest"
       }
     ],
+    "expanded": false,
     "info": {
       "GET": {
         "description": "Directory index.",
@@ -28715,7 +29175,8 @@ var apiSchema = [
         },
         "returns": {
           "type": "null"
-        }
+        },
+        "unstable": false
       }
     },
     "leaf": 0,
