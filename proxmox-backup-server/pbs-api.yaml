@@ -3142,6 +3142,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     comment:
                       type: string
                       description: Comment.
@@ -6121,6 +6124,9 @@ paths:
                   avail:
                     type: integer
                     description: Available space (bytes).
+                  backend-type:
+                    type: string
+                    description: Datastore backend type
                   counts:
                     type: object
                     properties:
@@ -6216,6 +6222,31 @@ paths:
                         type: string
                         description: Unique Process/Task Identifier
                     description: Garbage collection status.
+                  s3-statistics:
+                    type: object
+                    properties:
+                      delete:
+                        type: integer
+                        description: Delete requests
+                      downloaded:
+                        type: integer
+                        description: Total downloaded (bytes).
+                      get:
+                        type: integer
+                        description: Get requests
+                      head:
+                        type: integer
+                        description: Head requests
+                      post:
+                        type: integer
+                        description: Post requests
+                      put:
+                        type: integer
+                        description: Put requests
+                      uploaded:
+                        type: integer
+                        description: Total uploaded (bytes).
+                    description: Statistics specific to the S3 backend
                   total:
                     type: integer
                     description: Total space (bytes).
@@ -7203,21 +7234,21 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
-  //admin/admin/s3/admin/s3/{s3-client-id}:
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}:
     get:
       summary: Directory index.
       description: Directory index.
-      operationId: get_admin_admin_s3_admin_s3_s3-client-id
+      operationId: get_admin_admin_s3_admin_s3_s3-endpoint-id
       tags:
       - Administration
       parameters:
-      - name: s3-client-id
+      - name: s3-endpoint-id
         in: path
         required: true
         schema:
           type: string
-          description: The s3-client-id parameter
-        description: The s3-client-id parameter
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
       responses:
         '200':
           description: Successful operation
@@ -7273,11 +7304,11 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
-  //admin/admin/s3/admin/s3/{s3-client-id}/admin/s3/{s3-client-id}/check:
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}/admin/s3/{s3-endpoint-id}/check:
     put:
       summary: Perform basic sanity check for given s3 client configuration
       description: Perform basic sanity check for given s3 client configuration
-      operationId: put_admin_admin_s3_admin_s3_s3-client-id_admin_s3_s3-client-id_check
+      operationId: put_admin_admin_s3_admin_s3_s3-endpoint-id_admin_s3_s3-endpoint-id_check
       tags:
       - Administration
       requestBody:
@@ -7299,13 +7330,103 @@ paths:
               required:
               - bucket
       parameters:
-      - name: s3-client-id
+      - name: s3-endpoint-id
         in: path
         required: true
         schema:
           type: string
-          description: The s3-client-id parameter
-        description: The s3-client-id parameter
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}/admin/s3/{s3-endpoint-id}/reset-counters:
+    put:
+      summary: Reset the S3 request counters for matching endpoint, bucket or datastore
+        (if prefix is given).
+      description: Reset the S3 request counters for matching endpoint, bucket or
+        datastore (if prefix is given).
+      operationId: put_admin_admin_s3_admin_s3_s3-endpoint-id_admin_s3_s3-endpoint-id_reset-counters
+      tags:
+      - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bucket:
+                  type: string
+                  description: Bucket name for S3 object store.
+                  minLength: 3
+                  maxLength: 63
+                store-prefix:
+                  type: string
+                  description: Store prefix within bucket for S3 object keys (commonly
+                    datastore name)
+              required:
+              - bucket
+      parameters:
+      - name: s3-endpoint-id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
       responses:
         '200':
           description: Successful operation
@@ -7499,6 +7620,10 @@ paths:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
                         others.
+                    worker-threads:
+                      type: integer
+                      description: The number of worker threads to process groups
+                        in parallel.
                   description: Status of Sync Job
                 description: List configured jobs and their status.
         '400':
@@ -11329,7 +11454,53 @@ paths:
                 properties:
                   account:
                     type: object
-                    description: Raw account data.
+                    properties:
+                      contact:
+                        type: array
+                        items:
+                          type: string
+                          description: Contact Info.
+                        description: 'The account''s contact info.
+
+
+                          This usually contains a `"mailto:<email address>"` entry
+                          but may also contain some other
+
+                          data if the server accepts it.'
+                      externalAccountBinding:
+                        type: object
+                        properties:
+                          payload:
+                            type: string
+                            description: Payload
+                          protected:
+                            type: string
+                            description: JOSE Header (see RFC 7515)
+                          signature:
+                            type: string
+                            description: HMAC signature
+                        description: External Account Bindings
+                      onlyReturnExisting:
+                        type: boolean
+                        description: This is only used by the client when querying
+                          an account.
+                      orders:
+                        type: string
+                        description: URLs to currently pending orders.
+                      status:
+                        type: string
+                        description: Status of an ACME account.
+                      termsOfServiceAgreed:
+                        type: boolean
+                        description: Indicated whether the user agreed to the ACME
+                          provider's terms of service.
+                    description: 'ACME Account data. This is the part of the account
+                      returned from and possibly sent to the ACME
+
+                      provider. Some fields may be uptdated by the user via a request
+                      to the account location, others
+
+                      may not be changed.'
                   directory:
                     type: string
                     description: The ACME directory URL the account was created at.
@@ -11655,7 +11826,8 @@ paths:
 
 
                         Allows to cope with long TTL of DNS records.'
-                  description: 'The API''s format is inherited from PVE/PMG:'
+                  description: 'ACME plugin config. The API''s format is inherited
+                    from PVE/PMG:'
                 description: List of ACME plugin configurations.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -11890,7 +12062,7 @@ paths:
         description: The id parameter
       responses:
         '200':
-          description: 'The API''s format is inherited from PVE/PMG:'
+          description: 'ACME plugin config. The API''s format is inherited from PVE/PMG:'
           content:
             application/json:
               schema:
@@ -11918,7 +12090,8 @@ paths:
 
 
                       Allows to cope with long TTL of DNS records.'
-                description: 'The API''s format is inherited from PVE/PMG:'
+                description: 'ACME plugin config. The API''s format is inherited from
+                  PVE/PMG:'
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -11991,7 +12164,9 @@ paths:
                     type: string
                 digest:
                   type: string
-                  description: Digest to protect against concurrent updates
+                  description: Prevent changes if current configuration file has different
+                    SHA256 digest. This can be used to prevent concurrent modifications.
+                  pattern: ^[a-f0-9]{64}$
                 disable:
                   type: boolean
                   description: Flag to disable the config.
@@ -12609,6 +12784,14 @@ paths:
                     comment:
                       type: string
                       description: Comment.
+                    counter-reset-schedule:
+                      type: string
+                      description: Reset notification threshold related counters at
+                        specified schedule.
+                    gc-on-unmount:
+                      type: boolean
+                      description: Run garbage collection before unmounting a removable
+                        datastore.
                     gc-schedule:
                       type: string
                       description: Run garbage collection job at specified schedule.
@@ -12650,6 +12833,9 @@ paths:
                         to the
 
                         notification system.'
+                    notification-thresholds:
+                      type: string
+                      description: Threshold values for notifications
                     notify:
                       type: string
                       description: Datastore notification setting, enum can be one
@@ -12745,6 +12931,14 @@ paths:
                   description: Comment.
                   maxLength: 128
                   pattern: ^[[:^cntrl:]]*$
+                counter-reset-schedule:
+                  type: string
+                  description: Reset notification threshold related counters at specified
+                    schedule.
+                gc-on-unmount:
+                  type: boolean
+                  description: Run garbage collection before unmounting a removable
+                    datastore.
                 gc-schedule:
                   type: string
                   description: Run garbage collection job at specified schedule.
@@ -12798,6 +12992,9 @@ paths:
                   - legacy-sendmail
                   - notification-system
                   default: notification-system
+                notification-thresholds:
+                  type: string
+                  description: Threshold values for notifications
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -13020,6 +13217,14 @@ paths:
                   comment:
                     type: string
                     description: Comment.
+                  counter-reset-schedule:
+                    type: string
+                    description: Reset notification threshold related counters at
+                      specified schedule.
+                  gc-on-unmount:
+                    type: boolean
+                    description: Run garbage collection before unmounting a removable
+                      datastore.
                   gc-schedule:
                     type: string
                     description: Run garbage collection job at specified schedule.
@@ -13061,6 +13266,9 @@ paths:
                       the
 
                       notification system.'
+                  notification-thresholds:
+                    type: string
+                    description: Threshold values for notifications
                   notify:
                     type: string
                     description: Datastore notification setting, enum can be one of
@@ -13147,6 +13355,10 @@ paths:
                   description: Comment.
                   maxLength: 128
                   pattern: ^[[:^cntrl:]]*$
+                counter-reset-schedule:
+                  type: string
+                  description: Reset notification threshold related counters at specified
+                    schedule.
                 delete:
                   type: array
                   description: List of properties to delete.
@@ -13157,6 +13369,10 @@ paths:
                   description: Prevent changes if current configuration file has different
                     SHA256 digest. This can be used to prevent concurrent modifications.
                   pattern: ^[a-f0-9]{64}$
+                gc-on-unmount:
+                  type: boolean
+                  description: Run garbage collection before unmounting a removable
+                    datastore.
                 gc-schedule:
                   type: string
                   description: Run garbage collection job at specified schedule.
@@ -13204,6 +13420,9 @@ paths:
                   - legacy-sendmail
                   - notification-system
                   default: notification-system
+                notification-thresholds:
+                  type: string
+                  description: Threshold values for notifications
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -19051,6 +19270,10 @@ paths:
                     port:
                       type: integer
                       description: The (optional) port
+                    use-node-proxy:
+                      type: boolean
+                      description: Use the http proxy configuration of the node for
+                        remote connections.
                   description: Remote properties.
                 description: The list of configured remotes (with config digest).
         '400':
@@ -19146,6 +19369,11 @@ paths:
                 port:
                   type: integer
                   description: The (optional) port
+                use-node-proxy:
+                  type: boolean
+                  description: Use the http proxy configuration of the node for remote
+                    connections.
+                  default: false
               required:
               - auth-id
               - host
@@ -19326,6 +19554,10 @@ paths:
                   port:
                     type: integer
                     description: The (optional) port
+                  use-node-proxy:
+                    type: boolean
+                    description: Use the http proxy configuration of the node for
+                      remote connections.
                 description: Remote properties.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -19424,6 +19656,11 @@ paths:
                 port:
                   type: integer
                   description: The (optional) port
+                use-node-proxy:
+                  type: boolean
+                  description: Use the http proxy configuration of the node for remote
+                    connections.
+                  default: false
       parameters:
       - name: name
         in: path
@@ -19512,6 +19749,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     comment:
                       type: string
                       description: Comment.
@@ -20622,6 +20862,10 @@ paths:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
                         others.
+                    worker-threads:
+                      type: integer
+                      description: The number of worker threads to process groups
+                        in parallel.
                   description: Sync Job
                 description: List configured jobs.
         '400':
@@ -20803,6 +21047,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - id
               - remote-store
@@ -21050,6 +21300,10 @@ paths:
                     type: boolean
                     description: Only synchronize verified backup snapshots, exclude
                       others.
+                  worker-threads:
+                    type: integer
+                    description: The number of worker threads to process groups in
+                      parallel.
                 description: Sync Job
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -21234,6 +21488,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
       parameters:
       - name: id
         in: path
@@ -30195,6 +30455,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - remote-store
               - store
@@ -30349,6 +30615,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - remote
               - remote-store
@@ -30607,6 +30879,9 @@ paths:
                       type: integer
                       description: The available bytes of the underlying storage.
                         (-1 on error)
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     error:
                       type: string
                       description: An error description, for example, when the datastore
@@ -35336,8 +35611,8 @@ paths:
               properties:
                 chunk-count:
                   type: integer
-                  description: Chunk count. This is used to verify that the server
-                    got all chunks. Ignored for incremental backups.
+                  description: Number of new and re-indexed chunks. Used to verify
+                    that the server got all chunk digests.
                   minimum: 0
                 csum:
                   type: string
@@ -35440,7 +35715,6 @@ paths:
                   minimum: 1
               required:
               - archive-name
-              - size
       responses:
         '200':
           description: Successful operation
