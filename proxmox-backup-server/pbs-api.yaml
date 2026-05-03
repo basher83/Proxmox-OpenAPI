@@ -3142,6 +3142,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     comment:
                       type: string
                       description: Comment.
@@ -4534,6 +4537,219 @@ paths:
       operationId: post_admin_admin_datastore_admin_datastore_store_admin_datastore_store_mount
       tags:
       - Administration
+      parameters:
+      - name: store
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProxmoxDatastoreName'
+        description: The store parameter
+      responses:
+        '200':
+          description: Unique Process/Task Identifier
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Unique Process/Task Identifier
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //admin/admin/datastore/admin/datastore/{store}/admin/datastore/{store}/move-group:
+    post:
+      summary: Move a backup group to a different namespace within the same datastore.
+      description: Move a backup group to a different namespace within the same datastore.
+      operationId: post_admin_admin_datastore_admin_datastore_store_admin_datastore_store_move-group
+      tags:
+      - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                backup-id:
+                  type: string
+                  description: Backup ID.
+                  pattern: ^[A-Za-z0-9_][A-Za-z0-9._\-]*$
+                backup-type:
+                  type: string
+                  description: Backup types.
+                  enum:
+                  - vm
+                  - ct
+                  - host
+                merge-group:
+                  type: boolean
+                  description: If the group already exists in the target namespace,
+                    merge snapshots into it. Requires matching ownership and non-overlapping
+                    snapshot times.
+                  default: true
+                ns:
+                  type: string
+                  description: Namespace.
+                  maxLength: 256
+                  pattern: ^(?:(?:(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)/){0,7}(?:[A-Za-z0-9_][A-Za-z0-9._\-]*))?$
+                target-ns:
+                  type: string
+                  description: Namespace.
+                  maxLength: 256
+                  pattern: ^(?:(?:(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)/){0,7}(?:[A-Za-z0-9_][A-Za-z0-9._\-]*))?$
+              required:
+              - backup-id
+              - backup-type
+      parameters:
+      - name: store
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProxmoxDatastoreName'
+        description: The store parameter
+      responses:
+        '200':
+          description: Unique Process/Task Identifier
+          content:
+            application/json:
+              schema:
+                type: string
+                description: Unique Process/Task Identifier
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //admin/admin/datastore/admin/datastore/{store}/admin/datastore/{store}/move-namespace:
+    post:
+      summary: Move a backup namespace (including all child namespaces and groups)
+        to a new location.
+      description: Move a backup namespace (including all child namespaces and groups)
+        to a new location.
+      operationId: post_admin_admin_datastore_admin_datastore_store_admin_datastore_store_move-namespace
+      tags:
+      - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                delete-source:
+                  type: boolean
+                  description: Remove the source namespace after moving all contents.
+                    Defaults to true.
+                  default: true
+                max-depth:
+                  type: integer
+                  description: How many levels of namespaces should be operated on
+                    (0 == no recursion)
+                  minimum: 0
+                  maximum: 7
+                  default: 7
+                merge-groups:
+                  type: boolean
+                  description: If a group with the same name already exists in the
+                    target namespace, merge snapshots into it. Requires matching ownership
+                    and non-overlapping snapshot times.
+                  default: true
+                ns:
+                  type: string
+                  description: Namespace.
+                  maxLength: 256
+                  pattern: ^(?:(?:(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)/){0,7}(?:[A-Za-z0-9_][A-Za-z0-9._\-]*))?$
+                target-ns:
+                  type: string
+                  description: Namespace.
+                  maxLength: 256
+                  pattern: ^(?:(?:(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)/){0,7}(?:[A-Za-z0-9_][A-Za-z0-9._\-]*))?$
+              required:
+              - ns
+              - target-ns
       parameters:
       - name: store
         in: path
@@ -6121,6 +6337,9 @@ paths:
                   avail:
                     type: integer
                     description: Available space (bytes).
+                  backend-type:
+                    type: string
+                    description: Datastore backend type
                   counts:
                     type: object
                     properties:
@@ -6216,6 +6435,31 @@ paths:
                         type: string
                         description: Unique Process/Task Identifier
                     description: Garbage collection status.
+                  s3-statistics:
+                    type: object
+                    properties:
+                      delete:
+                        type: integer
+                        description: Delete requests
+                      downloaded:
+                        type: integer
+                        description: Total downloaded (bytes).
+                      get:
+                        type: integer
+                        description: Get requests
+                      head:
+                        type: integer
+                        description: Head requests
+                      post:
+                        type: integer
+                        description: Post requests
+                      put:
+                        type: integer
+                        description: Put requests
+                      uploaded:
+                        type: integer
+                        description: Total uploaded (bytes).
+                    description: Statistics specific to the S3 backend
                   total:
                     type: integer
                     description: Total space (bytes).
@@ -7203,21 +7447,21 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
-  //admin/admin/s3/admin/s3/{s3-client-id}:
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}:
     get:
       summary: Directory index.
       description: Directory index.
-      operationId: get_admin_admin_s3_admin_s3_s3-client-id
+      operationId: get_admin_admin_s3_admin_s3_s3-endpoint-id
       tags:
       - Administration
       parameters:
-      - name: s3-client-id
+      - name: s3-endpoint-id
         in: path
         required: true
         schema:
           type: string
-          description: The s3-client-id parameter
-        description: The s3-client-id parameter
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
       responses:
         '200':
           description: Successful operation
@@ -7273,11 +7517,11 @@ paths:
       security:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
-  //admin/admin/s3/admin/s3/{s3-client-id}/admin/s3/{s3-client-id}/check:
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}/admin/s3/{s3-endpoint-id}/check:
     put:
       summary: Perform basic sanity check for given s3 client configuration
       description: Perform basic sanity check for given s3 client configuration
-      operationId: put_admin_admin_s3_admin_s3_s3-client-id_admin_s3_s3-client-id_check
+      operationId: put_admin_admin_s3_admin_s3_s3-endpoint-id_admin_s3_s3-endpoint-id_check
       tags:
       - Administration
       requestBody:
@@ -7299,13 +7543,103 @@ paths:
               required:
               - bucket
       parameters:
-      - name: s3-client-id
+      - name: s3-endpoint-id
         in: path
         required: true
         schema:
           type: string
-          description: The s3-client-id parameter
-        description: The s3-client-id parameter
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //admin/admin/s3/admin/s3/{s3-endpoint-id}/admin/s3/{s3-endpoint-id}/reset-counters:
+    put:
+      summary: Reset the S3 request counters for matching endpoint, bucket or datastore
+        (if prefix is given).
+      description: Reset the S3 request counters for matching endpoint, bucket or
+        datastore (if prefix is given).
+      operationId: put_admin_admin_s3_admin_s3_s3-endpoint-id_admin_s3_s3-endpoint-id_reset-counters
+      tags:
+      - Administration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                bucket:
+                  type: string
+                  description: Bucket name for S3 object store.
+                  minLength: 3
+                  maxLength: 63
+                store-prefix:
+                  type: string
+                  description: Store prefix within bucket for S3 object keys (commonly
+                    datastore name)
+              required:
+              - bucket
+      parameters:
+      - name: s3-endpoint-id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The s3-endpoint-id parameter
+        description: The s3-endpoint-id parameter
       responses:
         '200':
           description: Successful operation
@@ -7401,6 +7735,17 @@ paths:
                 items:
                   type: object
                   properties:
+                    active-encryption-key:
+                      type: string
+                      description: ID to uniquely identify encryption/decription key
+                    associated-key:
+                      type: array
+                      items:
+                        type: string
+                        description: ID to uniquely identify encryption/decription
+                          key
+                      description: List of cryptographic keys associated with sync
+                        job.
                     burst-in:
                       type: string
                       description: Byte size with optional unit (B, KB (base 10),
@@ -7499,6 +7844,10 @@ paths:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
                         others.
+                    worker-threads:
+                      type: integer
+                      description: The number of worker threads to process groups
+                        in parallel.
                   description: Status of Sync Job
                 description: List configured jobs and their status.
         '400':
@@ -11329,7 +11678,53 @@ paths:
                 properties:
                   account:
                     type: object
-                    description: Raw account data.
+                    properties:
+                      contact:
+                        type: array
+                        items:
+                          type: string
+                          description: Contact Info.
+                        description: 'The account''s contact info.
+
+
+                          This usually contains a `"mailto:<email address>"` entry
+                          but may also contain some other
+
+                          data if the server accepts it.'
+                      externalAccountBinding:
+                        type: object
+                        properties:
+                          payload:
+                            type: string
+                            description: Payload
+                          protected:
+                            type: string
+                            description: JOSE Header (see RFC 7515)
+                          signature:
+                            type: string
+                            description: HMAC signature
+                        description: External Account Bindings
+                      onlyReturnExisting:
+                        type: boolean
+                        description: This is only used by the client when querying
+                          an account.
+                      orders:
+                        type: string
+                        description: URLs to currently pending orders.
+                      status:
+                        type: string
+                        description: Status of an ACME account.
+                      termsOfServiceAgreed:
+                        type: boolean
+                        description: Indicated whether the user agreed to the ACME
+                          provider's terms of service.
+                    description: 'ACME Account data. This is the part of the account
+                      returned from and possibly sent to the ACME
+
+                      provider. Some fields may be uptdated by the user via a request
+                      to the account location, others
+
+                      may not be changed.'
                   directory:
                     type: string
                     description: The ACME directory URL the account was created at.
@@ -11655,7 +12050,8 @@ paths:
 
 
                         Allows to cope with long TTL of DNS records.'
-                  description: 'The API''s format is inherited from PVE/PMG:'
+                  description: 'ACME plugin config. The API''s format is inherited
+                    from PVE/PMG:'
                 description: List of ACME plugin configurations.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -11890,7 +12286,7 @@ paths:
         description: The id parameter
       responses:
         '200':
-          description: 'The API''s format is inherited from PVE/PMG:'
+          description: 'ACME plugin config. The API''s format is inherited from PVE/PMG:'
           content:
             application/json:
               schema:
@@ -11918,7 +12314,8 @@ paths:
 
 
                       Allows to cope with long TTL of DNS records.'
-                description: 'The API''s format is inherited from PVE/PMG:'
+                description: 'ACME plugin config. The API''s format is inherited from
+                  PVE/PMG:'
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -11991,7 +12388,9 @@ paths:
                     type: string
                 digest:
                   type: string
-                  description: Digest to protect against concurrent updates
+                  description: Prevent changes if current configuration file has different
+                    SHA256 digest. This can be used to prevent concurrent modifications.
+                  pattern: ^[a-f0-9]{64}$
                 disable:
                   type: boolean
                   description: Flag to disable the config.
@@ -12609,6 +13008,14 @@ paths:
                     comment:
                       type: string
                       description: Comment.
+                    counter-reset-schedule:
+                      type: string
+                      description: Reset notification threshold related counters at
+                        specified schedule.
+                    gc-on-unmount:
+                      type: boolean
+                      description: Run garbage collection before unmounting a removable
+                        datastore.
                     gc-schedule:
                       type: string
                       description: Run garbage collection job at specified schedule.
@@ -12650,6 +13057,9 @@ paths:
                         to the
 
                         notification system.'
+                    notification-thresholds:
+                      type: string
+                      description: Threshold values for notifications
                     notify:
                       type: string
                       description: Datastore notification setting, enum can be one
@@ -12745,6 +13155,14 @@ paths:
                   description: Comment.
                   maxLength: 128
                   pattern: ^[[:^cntrl:]]*$
+                counter-reset-schedule:
+                  type: string
+                  description: Reset notification threshold related counters at specified
+                    schedule.
+                gc-on-unmount:
+                  type: boolean
+                  description: Run garbage collection before unmounting a removable
+                    datastore.
                 gc-schedule:
                   type: string
                   description: Run garbage collection job at specified schedule.
@@ -12798,6 +13216,9 @@ paths:
                   - legacy-sendmail
                   - notification-system
                   default: notification-system
+                notification-thresholds:
+                  type: string
+                  description: Threshold values for notifications
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -13020,6 +13441,14 @@ paths:
                   comment:
                     type: string
                     description: Comment.
+                  counter-reset-schedule:
+                    type: string
+                    description: Reset notification threshold related counters at
+                      specified schedule.
+                  gc-on-unmount:
+                    type: boolean
+                    description: Run garbage collection before unmounting a removable
+                      datastore.
                   gc-schedule:
                     type: string
                     description: Run garbage collection job at specified schedule.
@@ -13061,6 +13490,9 @@ paths:
                       the
 
                       notification system.'
+                  notification-thresholds:
+                    type: string
+                    description: Threshold values for notifications
                   notify:
                     type: string
                     description: Datastore notification setting, enum can be one of
@@ -13147,6 +13579,10 @@ paths:
                   description: Comment.
                   maxLength: 128
                   pattern: ^[[:^cntrl:]]*$
+                counter-reset-schedule:
+                  type: string
+                  description: Reset notification threshold related counters at specified
+                    schedule.
                 delete:
                   type: array
                   description: List of properties to delete.
@@ -13157,6 +13593,10 @@ paths:
                   description: Prevent changes if current configuration file has different
                     SHA256 digest. This can be used to prevent concurrent modifications.
                   pattern: ^[a-f0-9]{64}$
+                gc-on-unmount:
+                  type: boolean
+                  description: Run garbage collection before unmounting a removable
+                    datastore.
                 gc-schedule:
                   type: string
                   description: Run garbage collection job at specified schedule.
@@ -13204,6 +13644,9 @@ paths:
                   - legacy-sendmail
                   - notification-system
                   default: notification-system
+                notification-thresholds:
+                  type: string
+                  description: Threshold values for notifications
                 notify:
                   type: string
                   description: Datastore notification setting, enum can be one of
@@ -13657,6 +14100,348 @@ paths:
           type: string
           description: The name parameter
         description: The name parameter
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //config/config/encryption-keys:
+    get:
+      summary: List configured encryption keys.
+      description: List configured encryption keys.
+      operationId: get_config_config_encryption-keys
+      tags:
+      - Configuration
+      parameters:
+      - name: include-archived
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: List also keys which have been archived.
+          default: false
+        description: List also keys which have been archived.
+      responses:
+        '200':
+          description: List of configured encryption keys.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    archived-at:
+                      type: integer
+                      description: Timestamp when key was archived (not set if key
+                        is active).
+                    created:
+                      type: integer
+                      description: Key creation time
+                    fingerprint:
+                      type: string
+                      description: X509 certificate fingerprint (sha256).
+                    hint:
+                      type: string
+                      description: Password hint
+                    id:
+                      type: string
+                      description: ID to uniquely identify encryption/decription key
+                    kdf:
+                      type: string
+                      description: Key derivation function for password protected
+                        encryption keys.
+                    modified:
+                      type: integer
+                      description: Key modification time
+                    path:
+                      type: string
+                      description: Path to key (if stored in a file)
+                  description: Encryption/Decryption Key Info with ID.
+                description: List of configured encryption keys.
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+    post:
+      summary: Create new encryption key instance or use the provided one.
+      description: Create new encryption key instance or use the provided one.
+      operationId: post_config_config_encryption-keys
+      tags:
+      - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: ID to uniquely identify encryption/decription key
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                key:
+                  type: string
+                  description: Use provided key instead of creating new one.
+              required:
+              - id
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //config/config/encryption-keys/config/encryption-keys/{id}:
+    delete:
+      summary: Remove encryption key.
+      description: Remove encryption key.
+      operationId: delete_config_config_encryption-keys_config_encryption-keys_id
+      tags:
+      - Configuration
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
+      - name: digest
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Prevent changes if current configuration file has different
+            SHA256 digest. This can be used to prevent concurrent modifications.
+          pattern: ^[a-f0-9]{64}$
+        description: Prevent changes if current configuration file has different SHA256
+          digest. This can be used to prevent concurrent modifications.
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+                additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+    post:
+      summary: Toggle the archive state for the key by given id, archived keys are
+        no longer usable to encrypt contents.
+      description: Toggle the archive state for the key by given id, archived keys
+        are no longer usable to encrypt contents.
+      operationId: post_config_config_encryption-keys_config_encryption-keys_id
+      tags:
+      - Configuration
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                digest:
+                  type: string
+                  description: Prevent changes if current configuration file has different
+                    SHA256 digest. This can be used to prevent concurrent modifications.
+                  pattern: ^[a-f0-9]{64}$
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          description: The id parameter
+        description: The id parameter
       responses:
         '200':
           description: Successful operation
@@ -19051,6 +19836,10 @@ paths:
                     port:
                       type: integer
                       description: The (optional) port
+                    use-node-proxy:
+                      type: boolean
+                      description: Use the http proxy configuration of the node for
+                        remote connections.
                   description: Remote properties.
                 description: The list of configured remotes (with config digest).
         '400':
@@ -19146,6 +19935,11 @@ paths:
                 port:
                   type: integer
                   description: The (optional) port
+                use-node-proxy:
+                  type: boolean
+                  description: Use the http proxy configuration of the node for remote
+                    connections.
+                  default: false
               required:
               - auth-id
               - host
@@ -19326,6 +20120,10 @@ paths:
                   port:
                     type: integer
                     description: The (optional) port
+                  use-node-proxy:
+                    type: boolean
+                    description: Use the http proxy configuration of the node for
+                      remote connections.
                 description: Remote properties.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -19424,6 +20222,11 @@ paths:
                 port:
                   type: integer
                   description: The (optional) port
+                use-node-proxy:
+                  type: boolean
+                  description: Use the http proxy configuration of the node for remote
+                    connections.
+                  default: false
       parameters:
       - name: name
         in: path
@@ -19512,6 +20315,9 @@ paths:
                 items:
                   type: object
                   properties:
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     comment:
                       type: string
                       description: Comment.
@@ -20536,6 +21342,17 @@ paths:
                 items:
                   type: object
                   properties:
+                    active-encryption-key:
+                      type: string
+                      description: ID to uniquely identify encryption/decription key
+                    associated-key:
+                      type: array
+                      items:
+                        type: string
+                        description: ID to uniquely identify encryption/decription
+                          key
+                      description: List of cryptographic keys associated with sync
+                        job.
                     burst-in:
                       type: string
                       description: Byte size with optional unit (B, KB (base 10),
@@ -20622,6 +21439,10 @@ paths:
                       type: boolean
                       description: Only synchronize verified backup snapshots, exclude
                         others.
+                    worker-threads:
+                      type: integer
+                      description: The number of worker threads to process groups
+                        in parallel.
                   description: Sync Job
                 description: List configured jobs.
         '400':
@@ -20683,6 +21504,17 @@ paths:
             schema:
               type: object
               properties:
+                active-encryption-key:
+                  type: string
+                  description: ID to uniquely identify encryption/decription key
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                associated-key:
+                  type: array
+                  description: List of cryptographic keys associated with sync job.
+                  items:
+                    type: string
                 burst-in:
                   type: string
                   description: Byte size with optional unit (B, KB (base 10), MB,
@@ -20803,6 +21635,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - id
               - remote-store
@@ -20964,6 +21802,15 @@ paths:
               schema:
                 type: object
                 properties:
+                  active-encryption-key:
+                    type: string
+                    description: ID to uniquely identify encryption/decription key
+                  associated-key:
+                    type: array
+                    items:
+                      type: string
+                      description: ID to uniquely identify encryption/decription key
+                    description: List of cryptographic keys associated with sync job.
                   burst-in:
                     type: string
                     description: Byte size with optional unit (B, KB (base 10), MB,
@@ -21050,6 +21897,10 @@ paths:
                     type: boolean
                     description: Only synchronize verified backup snapshots, exclude
                       others.
+                  worker-threads:
+                    type: integer
+                    description: The number of worker threads to process groups in
+                      parallel.
                 description: Sync Job
         '400':
           description: Bad Request - Invalid input parameters or malformed request
@@ -21110,6 +21961,17 @@ paths:
             schema:
               type: object
               properties:
+                active-encryption-key:
+                  type: string
+                  description: ID to uniquely identify encryption/decription key
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
+                associated-key:
+                  type: array
+                  description: List of cryptographic keys associated with sync job.
+                  items:
+                    type: string
                 burst-in:
                   type: string
                   description: Byte size with optional unit (B, KB (base 10), MB,
@@ -21234,6 +22096,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
       parameters:
       - name: id
         in: path
@@ -24732,14 +25600,14 @@ paths:
       - ProxmoxApiToken: []
         ProxmoxCSRFToken: []
     put:
-      summary: 'Renew the current ACME certificate if it expires within 30 days (or
-        always if the `force`
+      summary: 'Renew the current ACME certificate if it is within its renewal lead
+        time (or always if the
 
-        parameter is set).'
-      description: 'Renew the current ACME certificate if it expires within 30 days
-        (or always if the `force`
+        `force` parameter is set).'
+      description: 'Renew the current ACME certificate if it is within its renewal
+        lead time (or always if the
 
-        parameter is set).'
+        `force` parameter is set).'
       operationId: put_nodes_nodes_node_nodes_node_certificates_nodes_node_certificates_acme_nodes_node_certificates_acme_certificate
       tags:
       - Nodes
@@ -26642,6 +27510,78 @@ paths:
                 type: object
                 properties: {}
                 additionalProperties: false
+        '400':
+          description: Bad Request - Invalid input parameters or malformed request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '401':
+          description: Unauthorized - Authentication required or invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '403':
+          description: Forbidden - Insufficient permissions for the requested operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '404':
+          description: Not Found - Requested resource does not exist
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '422':
+          description: Unprocessable Entity - Request is well-formed but contains
+            semantic errors
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '500':
+          description: Internal Server Error - Unexpected server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+        '503':
+          description: Service Unavailable - Service temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProxmoxError'
+      security:
+      - ProxmoxApiToken: []
+        ProxmoxCSRFToken: []
+  //nodes/nodes/{node}/nodes/{node}/identity:
+    get:
+      summary: Returns a unique server identity. The ID is derived from `/etc/machine-id`.
+      description: Returns a unique server identity. The ID is derived from `/etc/machine-id`.
+      operationId: get_nodes_nodes_node_nodes_node_identity
+      tags:
+      - Nodes
+      parameters:
+      - name: node
+        in: path
+        required: true
+        schema:
+          $ref: '#/components/schemas/ProxmoxNodeId'
+        description: The node parameter
+      responses:
+        '200':
+          description: Unique instance identity information.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pbs-instance-id:
+                    type: string
+                    description: Unique instance identifier.
+                description: Unique instance identity information.
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
@@ -30121,6 +31061,11 @@ paths:
                     GB, ..., KiB (base 2), MiB, Gib, ...).
                   minLength: 1
                   maxLength: 64
+                decryption-keys:
+                  type: array
+                  description: List of decryption keys.
+                  items:
+                    type: string
                 encrypted-only:
                   type: boolean
                   description: Only synchronize encrypted backup snapshots, exclude
@@ -30195,6 +31140,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - remote-store
               - store
@@ -30283,6 +31234,12 @@ paths:
                   type: boolean
                   description: Only synchronize encrypted backup snapshots, exclude
                     others.
+                encryption-key:
+                  type: string
+                  description: ID to uniquely identify encryption/decription key
+                  minLength: 3
+                  maxLength: 32
+                  pattern: ^(?:[A-Za-z0-9_][A-Za-z0-9._\-]*)$
                 group-filter:
                   type: array
                   description: List of group filters.
@@ -30349,6 +31306,12 @@ paths:
                   type: boolean
                   description: Only synchronize verified backup snapshots, exclude
                     others.
+                worker-threads:
+                  type: integer
+                  description: The number of worker threads to process groups in parallel.
+                  minimum: 1
+                  maximum: 32
+                  default: 1
               required:
               - remote
               - remote-store
@@ -30607,6 +31570,9 @@ paths:
                       type: integer
                       description: The available bytes of the underlying storage.
                         (-1 on error)
+                    backend-type:
+                      type: string
+                      description: Datastore backend type
                     error:
                       type: string
                       description: An error description, for example, when the datastore
@@ -35336,8 +36302,8 @@ paths:
               properties:
                 chunk-count:
                   type: integer
-                  description: Chunk count. This is used to verify that the server
-                    got all chunks. Ignored for incremental backups.
+                  description: Number of new and re-indexed chunks. Used to verify
+                    that the server got all chunk digests.
                   minimum: 0
                 csum:
                   type: string
@@ -35440,7 +36406,6 @@ paths:
                   minimum: 1
               required:
               - archive-name
-              - size
       responses:
         '200':
           description: Successful operation
