@@ -2,19 +2,12 @@
 
 This PR contains automated updates to the Proxmox API specifications.
 
-### PVE API Changes
-
-- Endpoints: 428 → 428 (+0)
-- File sizes:
-  - JSON: 3.2M
-  - YAML: 2.4M
-
 ### PBS API Changes
 
-- Endpoints: 240 → 240 (+0)
+- Endpoints: 240 → 246 (+6)
 - File sizes:
   - JSON: 1.8M
-  - YAML: 1.3M
+  - YAML: 1.4M
 
 ### Validation Status
 
@@ -30,4 +23,4 @@ This PR contains automated updates to the Proxmox API specifications.
 3. Merge to update the API specifications
 
 ---
-*Generated automatically by GitHub Actions on 2026-01-04 02:53:02 UTC*
+*Generated automatically by GitHub Actions on 2026-06-28 03:15:22 UTC*
