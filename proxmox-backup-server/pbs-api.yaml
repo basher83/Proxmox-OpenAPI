@@ -27664,6 +27664,23 @@ paths:
           type: string
           description: End before the given Cursor. Conflicts with 'until'
         description: End before the given Cursor. Conflicts with 'until'
+      - name: identifiers
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Also list the distinct syslog identifiers present. Requires
+            'structured'.
+          default: false
+        description: Also list the distinct syslog identifiers present. Requires 'structured'.
+      - name: kernel
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Only print kernel messages.
+          default: false
+        description: Only print kernel messages.
       - name: lastentries
         in: query
         required: false
@@ -27672,6 +27689,24 @@ paths:
           description: Limit to the last X lines. Conflicts with a range.
           minimum: 0
         description: Limit to the last X lines. Conflicts with a range.
+      - name: priority
+        in: query
+        required: false
+        schema:
+          type: string
+          description: 'Only print messages of this syslog priority: a single level
+            from 0 (emerg) to 7 (debug), selecting that level and everything more
+            severe, or a ''LOW..HIGH'' range. Empty means no filter.'
+        description: 'Only print messages of this syslog priority: a single level
+          from 0 (emerg) to 7 (debug), selecting that level and everything more severe,
+          or a ''LOW..HIGH'' range. Empty means no filter.'
+      - name: service
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Only print messages whose syslog identifier matches this glob.
+        description: Only print messages whose syslog identifier matches this glob.
       - name: since
         in: query
         required: false
@@ -27687,6 +27722,33 @@ paths:
           type: string
           description: Start after the given Cursor. Conflicts with 'since'.
         description: Start after the given Cursor. Conflicts with 'since'.
+      - name: structured
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Emit structured JSON with separate entry fields instead of
+            plain text.
+          default: false
+        description: Emit structured JSON with separate entry fields instead of plain
+          text.
+      - name: unit
+        in: query
+        required: false
+        schema:
+          type: string
+          description: Only print messages of this systemd unit (the .service suffix
+            is implied).
+        description: Only print messages of this systemd unit (the .service suffix
+          is implied).
+      - name: units
+        in: query
+        required: false
+        schema:
+          type: boolean
+          description: Also list the distinct systemd units present. Requires 'structured'.
+          default: false
+        description: Also list the distinct systemd units present. Requires 'structured'.
       - name: until
         in: query
         required: false
@@ -27697,15 +27759,13 @@ paths:
         description: Display all log until this UNIX epoch. Conflicts with 'endcursor'.
       responses:
         '200':
-          description: Returns a list of journal entries.
+          description: Successful operation
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  type: string
-                  description: Line text.
-                description: Returns a list of journal entries.
+                type: object
+                properties: {}
+                additionalProperties: false
         '400':
           description: Bad Request - Invalid input parameters or malformed request
           content:
