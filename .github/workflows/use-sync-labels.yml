@@ -6,7 +6,7 @@ on:
 
 jobs:
   sync-labels:
-    uses: basher83/.github/.github/workflows/sync-labels.yml@d60f8caa242e0e9ac1fa6b452f32aa78b85de3e3 # main
+    uses: basher83/.github/.github/workflows/sync-labels.yml@c6d36cfaf06f90ba57e5108bb005418607db698c # main
     permissions:
       contents: read
       issues: write
