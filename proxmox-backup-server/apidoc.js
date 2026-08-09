@@ -17625,6 +17625,18 @@ var apiSchema = [
                           "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                           "type": "string"
                         },
+                        "limit-active-requests": {
+                          "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                          "minimum": 0,
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "limit-passive-requests": {
+                          "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                          "minimum": 0,
+                          "optional": 1,
+                          "type": "integer"
+                        },
                         "path-style": {
                           "default": false,
                           "description": "Use path style bucket addressing over vhost style.",
@@ -17650,7 +17662,7 @@ var apiSchema = [
                           "type": "array"
                         },
                         "put-rate-limit": {
-                          "description": "Rate limit for put requests given as #request/s.",
+                          "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead).",
                           "optional": 1,
                           "type": "integer"
                         },
@@ -17674,6 +17686,12 @@ var apiSchema = [
                           "optional": 1,
                           "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                           "type": "string"
+                        },
+                        "use-node-proxy": {
+                          "default": false,
+                          "description": "Use node proxy for client connections",
+                          "optional": 1,
+                          "type": "boolean"
                         }
                       },
                       "type": "object"
@@ -17719,7 +17737,10 @@ var apiSchema = [
                               "burst-in",
                               "rate-out",
                               "burst-out",
-                              "provider-quirks"
+                              "limit-active-requests",
+                              "limit-passive-requests",
+                              "provider-quirks",
+                              "use-node-proxy"
                             ],
                             "type": "string"
                           },
@@ -17751,6 +17772,18 @@ var apiSchema = [
                           "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                           "type": "string"
                         },
+                        "limit-active-requests": {
+                          "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                          "minimum": 0,
+                          "optional": 1,
+                          "type": "integer"
+                        },
+                        "limit-passive-requests": {
+                          "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                          "minimum": 0,
+                          "optional": 1,
+                          "type": "integer"
+                        },
                         "path-style": {
                           "default": false,
                           "description": "Use path style bucket addressing over vhost style.",
@@ -17776,7 +17809,7 @@ var apiSchema = [
                           "type": "array"
                         },
                         "put-rate-limit": {
-                          "description": "Rate limit for put requests given as #request/s.",
+                          "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead).",
                           "optional": 1,
                           "type": "integer"
                         },
@@ -17805,6 +17838,12 @@ var apiSchema = [
                           "description": "S3 client secret key.",
                           "optional": 1,
                           "type": "string"
+                        },
+                        "use-node-proxy": {
+                          "default": false,
+                          "description": "Use node proxy for client connections",
+                          "optional": 1,
+                          "type": "boolean"
                         }
                       }
                     },
@@ -17887,6 +17926,18 @@ var apiSchema = [
                         "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                         "type": "string"
                       },
+                      "limit-active-requests": {
+                        "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                        "minimum": 0,
+                        "optional": 1,
+                        "type": "integer"
+                      },
+                      "limit-passive-requests": {
+                        "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                        "minimum": 0,
+                        "optional": 1,
+                        "type": "integer"
+                      },
                       "path-style": {
                         "default": false,
                         "description": "Use path style bucket addressing over vhost style.",
@@ -17912,7 +17963,7 @@ var apiSchema = [
                         "type": "array"
                       },
                       "put-rate-limit": {
-                        "description": "Rate limit for put requests given as #request/s.",
+                        "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead).",
                         "optional": 1,
                         "type": "integer"
                       },
@@ -17936,6 +17987,12 @@ var apiSchema = [
                         "optional": 1,
                         "pattern": "/^[_a-z\\d][-_a-z\\d]+$/",
                         "type": "string"
+                      },
+                      "use-node-proxy": {
+                        "default": false,
+                        "description": "Use node proxy for client connections",
+                        "optional": 1,
+                        "type": "boolean"
                       }
                     },
                     "type": "object"
@@ -17987,6 +18044,18 @@ var apiSchema = [
                       "pattern": "/^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$/",
                       "type": "string"
                     },
+                    "limit-active-requests": {
+                      "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                      "minimum": 0,
+                      "optional": 1,
+                      "type": "integer"
+                    },
+                    "limit-passive-requests": {
+                      "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                      "minimum": 0,
+                      "optional": 1,
+                      "type": "integer"
+                    },
                     "path-style": {
                       "default": false,
                       "description": "Use path style bucket addressing over vhost style.",
@@ -18012,7 +18081,7 @@ var apiSchema = [
                       "type": "array"
                     },
                     "put-rate-limit": {
-                      "description": "Rate limit for put requests given as #request/s.",
+                      "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead).",
                       "optional": 1,
                       "type": "integer"
                     },
@@ -18040,6 +18109,12 @@ var apiSchema = [
                     "secret-key": {
                       "description": "S3 secret key",
                       "type": "string"
+                    },
+                    "use-node-proxy": {
+                      "default": false,
+                      "description": "Use node proxy for client connections",
+                      "optional": 1,
+                      "type": "boolean"
                     }
                   }
                 },
@@ -23569,7 +23644,7 @@ var apiSchema = [
                 "info": {
                   "GET": {
                     "description": "Read syslog entries.",
-                    "method": "GET",
+                    "method": "DOWNLOAD",
                     "parameters": {
                       "additionalProperties": false,
                       "description": "Read syslog entries.",
@@ -23578,6 +23653,18 @@ var apiSchema = [
                           "description": "End before the given Cursor. Conflicts with 'until'",
                           "optional": 1,
                           "type": "string"
+                        },
+                        "identifiers": {
+                          "default": false,
+                          "description": "Also list the distinct syslog identifiers present. Requires 'structured'.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "kernel": {
+                          "default": false,
+                          "description": "Only print kernel messages.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "lastentries": {
                           "description": "Limit to the last X lines. Conflicts with a range.",
@@ -23590,6 +23677,16 @@ var apiSchema = [
                           "pattern": "/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)$/",
                           "type": "string"
                         },
+                        "priority": {
+                          "description": "Only print messages of this syslog priority: a single level from 0 (emerg) to 7 (debug), selecting that level and everything more severe, or a 'LOW..HIGH' range. Empty means no filter.",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "service": {
+                          "description": "Only print messages whose syslog identifier matches this glob.",
+                          "optional": 1,
+                          "type": "string"
+                        },
                         "since": {
                           "description": "Display all log since this UNIX epoch. Conflicts with 'startcursor'.",
                           "minimum": 0,
@@ -23600,6 +23697,23 @@ var apiSchema = [
                           "description": "Start after the given Cursor. Conflicts with 'since'.",
                           "optional": 1,
                           "type": "string"
+                        },
+                        "structured": {
+                          "default": false,
+                          "description": "Emit structured JSON with separate entry fields instead of plain text.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "unit": {
+                          "description": "Only print messages of this systemd unit (the .service suffix is implied).",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "units": {
+                          "default": false,
+                          "description": "Also list the distinct systemd units present. Requires 'structured'.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "until": {
                           "description": "Display all log until this UNIX epoch. Conflicts with 'endcursor'.",
@@ -23622,12 +23736,7 @@ var apiSchema = [
                       }
                     },
                     "returns": {
-                      "description": "Returns a list of journal entries.",
-                      "items": {
-                        "description": "Line text.",
-                        "type": "string"
-                      },
-                      "type": "array"
+                      "type": "null"
                     },
                     "unstable": false
                   }
@@ -30447,7 +30556,10 @@ Ext.onReady(function () {
                     },
                 );
 
-                if (info.parameters && info.parameters.properties) {
+                let is_object_schema = (schema) => {
+                    return schema.properties || schema.allOf || schema.oneOf;
+                };
+                if (info.parameters && is_object_schema(info.parameters)) {
                     let pstore = Ext.create('Ext.data.Store', {
                         model: 'pmx-param-schema',
                         proxy: {
@@ -30468,23 +30580,52 @@ Ext.onReady(function () {
 
                     let has_type_properties = false;
 
-                    Ext.Object.each(info.parameters.properties, function (name, pdef) {
-                        if (pdef.oneOf) {
-                            pdef.oneOf.forEach((alternative) => {
-                                alternative.name = name;
-                                pstore.add(alternative);
-                                has_type_properties = true;
+                    let for_each_property = function (schema, callback, one_of_info) {
+                        one_of_info ||= [];
+
+                        if (schema.properties) {
+                            Ext.Object.each(schema.properties, function (name, pdef) {
+                                callback(name, pdef, one_of_info);
                             });
-                        } else if (pdef['instance-types']) {
-                            pdef['instance-types'].forEach((type) => {
-                                let typePdef = Ext.apply({}, pdef);
-                                typePdef.name = name;
-                                typePdef['instance-types'] = [type];
-                                pstore.add(typePdef);
-                                has_type_properties = true;
+                        } else if (schema.allOf) {
+                            Ext.Array.each(schema.allOf, function (entry) {
+                                for_each_property(entry, callback, one_of_info);
                             });
+                        } else if (schema.oneOf && schema['type-property-schema']) {
+                            let type_property = schema['type-property'];
+                            callback(type_property, schema['type-property-schema'], one_of_info);
+                            schema.oneOf.forEach((type) => {
+                                one_of_info.push(`${type_property}=${type['instance-type']}`);
+                                for_each_property(type, callback, one_of_info);
+                                one_of_info.pop();
+                            });
+                        }
+                    };
+
+                    for_each_property(info.parameters, function (name, pdef, one_of_info) {
+                        if (Ext.Object.isEmpty(one_of_info)) {
+                            if (pdef.oneOf) {
+                                pdef.oneOf.forEach((alternative) => {
+                                    alternative.name = name;
+                                    pstore.add(alternative);
+                                    has_type_properties = true;
+                                });
+                            } else if (pdef['instance-types']) {
+                                pdef['instance-types'].forEach((type) => {
+                                    let typePdef = Ext.apply({}, pdef);
+                                    typePdef.name = name;
+                                    typePdef['instance-types'] = [type];
+                                    pstore.add(typePdef);
+                                    has_type_properties = true;
+                                });
+                            } else {
+                                pdef.name = name;
+                                pstore.add(pdef);
+                            }
                         } else {
+                            has_type_properties = true;
                             pdef.name = name;
+                            pdef['instance-types'] = [one_of_info.join(', ')];
                             pstore.add(pdef);
                         }
                     });
