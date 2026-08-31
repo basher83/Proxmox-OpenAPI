@@ -23569,7 +23569,7 @@ var apiSchema = [
                 "info": {
                   "GET": {
                     "description": "Read syslog entries.",
-                    "method": "GET",
+                    "method": "DOWNLOAD",
                     "parameters": {
                       "additionalProperties": false,
                       "description": "Read syslog entries.",
@@ -23578,6 +23578,18 @@ var apiSchema = [
                           "description": "End before the given Cursor. Conflicts with 'until'",
                           "optional": 1,
                           "type": "string"
+                        },
+                        "identifiers": {
+                          "default": false,
+                          "description": "Also list the distinct syslog identifiers present. Requires 'structured'.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "kernel": {
+                          "default": false,
+                          "description": "Only print kernel messages.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "lastentries": {
                           "description": "Limit to the last X lines. Conflicts with a range.",
@@ -23590,6 +23602,16 @@ var apiSchema = [
                           "pattern": "/^(?:[a-zA-Z0-9](?:[a-zA-Z0-9\\-]*[a-zA-Z0-9])?)$/",
                           "type": "string"
                         },
+                        "priority": {
+                          "description": "Only print messages of this syslog priority: a single level from 0 (emerg) to 7 (debug), selecting that level and everything more severe, or a 'LOW..HIGH' range. Empty means no filter.",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "service": {
+                          "description": "Only print messages whose syslog identifier matches this glob.",
+                          "optional": 1,
+                          "type": "string"
+                        },
                         "since": {
                           "description": "Display all log since this UNIX epoch. Conflicts with 'startcursor'.",
                           "minimum": 0,
@@ -23600,6 +23622,23 @@ var apiSchema = [
                           "description": "Start after the given Cursor. Conflicts with 'since'.",
                           "optional": 1,
                           "type": "string"
+                        },
+                        "structured": {
+                          "default": false,
+                          "description": "Emit structured JSON with separate entry fields instead of plain text.",
+                          "optional": 1,
+                          "type": "boolean"
+                        },
+                        "unit": {
+                          "description": "Only print messages of this systemd unit (the .service suffix is implied).",
+                          "optional": 1,
+                          "type": "string"
+                        },
+                        "units": {
+                          "default": false,
+                          "description": "Also list the distinct systemd units present. Requires 'structured'.",
+                          "optional": 1,
+                          "type": "boolean"
                         },
                         "until": {
                           "description": "Display all log until this UNIX epoch. Conflicts with 'endcursor'.",
@@ -23622,12 +23661,7 @@ var apiSchema = [
                       }
                     },
                     "returns": {
-                      "description": "Returns a list of journal entries.",
-                      "items": {
-                        "description": "Line text.",
-                        "type": "string"
-                      },
-                      "type": "array"
+                      "type": "null"
                     },
                     "unstable": false
                   }
