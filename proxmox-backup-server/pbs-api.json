@@ -30075,6 +30075,14 @@
                         "type": "string",
                         "description": "ID to uniquely identify s3 client config."
                       },
+                      "limit-active-requests": {
+                        "type": "integer",
+                        "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s."
+                      },
+                      "limit-passive-requests": {
+                        "type": "integer",
+                        "description": "Combined rate limit for GET and HEAD requests given as #request/s."
+                      },
                       "path-style": {
                         "type": "boolean",
                         "description": "Use path style bucket addressing over vhost style."
@@ -30093,7 +30101,7 @@
                       },
                       "put-rate-limit": {
                         "type": "integer",
-                        "description": "Rate limit for put requests given as #request/s."
+                        "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead)."
                       },
                       "rate-in": {
                         "type": "string",
@@ -30106,6 +30114,10 @@
                       "region": {
                         "type": "string",
                         "description": "Region to access S3 object store."
+                      },
+                      "use-node-proxy": {
+                        "type": "boolean",
+                        "description": "Use node proxy for client connections"
                       }
                     },
                     "description": "S3 client configuration properties without secret."
@@ -30240,6 +30252,16 @@
                     "maxLength": 32,
                     "pattern": "^(?:[A-Za-z0-9_][A-Za-z0-9._\\-]*)$"
                   },
+                  "limit-active-requests": {
+                    "type": "integer",
+                    "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                    "minimum": 0
+                  },
+                  "limit-passive-requests": {
+                    "type": "integer",
+                    "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                    "minimum": 0
+                  },
                   "path-style": {
                     "type": "boolean",
                     "description": "Use path style bucket addressing over vhost style.",
@@ -30258,7 +30280,7 @@
                   },
                   "put-rate-limit": {
                     "type": "integer",
-                    "description": "Rate limit for put requests given as #request/s."
+                    "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead)."
                   },
                   "rate-in": {
                     "type": "string",
@@ -30281,6 +30303,11 @@
                   "secret-key": {
                     "type": "string",
                     "description": "S3 secret key"
+                  },
+                  "use-node-proxy": {
+                    "type": "boolean",
+                    "description": "Use node proxy for client connections",
+                    "default": false
                   }
                 },
                 "required": [
@@ -30558,6 +30585,14 @@
                       "type": "string",
                       "description": "ID to uniquely identify s3 client config."
                     },
+                    "limit-active-requests": {
+                      "type": "integer",
+                      "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s."
+                    },
+                    "limit-passive-requests": {
+                      "type": "integer",
+                      "description": "Combined rate limit for GET and HEAD requests given as #request/s."
+                    },
                     "path-style": {
                       "type": "boolean",
                       "description": "Use path style bucket addressing over vhost style."
@@ -30576,7 +30611,7 @@
                     },
                     "put-rate-limit": {
                       "type": "integer",
-                      "description": "Rate limit for put requests given as #request/s."
+                      "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead)."
                     },
                     "rate-in": {
                       "type": "string",
@@ -30589,6 +30624,10 @@
                     "region": {
                       "type": "string",
                       "description": "Region to access S3 object store."
+                    },
+                    "use-node-proxy": {
+                      "type": "boolean",
+                      "description": "Use node proxy for client connections"
                     }
                   },
                   "description": "S3 client configuration properties without secret."
@@ -30726,6 +30765,16 @@
                     "description": "X509 certificate fingerprint (sha256).",
                     "pattern": "^(?:[0-9a-fA-F][0-9a-fA-F])(?::[0-9a-fA-F][0-9a-fA-F]){31}$"
                   },
+                  "limit-active-requests": {
+                    "type": "integer",
+                    "description": "Combined rate limit for PUT, POST and DELETE requests given as #request/s.",
+                    "minimum": 0
+                  },
+                  "limit-passive-requests": {
+                    "type": "integer",
+                    "description": "Combined rate limit for GET and HEAD requests given as #request/s.",
+                    "minimum": 0
+                  },
                   "path-style": {
                     "type": "boolean",
                     "description": "Use path style bucket addressing over vhost style.",
@@ -30744,7 +30793,7 @@
                   },
                   "put-rate-limit": {
                     "type": "integer",
-                    "description": "Rate limit for put requests given as #request/s."
+                    "description": "Rate limit for put requests given as #request/s (deprecated: use active-rate-limit instead)."
                   },
                   "rate-in": {
                     "type": "string",
@@ -30767,6 +30816,11 @@
                   "secret-key": {
                     "type": "string",
                     "description": "S3 client secret key."
+                  },
+                  "use-node-proxy": {
+                    "type": "boolean",
+                    "description": "Use node proxy for client connections",
+                    "default": false
                   }
                 }
               }
@@ -40196,6 +40250,28 @@
             "description": "End before the given Cursor. Conflicts with 'until'"
           },
           {
+            "name": "identifiers",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Also list the distinct syslog identifiers present. Requires 'structured'.",
+              "default": false
+            },
+            "description": "Also list the distinct syslog identifiers present. Requires 'structured'."
+          },
+          {
+            "name": "kernel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Only print kernel messages.",
+              "default": false
+            },
+            "description": "Only print kernel messages."
+          },
+          {
             "name": "lastentries",
             "in": "query",
             "required": false,
@@ -40205,6 +40281,26 @@
               "minimum": 0
             },
             "description": "Limit to the last X lines. Conflicts with a range."
+          },
+          {
+            "name": "priority",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Only print messages of this syslog priority: a single level from 0 (emerg) to 7 (debug), selecting that level and everything more severe, or a 'LOW..HIGH' range. Empty means no filter."
+            },
+            "description": "Only print messages of this syslog priority: a single level from 0 (emerg) to 7 (debug), selecting that level and everything more severe, or a 'LOW..HIGH' range. Empty means no filter."
+          },
+          {
+            "name": "service",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Only print messages whose syslog identifier matches this glob."
+            },
+            "description": "Only print messages whose syslog identifier matches this glob."
           },
           {
             "name": "since",
@@ -40228,6 +40324,38 @@
             "description": "Start after the given Cursor. Conflicts with 'since'."
           },
           {
+            "name": "structured",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Emit structured JSON with separate entry fields instead of plain text.",
+              "default": false
+            },
+            "description": "Emit structured JSON with separate entry fields instead of plain text."
+          },
+          {
+            "name": "unit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "description": "Only print messages of this systemd unit (the .service suffix is implied)."
+            },
+            "description": "Only print messages of this systemd unit (the .service suffix is implied)."
+          },
+          {
+            "name": "units",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean",
+              "description": "Also list the distinct systemd units present. Requires 'structured'.",
+              "default": false
+            },
+            "description": "Also list the distinct systemd units present. Requires 'structured'."
+          },
+          {
             "name": "until",
             "in": "query",
             "required": false,
@@ -40241,16 +40369,13 @@
         ],
         "responses": {
           "200": {
-            "description": "Returns a list of journal entries.",
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "string",
-                    "description": "Line text."
-                  },
-                  "description": "Returns a list of journal entries."
+                  "type": "object",
+                  "properties": {},
+                  "additionalProperties": false
                 }
               }
             }
